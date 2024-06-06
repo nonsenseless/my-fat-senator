@@ -130,6 +130,9 @@ jobs:
             ./.cache/cypress
           node-version: 18
 
+      - name: 📥 Install deps
+        run: pnpm install
+  
       - name: 🛠 Setup Database
         run: npx nx run my-fat-senator:setup
 
