@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "name": "shared-ui",
+  "description": "Shared UI components",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}
