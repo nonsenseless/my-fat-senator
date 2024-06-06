@@ -15,6 +15,7 @@
   "devDependencies": {
     "prisma": "^4.16.2"
   },
+  "packageManager": "pnpm@9.1.4",
   "prisma": {
     "schema": "apps/my-fat-senator/prisma/schema.prisma",
     "seed": "tsx apps/my-fat-senator/prisma/seed.ts"
