@@ -120,17 +120,14 @@ jobs:
 
       - uses: pnpm/action-setup@v4.0.0
 
-      - name: ⎔ Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: "pnpm"
-
       - name: ⎔ Setup node
         uses: actions/setup-node@v4
         with:
           cache: pnpm
-          cache-dependency-path: ./package.json
+          cache-dependency-path: |
+            ./package.json
+            ./apps/my-fat-senator/package.json
+            ./.cache/cypress
           node-version: 18
 
       - name: 📥 Install deps
