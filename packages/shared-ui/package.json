@@ -5,6 +5,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc --outdir dist"
   },
+  "main": "dist/index.js",
   "keywords": [],
   "author": "",
   "license": "ISC",
