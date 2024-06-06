@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: 18
           cache: "pnpm"
-          cache-dependency-path: ./package.json, ./apps/my-fat-senator/package.json
+          cache-dependency-path: ./package.json
 
       - name: 📥 Install deps
         run: pnpm install
@@ -57,7 +57,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           cache: pnpm
-          cache-dependency-path: ./package.json, ./apps/my-fat-senator/package.json
+          cache-dependency-path: ./package.json
           node-version: 18
 
       - name: 📥 Install deps
@@ -85,7 +85,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           cache: pnpm
-          cache-dependency-path: ./package.json, ./apps/my-fat-senator/package.json
+          cache-dependency-path: ./package.json
           node-version: 18
 
       - name: 📥 Install deps
@@ -103,6 +103,7 @@ jobs:
 
       - name: 🏄 Copy test env vars
         run: cp .env.example .env
+        working-directory: apps/my-fat-senator
 
       - uses: pnpm/action-setup@v4.0.0
 
@@ -116,7 +117,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           cache: pnpm
-          cache-dependency-path: ./package.json, ./apps/my-fat-senator/package.json
+          cache-dependency-path: ./package.json
           node-version: 18
 
       - name: 📥 Install deps
