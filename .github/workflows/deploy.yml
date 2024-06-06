@@ -67,7 +67,7 @@ jobs:
         run: pnpm install
 
       - name: 🛠 Setup PrismaClient
-        run: pnpm generate
+        run: pnpm --filter my-fat-senator setup
 
       - name: ⚙️ Build
         run: pnpm run -r build
@@ -135,7 +135,7 @@ jobs:
         run: pnpm install
 
       - name: 🛠 Setup Database
-        run: npx prisma migrate reset --force
+        run: pnpm --filter my-fat-senator setup
 
       - name: ⚙️ Build
         run: pnpm run -r build
