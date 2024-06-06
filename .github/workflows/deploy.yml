@@ -144,9 +144,9 @@ jobs:
         with:
           start: npx nx run my-fat-senator:start:mocks
           wait-on: http://localhost:8811
-          working-directory: ${{GITHUB_WORKSPACE}}/apps/my-fat-senator
-          config-file: ${{GITHUB_WORKSPACE}}/apps/my-fat-senator/cypress.config.ts
-          project: ${{GITHUB_WORKSPACE}}/apps/my-fat-senator
+          working-directory: ${{github.workspace}}/apps/my-fat-senator
+          config-file: ${{github.workspace}}/apps/my-fat-senator/cypress.config.ts
+          project: ${{github.workspace}}/apps/my-fat-senator
         env:
           PORT: 8811
 
