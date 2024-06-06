@@ -3,7 +3,7 @@
   "name": "shared-ui",
   "description": "Shared UI components",
   "scripts": {
-    "build": "rm -rf ../../dist/shared-ui && tsc --outdir ../../dist/shared-ui"
+    "build": "rm -rf dist && tsc --outdir dist"
   },
   "keywords": [],
   "author": "",

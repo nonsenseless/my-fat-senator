@@ -6,8 +6,13 @@
     "allowSyntheticDefaultImports": true,
     "module": "commonjs",
     "lib": [
-      "ES7"
-    ]
+      "ES2022"
+    ],
+    "paths": {
+      "shared-ui": [
+        "./packages/shared-ui/dist"
+      ]
+    }
   },
   "include": ["."],
   "exclude": ["dist", "node_modules", "**/*.spec.ts"]

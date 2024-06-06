@@ -10,7 +10,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^4.16.2"
   },
   "devDependencies": {
+    "prisma": "^4.16.2"
+  },
+  "prisma": {
+    "schema": "apps/my-fat-senator/prisma/schema.prisma",
+    "seed": "tsx apps/my-fat-senator/prisma/seed.ts"
   }
 }
