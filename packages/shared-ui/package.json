@@ -3,7 +3,8 @@
   "name": "shared-ui",
   "description": "Shared UI components",
   "scripts": {
-    "build": "rm -rf dist && tsc --outdir dist"
+    "build": "rm -rf dist && tsc --outdir dist",
+    "postinstall": "pnpx simple-git-hooks"
   },
   "keywords": [],
   "author": "",
