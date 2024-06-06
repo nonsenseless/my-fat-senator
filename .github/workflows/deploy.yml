@@ -35,6 +35,9 @@ jobs:
       - name: 📥 Install deps
         run: pnpm install
 
+      - name: ⚙️ Build
+        run: pnpm run -r build
+
       - name: 🔬 Lint
         run: pnpm --filter my-fat-senator run lint
 
@@ -62,6 +65,9 @@ jobs:
 
       - name: 📥 Install deps
         run: pnpm install
+
+      - name: ⚙️ Build
+        run: pnpm run -r build
 
       - name: 🔎 Type check
         run: pnpm --filter my-fat-senator run typecheck --if-present
