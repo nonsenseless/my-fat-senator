@@ -2,12 +2,16 @@
   "private": true,
   "name": "shared-ui",
   "description": "Shared UI components",
-  "scripts": {},
+  "scripts": {
+    "build": "rm -rf ../../dist/shared-ui && tsc --outdir ../../dist/shared-ui"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "react": "^18.3.1"
   },
   "devDependencies": {
+    "typescript": "^5.4.5"
   }
 }
