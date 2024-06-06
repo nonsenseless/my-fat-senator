@@ -17,9 +17,7 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"],
-      "shared-ui/*": [
-        "./packages/shared-ui/dist/*"
-      ]
+      "shared-ui/*": ["../../shared-ui/*"]
     },
     "skipLibCheck": true,
 

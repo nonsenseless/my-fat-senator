@@ -9,9 +9,6 @@
       "ES2022"
     ],
     "paths": {
-      "shared-ui": [
-        "./packages/shared-ui/dist"
-      ]
     }
   },
   "include": ["."],

@@ -39,7 +39,7 @@ jobs:
         run: pnpm run -r build
 
       - name: 🔬 Lint
-        run: pnpm --filter my-fat-senator run lint
+        run: npx nx run my-fat-senator:lint
 
   typecheck:
     name: ʦ TypeScript
@@ -69,13 +69,13 @@ jobs:
         run: pnpm install
 
       - name: 🛠 Setup PrismaClient
-        run: pnpm --filter my-fat-senator run setup
+        run: npx nx run my-fat-senator:setup
 
       - name: ⚙️ Build
         run: pnpm run -r build
 
       - name: 🔎 Type check
-        run: pnpm --filter my-fat-senator run typecheck --if-present
+        run: npx nx run my-fat-senator:typecheck
 
   vitest:
     name: ⚡ Vitest
@@ -103,7 +103,7 @@ jobs:
         run: pnpm install
 
       - name: ⚡ Run vitest
-        run: pnpm --filter my-fat-senator run test -- --coverage
+        run: npx nx run my-fat-senator:test -- --coverage
 
   cypress:
     name: ⚫️ Cypress
@@ -134,7 +134,7 @@ jobs:
         run: pnpm install
 
       - name: 🛠 Setup Database
-        run: pnpm --filter my-fat-senator run setup
+        run: npx nx run my-fat-senator:setup
 
       - name: ⚙️ Build
         run: pnpm run -r build
@@ -142,11 +142,10 @@ jobs:
       - name: 🌳 Cypress run
         uses: cypress-io/github-action@v6
         with:
-          start: pnpm --filter my-fat-senator run start:mocks
+          start: npx nx run my-fat-senator:start:mocks
           wait-on: http://localhost:8811
         env:
           PORT: 8811
-        working-directory: apps/my-fat-senator
 
   deploy:
     name: 🚀 Deploy

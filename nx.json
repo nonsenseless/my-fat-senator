@@ -20,6 +20,9 @@
 		},
     "test": {
       "inputs": ["noMarkdown", "^noMarkdown"]
-    }
+    },
+		"typecheck": {
+			"dependsOn": ["^build"]
+		}
   }
 }
