@@ -44,6 +44,8 @@ jobs:
   typecheck:
     name: ʦ TypeScript
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ vars.DATABASE_URL }}
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
