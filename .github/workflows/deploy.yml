@@ -127,11 +127,18 @@ jobs:
           cache-dependency-path: |
             ./package.json
             ./apps/my-fat-senator/package.json
-            /home/runner/.cache/Cypress
           node-version: 18
 
+      - name: Set up Cypress binary cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-cypress-${{ hashFiles('pnpm-lock.yaml') }}
+
       - name: 📥 Install deps
-        run: pnpm install
+        run: |
+          pnpm install
+
   
       - name: 🛠 Setup Database
         run: npx nx run my-fat-senator:setup
