@@ -4,6 +4,7 @@ RUN npm install -g pnpm@9.1.4
 
 # set for base and all layer that inherit from it
 ENV NODE_ENV production
+ENV DATABASE_URL file:/data/sqlite.db
 
 # Install openssl for Prisma
 RUN apt-get update && apt-get install -y openssl sqlite3
@@ -39,7 +40,6 @@ COPY package.json pnpm-lock.yaml .npmrc pnpm-workspace.yaml nx.json tsconfig.jso
 ADD apps/my-fat-senator/ apps/my-fat-senator/
 ADD packages/shared-ui packages/shared-ui
 
-ENV DATABASE_URL=file:/data/sqlite.db
 RUN npx nx run my-fat-senator:setup
 RUN npx nx run shared-ui:build
 RUN npx nx run my-fat-senator:build
@@ -47,7 +47,6 @@ RUN npx nx run my-fat-senator:build
 # Finally, build the production image with minimal footprint
 FROM base
 
-ENV DATABASE_URL=file:/data/sqlite.db
 ENV PORT="8080"
 ENV NODE_ENV="production"
 
