@@ -1,5 +1,6 @@
 # base node image
 FROM node:18-bullseye-slim as base
+RUN npm install -g pnpm@9.1.4
 
 # set for base and all layer that inherit from it
 ENV NODE_ENV production
@@ -12,17 +13,20 @@ FROM base as deps
 
 WORKDIR /myapp
 
-ADD package.json package-lock.json .npmrc ./
-RUN npm install --include=dev
+COPY package.json pnpm-lock.yaml .npmrc pnpm-workspace.yaml nx.json ./
+COPY packages/shared-ui/package.json packages/shared-ui/package.json
+COPY apps/my-fat-senator/package.json apps/my-fat-senator/package.json
+
+RUN pnpm install --prod=false
 
 # Setup production node_modules
 FROM base as production-deps
 
 WORKDIR /myapp
-
 COPY --from=deps /myapp/node_modules /myapp/node_modules
-ADD package.json package-lock.json .npmrc ./
-RUN npm prune --omit=dev
+COPY --from=deps /myapp/apps/my-fat-senator/node_modules /myapp/apps/my-fat-senator/node_modules
+COPY --from=deps /myapp/packages/shared-ui/node_modules /myapp/shared-ui//node_modules
+# RUN pnpm prune --prod
 
 # Build the app
 FROM base as build
@@ -30,12 +34,14 @@ FROM base as build
 WORKDIR /myapp
 
 COPY --from=deps /myapp/node_modules /myapp/node_modules
+COPY package.json pnpm-lock.yaml .npmrc pnpm-workspace.yaml nx.json tsconfig.json ./
 
-ADD prisma .
-RUN npx prisma generate
+ADD apps/my-fat-senator/ apps/my-fat-senator/
+ADD packages/shared-ui packages/shared-ui
 
-ADD . .
-RUN npm run build
+RUN npx nx run my-fat-senator:setup
+RUN npx nx run shared-ui:build
+RUN npx nx run my-fat-senator:build
 
 # Finally, build the production image with minimal footprint
 FROM base
@@ -50,12 +56,7 @@ RUN echo "#!/bin/sh\nset -x\nsqlite3 \$DATABASE_URL" > /usr/local/bin/database-c
 WORKDIR /myapp
 
 COPY --from=production-deps /myapp/node_modules /myapp/node_modules
-COPY --from=build /myapp/node_modules/.prisma /myapp/node_modules/.prisma
 
-COPY --from=build /myapp/build /myapp/build
-COPY --from=build /myapp/public /myapp/public
-COPY --from=build /myapp/package.json /myapp/package.json
-COPY --from=build /myapp/start.sh /myapp/start.sh
-COPY --from=build /myapp/prisma /myapp/prisma
+COPY --from=build /myapp/ /myapp/
 
-ENTRYPOINT [ "./start.sh" ]
+ENTRYPOINT [ "apps/my-fat-senator/start.sh" ]
