@@ -39,6 +39,7 @@ COPY package.json pnpm-lock.yaml .npmrc pnpm-workspace.yaml nx.json tsconfig.jso
 ADD apps/my-fat-senator/ apps/my-fat-senator/
 ADD packages/shared-ui packages/shared-ui
 
+ENV DATABASE_URL=file:/data/sqlite.db
 RUN npx nx run my-fat-senator:setup
 RUN npx nx run shared-ui:build
 RUN npx nx run my-fat-senator:build
