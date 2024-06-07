@@ -149,7 +149,6 @@ jobs:
       - name: 🌳 Cypress run
         uses: cypress-io/github-action@v6
         with:
-          install: false
           start: npx nx run my-fat-senator:start:mocks
           wait-on: http://localhost:8811
           project: ${{github.workspace}}/apps/my-fat-senator
