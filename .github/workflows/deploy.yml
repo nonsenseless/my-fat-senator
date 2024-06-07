@@ -127,7 +127,7 @@ jobs:
           cache-dependency-path: |
             ./package.json
             ./apps/my-fat-senator/package.json
-            ./.cache/cypress
+            /home/runner/.cache/Cypress
           node-version: 18
 
       - name: 📥 Install deps
