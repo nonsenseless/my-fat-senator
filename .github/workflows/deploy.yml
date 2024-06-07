@@ -146,7 +146,6 @@ jobs:
           wait-on: http://localhost:8811
           working-directory: ${{github.workspace}}/apps/my-fat-senator
           config-file: ${{github.workspace}}/apps/my-fat-senator/cypress.config.ts
-          project: ${{github.workspace}}/apps/my-fat-senator
         env:
           PORT: 8811
 
