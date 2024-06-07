@@ -8,7 +8,7 @@ primary_region = "dfw"
 [experimental]
 allowed_public_ports = [ ]
 auto_rollback = true
-cmd = "start.sh"
+cmd = "apps/my-fat-senator/start.sh"
 entrypoint = "sh"
 
 [mounts]
