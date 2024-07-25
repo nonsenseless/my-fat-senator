@@ -5,6 +5,9 @@
     "lib",
     "packages/my-fat-senator"
   ],
+  "dependencies": {
+    "prisma": "^5.14.0"
+  },
   "description": "A monorepo for the My Fat Senator project",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
