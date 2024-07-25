@@ -80,8 +80,8 @@ Prior to your first deployment, you'll need to do a few things:
 - Create two apps on Fly, one for staging and one for production:
 
   ```sh
-  fly apps create my-fat-senator-b0a6
-  fly apps create my-fat-senator-b0a6-staging
+  fly apps create my-fat-senator
+  fly apps create my-fat-senator-staging
   ```
 
   > **Note:** Make sure this name matches the `app` set in your `fly.toml` file. Otherwise, you will not be able to deploy.
