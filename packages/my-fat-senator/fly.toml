@@ -1,4 +1,4 @@
-app = "my-fat-senator-b0a6"
+app = "my-fat-senator"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = [ ]

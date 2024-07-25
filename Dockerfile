@@ -13,7 +13,7 @@ FROM base as deps
 WORKDIR /myapp
 
 ADD package.json package-lock.json ./
-ADD packages/my-fat-senator/package.json packages/my-fat-senator/package.json
+ADD packages/my-fat-senator/package.json packages/my-fat-senator/
 
 RUN npm install --include=dev
 
@@ -23,9 +23,9 @@ FROM base as production-deps
 WORKDIR /myapp
 
 COPY --from=deps /myapp/node_modules /myapp/node_modules
-ADD package.json package-lock.json ./
-ADD packages/my-fat-senator/.npmrc packages/my-fat-senator/package.json ./packages/my-fat-senator/
-RUN npm prune --omit=dev
+ADD package.json package-lock.json .npmrc ./
+ADD packages/my-fat-senator/package.json packages/my-fat-senator/
+RUN npm prune --omit=dev --include-workspace-root
 
 # Build the app
 FROM base as build
