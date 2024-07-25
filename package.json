@@ -1,0 +1,16 @@
+{
+  "name": "my-fat-senator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "workspaces": [
+    "lib",
+    "packages/my-fat-senator"
+  ],
+  "description": "A monorepo for the My Fat Senator project",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "nym",
+  "license": "ISC",
+  "type": "module"
+}
