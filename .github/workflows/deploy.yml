@@ -118,11 +118,11 @@ jobs:
       - name: 📥 Install deps
         run: npm install
 
-      - name: ⚙️ Build
-        run: npm run build --ws
-
       - name: 🛠 Setup Database
         run: npm run setup --workspace=my-fat-senator
+
+      - name: ⚙️ Build
+        run: npm run build --ws
 
       - name: 🌳 Cypress run
         uses: cypress-io/github-action@v6
