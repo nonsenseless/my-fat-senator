@@ -131,6 +131,7 @@ jobs:
           wait-on: http://localhost:8811
         env:
           PORT: 8811
+          SESSION_SECRET: an-utterly-irrelevant-string
 
   deploy:
     name: 🚀 Deploy
