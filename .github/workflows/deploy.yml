@@ -84,7 +84,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🏄 Copy test env vars
-        run: cp packages/my-fat-senator/.env.example packages/my-fat-senator/.env
+        run: cp packages/my-fat-senator/.env.example .env
 
       - name: ⎔ Setup node
         uses: actions/setup-node@v4
