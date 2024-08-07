@@ -34,7 +34,7 @@ jobs:
         run: npm install
 
       - name: 🔬 Lint
-        run: npm run lint
+        run: npm run lint --workspace=my-fat-senator
 
   typecheck:
     name: ʦ TypeScript
@@ -54,7 +54,7 @@ jobs:
         run: npm install
 
       - name: 🔎 Type check
-        run: npm run typecheck --if-present
+        run: npm run typecheck --if-present --workspace=my-fat-senator
 
   vitest:
     name: ⚡ Vitest
@@ -74,7 +74,7 @@ jobs:
         run: npm install
 
       - name: ⚡ Run vitest
-        run: npm run test -- --coverage
+        run: npm run test --workspace=my-fat-senator -- --coverage
 
   cypress:
     name: ⚫️ Cypress
@@ -100,12 +100,12 @@ jobs:
         run: npx prisma migrate reset --force
 
       - name: ⚙️ Build
-        run: npm run build
+        run: npm run build --workspace=my-fat-senator
 
       - name: 🌳 Cypress run
         uses: cypress-io/github-action@v6
         with:
-          start: npm run start:mocks
+          start: npm run start:mocks --workspace=my-fat-senator
           wait-on: http://localhost:8811
         env:
           PORT: 8811
@@ -125,7 +125,7 @@ jobs:
         uses: SebRollen/toml-action@v1.2.0
         id: app_name
         with:
-          file: fly.toml
+          file: packages/my-fat-senator/fly.toml
           field: app
 
       - name: 🎈 Setup Fly
