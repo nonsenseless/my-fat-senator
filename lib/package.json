@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "shared.js",
   "scripts": {
+    "build": "echo \"Not Implemented\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
