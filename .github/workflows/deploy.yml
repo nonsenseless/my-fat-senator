@@ -130,6 +130,8 @@ jobs:
         with:
           start: npm run start:mocks --workspace=my-fat-senator
           wait-on: http://localhost:8811
+          project: ${{github.workspace}}/packages/my-fat-senator
+          config-file: ${{github.workspace}}/packages/my-fat-senator/cypress.config.ts
         env:
           PORT: 8811
           SESSION_SECRET: an-utterly-irrelevant-string
