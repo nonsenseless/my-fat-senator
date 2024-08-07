@@ -54,7 +54,7 @@ jobs:
         run: npm install
 
       - name: 🔎 Type check
-        run: npm run typecheck --if-present --workspace=my-fat-senator
+        run: npm run typecheck --workspace=my-fat-senator
 
   vitest:
     name: ⚡ Vitest
