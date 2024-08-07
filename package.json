@@ -14,5 +14,8 @@
   },
   "author": "nym",
   "license": "ISC",
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
 }
