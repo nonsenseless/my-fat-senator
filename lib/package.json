@@ -1,9 +1,7 @@
 {
   "name": "lib",
   "version": "1.0.0",
-  "main": "shared.ts",
   "scripts": {
-    "start": "ts-node ./shared",
     "build": "echo \"Not Implemented\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
