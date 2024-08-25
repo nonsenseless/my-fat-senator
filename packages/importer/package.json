@@ -4,6 +4,7 @@
   "description": "Console project for importing data from congress.gov, census.gov, and congressional vote data.\"",
   "main": "main.ts",
   "scripts": {
+    "build": "echo \"Not Implemented\"",
     "start": "ts-node ./main",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
