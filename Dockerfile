@@ -13,6 +13,7 @@ FROM base as deps
 WORKDIR /myapp
 
 ADD package.json package-lock.json ./
+ADD lib/package.json lib/
 ADD packages/my-fat-senator/package.json packages/my-fat-senator/
 
 RUN npm install --include=dev
@@ -24,6 +25,7 @@ WORKDIR /myapp
 
 COPY --from=deps /myapp/node_modules /myapp/node_modules
 ADD package.json package-lock.json .npmrc ./
+ADD lib/package.json lib/
 ADD packages/my-fat-senator/package.json packages/my-fat-senator/
 RUN npm prune --omit=dev --include-workspace-root
 
@@ -34,8 +36,8 @@ WORKDIR /myapp
 
 COPY --from=deps /myapp/node_modules /myapp/node_modules
 
-ADD packages/my-fat-senator/prisma packages/my-fat-senator/prisma
-RUN npx prisma generate --schema ./packages/my-fat-senator/prisma/schema.prisma
+ADD lib/prisma lib/prisma
+RUN npx prisma generate --schema ./lib/prisma/schema.prisma
 
 ADD . .
 RUN npm run build --workspace=my-fat-senator
