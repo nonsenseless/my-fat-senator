@@ -32,6 +32,7 @@ export class Importer {
 				}
 
 				this.folders.push(f);
+				this.readFiles(path + '/' + f);
 			}
 			this.status();
 		})
@@ -42,17 +43,13 @@ export class Importer {
 		if (this.files.length == 0 && this.folders.length == 0) {
 			return;
 		}
-		console.log("Folders\t\tFiles")
-		for (var i = 0; i < 10; i++) {
-			const logs: string[] = [];
-			if (this.folders[i]) {
-				logs.push(`${i + 1}: ${this.folders[i]}`);
-			}
-			if (this.files[i]){
-				logs.push(`${i + 1}: ${this.files[i]}`);
-			}
-			console.log(logs.join("\t\t"));
-		}
+		this.files.forEach((name) => {
+			console.log(name);
+		})
+
+		this.folders.forEach((name) => {
+			console.log(name);
+		})
 	}
 
 	getFile<T>(path: string) {
