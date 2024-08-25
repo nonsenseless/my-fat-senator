@@ -62,6 +62,6 @@ COPY --from=build /myapp/packages/my-fat-senator/build /myapp/packages/my-fat-se
 COPY --from=build /myapp/packages/my-fat-senator/public /myapp/packages/my-fat-senator/public
 COPY --from=build /myapp/packages/my-fat-senator/package.json /myapp/packages/my-fat-senator/package.json
 COPY --from=build /myapp/packages/my-fat-senator/start.sh /myapp/packages/my-fat-senator/start.sh
-COPY --from=build /myapp/packages/my-fat-senator/prisma /myapp/packages/my-fat-senator/prisma
+COPY --from=build /myapp/lib/prisma /myapp/lib/prisma
 
 ENTRYPOINT [ "./packages/my-fat-senator/start.sh" ]
