@@ -1,7 +1,7 @@
 import { Importer } from "./importer/importer";
 
 const config = {
-	"TargetDirectory": "/Users/nym/code/congress/data"
+	"TargetDirectory": "/Users/nym/code/congress/data/118"
 }
 
 
