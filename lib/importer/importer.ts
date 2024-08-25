@@ -7,15 +7,19 @@ export class Importer {
 	constructor(){
 
 	}
-	isFile = (fileName) => {
+	private clearConsole() {
+		process.stdout.write(
+			'\x1B[H\x1B[2J'
+		);
+	}
+
+	isFile = (fileName: string) => {
 		return fs.lstatSync(fileName).isFile();
 	};
 
 	readFiles(path: string) {
 		fs.readdir(path, null, (error, files) => {
-			process.stdout.write(
-				'\x1B[H\x1B[2J'
-			);
+			this.clearConsole();
 			if (error) {
 				console.warn(error);
 				return;
