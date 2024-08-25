@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "workspaces": [
     "lib",
-    "packages/my-fat-senator"
+    "packages/my-fat-senator",
+    "packages/importer"
   ],
   "dependencies": {
     "prisma": "^5.14.0"
