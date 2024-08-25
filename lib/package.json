@@ -8,6 +8,9 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "dependencies": {
+    "@prisma/client": "^5.14.0"
+  },
   "devDependencies": {
     "ts-node": "^10.9.2"
   },
