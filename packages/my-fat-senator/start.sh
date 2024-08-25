@@ -5,5 +5,5 @@
 # run, which is why this file exists in the first place.
 # Learn more: https://community.fly.io/t/sqlite-not-getting-setup-properly/4386
 
-npx prisma migrate deploy --schema ./packages/my-fat-senator/prisma/schema.prisma
+npx prisma migrate deploy --schema ./lib/prisma/schema.prisma
 npm run start --workspace=my-fat-senator
