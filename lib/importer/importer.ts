@@ -1,3 +1,4 @@
+import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
 
 export enum FileTypes {
@@ -9,9 +10,9 @@ export class Importer {
 	files: string[] = [];
 	folders: string[] = [];
 
-	constructor(){
-
+	constructor(database: PrismaClient){
 	}
+
 	readFiles(path: string) {
 		fs.readdir(path, null, (error, files) => {
 			this.clearConsole();
@@ -20,29 +21,16 @@ export class Importer {
 				return;
 			}
 
-			for (let file in files) {
-				const f = files[file];
-				const filePath = path + "/" + f;
+			for (let f in files) {
+				const file = files[f];
+				const filePath = path + "/" + file;
 
 				if (this.isFile(filePath)) {
-					console.log("Found file ", f, "\n");
-					this.files.push(f);
-					
-					const file = this.getFile(filePath);
-					const extension = this.tryGetExtension(filePath);
-
-					let record;
-					switch (extension) {
-						case FileTypes.JSON:
-							record = JSON.parse(file);
-							console.log(record);
-							break;
-						case FileTypes.XML:
-							console.log("Oh an xml file, maybe we'll do something with this one day");
-							break;
-						default:
-							console.log("Unknown extension: ", extension);
+					const file = this.tryGetRecord(filePath);
+					if (file) {
+						this.processRecord(file);
 					}
+					
 					continue;
 				}
 
@@ -51,6 +39,27 @@ export class Importer {
 			}
 			this.status();
 		})
+	}
+
+	tryGetRecord(path: string) {
+		const file = this.getFile(path);
+		const extension = this.tryGetExtension(path);
+		if (!extension) {
+			return;
+		}
+
+		let record;
+		switch (extension) {
+			case FileTypes.JSON:
+				record = JSON.parse(file);
+				return record;
+			case FileTypes.XML:
+				console.log("Oh an xml file, maybe we'll do something with this one day");
+				return;
+			default:
+				console.log("Unknown extension: ", extension);
+				return;
+		}
 	}
 
 	status() {
@@ -81,17 +90,7 @@ export class Importer {
 		return file;
 	}
 
-	processFile(file: File){
-		// try
-			// import json as object
-			// insert into database
-			// attempt to upsert in new schema
-			// save success record
-		// catch
-			// save error record
-		// end
-
-		// save errors to file
+	processRecord(record: any){
 
 	}
 	private clearConsole() {

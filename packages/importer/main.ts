@@ -1,5 +1,6 @@
 
 import { Importer } from "lib";
+import { PrismaClient } from '@prisma/client';
 
 const args = process.argv;
 console.log("Starting importer");
@@ -11,6 +12,8 @@ const config = {
 	TargetDirectory: args[2] || "../../data"
 	
 }
+const prisma = new PrismaClient;
+prisma.$connect();
 
-const importer = new Importer();
+const importer = new Importer(prisma);
 importer.readFiles(config.TargetDirectory);
