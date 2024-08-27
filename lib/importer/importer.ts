@@ -1,5 +1,10 @@
 import fs from 'fs';
 
+export enum FileTypes {
+	JSON = "json",
+	XML = "xml"
+}
+
 export class Importer {
 	files: string[] = [];
 	folders: string[] = [];
@@ -7,16 +12,6 @@ export class Importer {
 	constructor(){
 
 	}
-	private clearConsole() {
-		process.stdout.write(
-			'\x1B[H\x1B[2J'
-		);
-	}
-
-	isFile = (fileName: string) => {
-		return fs.lstatSync(fileName).isFile();
-	};
-
 	readFiles(path: string) {
 		fs.readdir(path, null, (error, files) => {
 			this.clearConsole();
@@ -27,16 +22,32 @@ export class Importer {
 
 			for (let file in files) {
 				const f = files[file];
+				const filePath = path + "/" + f;
 
-				if (this.isFile(path + "/" + f)) {
+				if (this.isFile(filePath)) {
 					console.log("Found file ", f, "\n");
 					this.files.push(f);
+					
+					const file = this.getFile(filePath);
+					const extension = this.tryGetExtension(filePath);
 
+					let record;
+					switch (extension) {
+						case FileTypes.JSON:
+							record = JSON.parse(file);
+							console.log(record);
+							break;
+						case FileTypes.XML:
+							console.log("Oh an xml file, maybe we'll do something with this one day");
+							break;
+						default:
+							console.log("Unknown extension: ", extension);
+					}
 					continue;
 				}
 
 				this.folders.push(f);
-				this.readFiles(path + '/' + f);
+				this.readFiles(filePath);
 			}
 			this.status();
 		})
@@ -44,25 +55,30 @@ export class Importer {
 
 	status() {
 		console.log(`${this.files.length} files read\t\t${this.folders.length} folders read.`);
-		if (this.files.length == 0 && this.folders.length == 0) {
+	}
+
+	tryGetExtension(path: string) {
+		if (path.indexOf(".") === -1) {
+			console.log("No extension found for ", path);
 			return;
 		}
-		this.files.forEach((name) => {
-			console.log(name);
-		})
-
-		this.folders.forEach((name) => {
-			console.log(name);
-		})
+		const parts = path.split(".");
+		// We don't definitively know this is an extension yet but there's at least one "." or the function would have returned.
+		const extension = parts?.pop()?.toLowerCase();
+		return extension;
 	}
 
 	getFile<T>(path: string) {
-		fs.readFile(path, (err, data) => {
-			if (err) {
-				console.error(err);
-				return;
-			}
-		})
+		let file = null;	
+		try {
+
+			file = fs.readFileSync(path, 'utf-8');
+			
+		} catch (error) {
+				console.error(error);
+				return "{}";
+		}
+		return file;
 	}
 
 	processFile(file: File){
@@ -78,4 +94,14 @@ export class Importer {
 		// save errors to file
 
 	}
+	private clearConsole() {
+		process.stdout.write(
+			'\x1B[H\x1B[2J'
+		);
+	}
+
+	private isFile = (fileName: string) => {
+		return fs.lstatSync(fileName).isFile();
+	};
+
 }

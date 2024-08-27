@@ -1,5 +1,8 @@
 # My Fat Senator Monorepo
 
+## Log
+20240825: Moved prisma to lib so workspaces can access the database without going through the my-fat-senator project. From the dependency perspective, this makes sense, but we may have regrets.
+
 ## Workspace commands
 ### Add a new workspace project
 ```
