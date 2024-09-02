@@ -24,7 +24,7 @@ model Password {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String @unique
 }
-
+// TODO Remove legacy junk
 model Note {
   id    String @id @default(cuid())
   title String
@@ -37,12 +37,158 @@ model Note {
   userId String
 }
 
-model CongressVoteImport {
+model VoteImport {
   id            Int @id @default(autoincrement())
   rawData       String
   importErrors  String
   processed     Boolean
+  
+  category      String
+  chamber       String
+  congress      Int
+  date          DateTime
+  number        Int
+  question      String
+  requires      String
+  result        String
+  resultText   String
+  session       String
+  sourceUrl    String
+  type          String
+  updated_at    DateTime
+  vote_id       String
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model Vote {
+  id              Int @id @default(autoincrement())
+  category        CategoryType @relation(fields: [categoryId], references: [id])
+  categoryId      Int
+  chamber         Chamber @relation(fields: [chamberId], references: [id])
+  chamberId       Int
+  congressionalSession      CongressionalSession @relation(fields: [congressId], references: [id])
+  congressId      Int
+  requiresType    RequiresType @relation(fields: [requiresTypeId], references: [id])
+  requiresTypeId  Int
+  resultType    ResultType @relation(fields: [resultTypeId], references: [id]) 
+  resultTypeId  Int
+  voteType        VoteType @relation(fields: [voteTypeId], references: [id])
+  voteTypeId    Int 
+  session       String
+  sourceUrl    String
+  last_updated  DateTime // Maps to updated_at
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  ballots    Ballot[] 
+}
+
+model Ballot {
+  id              Int @id @default(autoincrement())
+  legislatorId    String
+  ballotChoiceId  Int
+  reviewed        Boolean
+  
+  vote         Vote @relation(fields: [voteId], references: [id])
+  voteId        Int
+  
+  ballotChoiceType  BallotChoiceType @relation(fields: [ballotChoiceId], references: [id])
+  ballotChoiceTypeId  Int 
+}
+
+model BallotChoiceType {
+  id            Int @id @default(autoincrement())
+  name          String
+  slug          String
+  reviewed      Boolean
+  
+  ballots        Ballot[]
+}
+
+model CategoryType {
+  id            Int @id @default(autoincrement())
+  name          String
+  slug          String
+  reviewed     Boolean
+
+  votes         Vote[]
+}
+
+model Chamber {
+  id            Int @id @default(autoincrement())
+  name          String
+  slug          String
+  reviewed     Boolean
+
+  votes         Vote[]
+}
+
+model CongressionalSession {
+  id            Int @id @default(autoincrement())
+  name          String
+  slug          String
+  reviewed     Boolean
+  
+  votes         Vote[]
+}
+
+model Legislator {
+  id            Int @id @default(autoincrement())
+  displayName  String
+  reviewed      Boolean
+  
+  party       Party @relation(fields: [partyId], references: [id])
+  partyId     Int
+  
+  // TODO This will eventually need to be refactored to allow for legislators changing parties.
+  state       State @relation(fields: [stateId], references: [id])
+  stateId      Int
+}
+
+model RequiresType {
+  id            Int @id @default(autoincrement())
+  name          String
+  slug          String
+  reviewed     Boolean
+  
+  votes         Vote[]
+}
+
+model ResultType {
+  id            Int @id @default(autoincrement())
+  name          String
+  slug          String
+  reviewed      Boolean
+  
+  votes         Vote[]
+}
+
+model Party {
+  id            Int @id @default(autoincrement())
+  name          String
+  slug          String
+  reviewed      Boolean
+
+  legislators   Legislator[]
+}
+
+model State {
+  id            Int @id @default(autoincrement())
+  name          String
+  shortName    String
+  reviewed      Boolean
+
+  legislators   Legislator[]
+}
+
+model VoteType {
+  id            Int @id @default(autoincrement())
+  name          String
+  slug          String
+  reviewed      Boolean
+  
+  votes         Vote[]
 }

@@ -12,7 +12,9 @@ const config = {
 	TargetDirectory: args[2] || "../../data"
 	
 }
-const prisma = new PrismaClient;
+const prisma = new PrismaClient({
+	log: ['query', 'info', 'warn', 'error']
+});
 prisma.$connect();
 
 const importer = new Importer(prisma);
