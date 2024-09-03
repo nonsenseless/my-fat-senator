@@ -53,7 +53,7 @@ model VoteImport {
   result        String
   resultText   String
   session       String
-  sourceUrl    String
+  source_url    String
   type          String
   updated_at    DateTime
   vote_id       String
@@ -68,8 +68,8 @@ model Vote {
   categoryId      Int
   chamber         Chamber @relation(fields: [chamberId], references: [id])
   chamberId       Int
-  congressionalSession      CongressionalSession @relation(fields: [congressId], references: [id])
-  congressId      Int
+  congressionalSession      CongressionalSession @relation(fields: [congressionalSessionId], references: [id])
+  congressionalSessionId      Int
   requiresType    RequiresType @relation(fields: [requiresTypeId], references: [id])
   requiresTypeId  Int
   resultType    ResultType @relation(fields: [resultTypeId], references: [id]) 
@@ -78,7 +78,8 @@ model Vote {
   voteTypeId    Int 
   session       String
   sourceUrl    String
-  last_updated  DateTime // Maps to updated_at
+  congressional_updated_at  DateTime // Maps to updated_at
+  congressional_vote_id       String
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
