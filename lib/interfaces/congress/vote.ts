@@ -16,16 +16,27 @@ export interface IVote	 {
   votes: IVotes
 }
 
-export interface IVotes {
-	"Not Voting": IVoteRecord[]	
-	"Present": IVoteRecord[]	
-	"Nay": IVoteRecord[]	
-	"Yea": IVoteRecord[]	
+export enum VoteType {
+  NOT_VOTING = "Not Voting",
+  PRESENT = "Present",
+  NAY = "Nay",
+  YEA = "Yea"
 }
 
+export interface IVotes {
+	[VoteType.NOT_VOTING]: IVoteRecord[]	
+	[VoteType.PRESENT]: IVoteRecord[]	
+	[VoteType.NAY]: IVoteRecord[]	
+	[VoteType.YEA]: IVoteRecord[]	
+}
+
+// TODO In Prisma schema, we're calling this a ballot
 export interface IVoteRecord {
   display_name: string
   id: string
   party: string
   state: string
+  first_name: string
+  last_name: string
+  vote: string
 }

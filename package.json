@@ -11,7 +11,8 @@
   },
   "description": "A monorepo for the My Fat Senator project",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "import": "npm run start --workspace=importer"
   },
   "author": "nym",
   "license": "ISC",

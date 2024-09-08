@@ -18,4 +18,7 @@ const prisma = new PrismaClient({
 prisma.$connect();
 
 const importer = new Importer(prisma);
-importer.import(config.TargetDirectory);
+const errors = importer.import(config.TargetDirectory);
+
+console.log("Encountered ", errors.length, " errors:")
+console.log(errors.map((error) => error.path).join("\n"));
