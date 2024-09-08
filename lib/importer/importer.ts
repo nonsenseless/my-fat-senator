@@ -2,19 +2,41 @@ import { CategoryType, PrismaClient, Vote, VoteImport } from '@prisma/client';
 import { FileService } from '../services/file.service';
 import fs from 'fs';
 import { Utilities } from '../services/utlilities';
+import { IImportError } from '../interfaces/import-error.interface';
+import { IVotes, VoteType } from '../interfaces/congress/vote';
 
 export class Importer {
 	files: string[] = [];
 	folders: string[] = [];
+	errors: IImportError[] = []
 
 	constructor(private database: PrismaClient
 	){
+	}
+
+	fileToRecord(path: string){
+		const file = FileService.tryGetJSON(path);
+		// TODO: In theory we should make an import type that matches the file structure exactly and use that to consolidate all the votes but I don't care enough right now.
+		let votes = file.votes as IVotes;
+		const choices: VoteType[] = [VoteType.NAY, VoteType.NOT_VOTING, VoteType.PRESENT, VoteType.YEA];
+		choices.forEach((choice) => {
+			votes[choice] = votes[choice].map(vote => {
+				vote.vote = choice 
+				return vote;
+			})
+		})
+		file.ballots = votes["Nay"].concat(votes["Yea"]).concat(votes["Present"]).concat(votes["Not Voting"]);
+		return file;
 	}
 
 	import(directory: string) {
 		fs.readdir(directory, null, (error, files) => {
 			if (error) {
 				console.warn(error);
+				this.errors.push({
+					path: directory,
+					error
+				} as IImportError)
 				return;
 			}
 
@@ -22,20 +44,31 @@ export class Importer {
 				const file = files[f];
 				const path = directory + "/" + file;
 
-				if (FileService.isFile(path)) {
-					const file = FileService.tryGetJSON(path);
-					if (file) {
-						this.processRecord(file);
+				try {
+					if (FileService.isFile(path)) {
+						const file = this.fileToRecord(path);
+						if (file) {
+							this.processRecord(file);
+						}
+						
+						continue;
 					}
-					
-					continue;
-				}
 
-				this.folders.push(f);
-				this.import(path);
+					this.folders.push(f);
+					this.import(path);
+
+				} catch (err) {
+					console.warn(err);
+					this.errors.push({
+						path,
+						error: err
+					})
+				}
 			}
 			this.status();
 		})
+
+		return this.errors;
 	}
 
 	private getOrCreateCategoryType = async (record: VoteImport) => {
@@ -155,6 +188,7 @@ export class Importer {
 			}
 		})
 	}
+
 	private getOrCreateBallots = async (record: VoteImport) => {
 
 	}
