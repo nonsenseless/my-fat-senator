@@ -1,13 +1,13 @@
-import type { CongressVoteImport } from "@prisma/client";
+import type { VoteImport } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
 export function getCongressVoteImport({
   id
-}: Pick<CongressVoteImport, "id"> & {
-  id: CongressVoteImport["id"];
+}: Pick<VoteImport, "id"> & {
+  id: VoteImport["id"];
 }) {
-  return prisma.congressVoteImport.findFirst({
+  return prisma.voteImport.findFirst({
     select: { id: true, rawData: true, processed: true },
     where: { id },
   });
@@ -15,8 +15,8 @@ export function getCongressVoteImport({
 
 export function deleteCongressVoteImport({
   id
-}: Pick<CongressVoteImport, "id">) {
-  return prisma.congressVoteImport.deleteMany({
+}: Pick<VoteImport, "id">) {
+  return prisma.voteImport.deleteMany({
     where: { id },
   });
 }
