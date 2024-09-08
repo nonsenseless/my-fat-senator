@@ -18,4 +18,4 @@ const prisma = new PrismaClient({
 prisma.$connect();
 
 const importer = new Importer(prisma);
-importer.readFiles(config.TargetDirectory);
+importer.import(config.TargetDirectory);

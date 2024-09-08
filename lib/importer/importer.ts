@@ -11,8 +11,8 @@ export class Importer {
 	){
 	}
 
-	readFiles(path: string) {
-		fs.readdir(path, null, (error, files) => {
+	import(directory: string) {
+		fs.readdir(directory, null, (error, files) => {
 			if (error) {
 				console.warn(error);
 				return;
@@ -20,10 +20,10 @@ export class Importer {
 
 			for (let f in files) {
 				const file = files[f];
-				const filePath = path + "/" + file;
+				const path = directory + "/" + file;
 
-				if (FileService.isFile(filePath)) {
-					const file = FileService.tryGetJSON(filePath);
+				if (FileService.isFile(path)) {
+					const file = FileService.tryGetJSON(path);
 					if (file) {
 						this.processRecord(file);
 					}
@@ -32,7 +32,7 @@ export class Importer {
 				}
 
 				this.folders.push(f);
-				this.readFiles(filePath);
+				this.import(path);
 			}
 			this.status();
 		})
