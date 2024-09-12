@@ -7,7 +7,7 @@
 import { installGlobals } from "@remix-run/node";
 import { parse } from "cookie";
 
-import { createUser } from "../../app/models";
+import { createUser } from "@my-fat-senator/lib";
 import { createUserSession } from "~/session.server";
 
 installGlobals();
