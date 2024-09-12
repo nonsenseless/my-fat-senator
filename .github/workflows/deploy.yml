@@ -34,7 +34,7 @@ jobs:
         run: npm install
 
       - name: 🔬 Lint
-        run: npm run lint --workspace=my-fat-senator
+        run: npm run lint --workspace=@my-fat-senator/my-fat-senator
 
   typecheck:
     name: ʦ TypeScript
@@ -59,13 +59,13 @@ jobs:
         run: npm install
      
       - name: Setup Data
-        run: npm run setup --workspace=my-fat-senator
+        run: npm run setup --workspace=@my-fat-senator/my-fat-senator
       
       - name: Build projects
         run: npm run build --ws
 
       - name: 🔎 Type check
-        run: npm run typecheck --workspace=my-fat-senator
+        run: npm run typecheck --workspace=@my-fat-senator/my-fat-senator
 
   vitest:
     name: ⚡ Vitest
@@ -85,7 +85,7 @@ jobs:
         run: npm install
 
       - name: ⚡ Run vitest
-        run: npm run test --workspace=my-fat-senator -- --coverage
+        run: npm run test --workspace=@my-fat-senator/my-fat-senator -- --coverage
 
   cypress:
     name: ⚫️ Cypress
@@ -120,7 +120,7 @@ jobs:
         run: npm install
 
       - name: 🛠 Setup Database
-        run: npm run setup --workspace=my-fat-senator
+        run: npm run setup --workspace=@my-fat-senator/my-fat-senator
 
       - name: ⚙️ Build
         run: npm run build --ws
@@ -128,7 +128,7 @@ jobs:
       - name: 🌳 Cypress run
         uses: cypress-io/github-action@v6
         with:
-          start: npm run start:mocks --workspace=my-fat-senator
+          start: npm run start:mocks --workspace=@my-fat-senator/my-fat-senator
           wait-on: http://localhost:8811
           project: ${{github.workspace}}/packages/my-fat-senator
           config-file: ${{github.workspace}}/packages/my-fat-senator/cypress.config.ts

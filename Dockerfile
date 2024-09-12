@@ -40,7 +40,7 @@ ADD lib/prisma lib/prisma
 RUN npx prisma generate --schema ./lib/prisma/schema.prisma
 
 ADD . .
-RUN npm run build --workspace=my-fat-senator
+RUN npm run build --workspace=@my-fat-senator/my-fat-senator
 
 # Finally, build the production image with minimal footprint
 FROM base
