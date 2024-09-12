@@ -3,4 +3,8 @@ module.exports = {
   cacheDirectory: "./node_modules/.cache/remix",
   ignoredRouteFiles: ["**/.*", "**/*.test.{ts,tsx}"],
   serverModuleFormat: "cjs",
+  serverDependenciesToBundle: [
+    /^@my-fat-senator/
+  ],
+  browserNodeBuiltinsPolyfill: { modules: { fs: true } }
 };

@@ -1,6 +1,6 @@
 import type { VoteImport } from "@prisma/client";
 
-import { prisma } from "./db.server";
+import { prisma } from "../prisma/db";
 
 export function getCongressVoteImport({
   id

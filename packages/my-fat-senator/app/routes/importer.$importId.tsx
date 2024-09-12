@@ -8,7 +8,7 @@ import {
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import { deleteCongressVoteImport, getCongressVoteImport } from "~/models/importer.server";
+import { deleteCongressVoteImport, getCongressVoteImport } from "@my-fat-senator/lib";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const importId = parseInt(params.importId || "");
