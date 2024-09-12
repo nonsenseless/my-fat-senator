@@ -4,10 +4,10 @@
 // and it will log out the cookie value you can use to interact with the server
 // as that new user.
 
+import { createUser } from "@my-fat-senator/lib";
 import { installGlobals } from "@remix-run/node";
 import { parse } from "cookie";
 
-import { createUser } from "../../app/models";
 import { createUserSession } from "~/session.server";
 
 installGlobals();
