@@ -67,6 +67,11 @@ module.exports = {
           },
           typescript: {
             alwaysTryTypes: true,
+            project: [
+              "packages/my-fat-senator/tsconfig.json",
+              "packages/importer/tsconfig.json",
+              "lib"
+            ]
           },
         },
       },
