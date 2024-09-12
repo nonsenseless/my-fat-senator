@@ -6,4 +6,4 @@
 # Learn more: https://community.fly.io/t/sqlite-not-getting-setup-properly/4386
 
 npx prisma migrate deploy --schema ./lib/prisma/schema.prisma
-npm run start --workspace=my-fat-senator
+npm run start --workspace=@my-fat-senator/my-fat-senator
