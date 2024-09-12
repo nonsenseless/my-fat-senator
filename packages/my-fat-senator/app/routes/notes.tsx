@@ -1,8 +1,8 @@
+import { getNoteListItems } from "@my-fat-senator/lib";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 
-import { getNoteListItems } from "@my-fat-senator/lib";
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
 
