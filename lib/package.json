@@ -1,8 +1,8 @@
 {
-  "name": "lib",
+  "name": "@my-fat-senator/lib",
   "version": "1.0.0",
   "scripts": {
-    "build": "echo \"Not Implemented\"",
+    "build": "tsc --build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

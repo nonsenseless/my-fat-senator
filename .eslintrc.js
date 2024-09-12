@@ -21,7 +21,9 @@ module.exports = {
   },
 
   // Base config
-  extends: ["eslint:recommended"],
+  extends: [
+  ],
+
 
   overrides: [
     // React
@@ -57,7 +59,6 @@ module.exports = {
     {
       files: ["**/*.{ts,tsx}"],
       plugins: ["@typescript-eslint", "import"],
-      parser: "@typescript-eslint/parser",
       settings: {
         "import/internal-regex": "^~/",
         "import/resolver": {
@@ -69,7 +70,9 @@ module.exports = {
           },
         },
       },
+      parser: "@typescript-eslint/parser",
       extends: [
+        "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/stylistic",
         "plugin:import/recommended",

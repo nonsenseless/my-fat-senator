@@ -1,6 +1,6 @@
 {
   "exclude": ["./cypress", "./cypress.config.ts"],
-  "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx", "@my-fat-senator/lib/models/singleton.server.ts"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2020"],
     "types": ["vitest/globals"],
