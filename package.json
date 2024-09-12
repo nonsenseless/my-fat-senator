@@ -3,24 +3,24 @@
   "version": "1.0.0",
   "workspaces": [
     "lib",
-    "packages/my-fat-senator",
-    "packages/importer"
+    "packages/*"
   ],
   "dependencies": {
     "prisma": "^5.14.0"
   },
   "description": "A monorepo for the My Fat Senator project",
   "scripts": {
+    "build": "tsc --build --verbose",
     "test": "echo \"Error: no test specified\" && exit 1",
     "import": "npm run start --workspace=importer"
   },
   "author": "nym",
   "license": "ISC",
-  "type": "module",
   "devDependencies": {
-    "ts-node": "^10.9.2",
     "@tailwindcss/typography": "^0.5.14",
+    "@types/node": "^22.5.4",
     "daisyui": "^4.12.10",
+    "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   }
 }

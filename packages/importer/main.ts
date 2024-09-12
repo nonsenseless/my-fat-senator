@@ -1,5 +1,5 @@
 
-import { Importer } from "lib";
+import { Importer } from "@my-fat-senator/lib";
 import { PrismaClient } from '@prisma/client';
 
 const args = process.argv;

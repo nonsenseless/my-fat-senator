@@ -1,5 +1,5 @@
 {
-  "name": "my-fat-senator",
+  "name": "@my-fat-senator/my-fat-senator",
   "private": true,
   "sideEffects": false,
   "scripts": {
@@ -25,6 +25,7 @@
     "/public/build"
   ],
   "dependencies": {
+    "@my-fat-senator/lib": "^1.0.0",
     "@prisma/client": "^5.14.0",
     "@remix-run/css-bundle": "^2.10.3",
     "@remix-run/node": "^2.10.3",
