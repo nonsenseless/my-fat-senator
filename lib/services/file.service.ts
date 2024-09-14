@@ -7,8 +7,6 @@ export enum FileTypes {
 
 
 export class FileService {
-	constructor(){}
-
 	public static isFile = (fileName: string) => {
 		return fs.lstatSync(fileName).isFile();
 	}
