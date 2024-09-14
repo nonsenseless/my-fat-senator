@@ -1,9 +1,11 @@
-import { CategoryType, PrismaClient, Vote, VoteImport } from '@prisma/client';
-import { FileService } from '../services/file.service';
 import fs from 'fs';
-import { Utilities } from '../services/utlilities';
-import { IImportError } from '../interfaces/import-error.interface';
+
+import { PrismaClient, VoteImport } from '@prisma/client';
+
 import { IVotes, VoteType } from '../interfaces/congress/vote';
+import { IImportError } from '../interfaces/import-error.interface';
+import { FileService } from '../services/file.service';
+import { Utilities } from '../services/utlilities';
 
 export class Importer {
 	files: string[] = [];
@@ -17,7 +19,7 @@ export class Importer {
 	fileToRecord(path: string){
 		const file = FileService.tryGetJSON(path);
 		// TODO: In theory we should make an import type that matches the file structure exactly and use that to consolidate all the votes but I don't care enough right now.
-		let votes = file.votes as IVotes;
+		const votes = file.votes as IVotes;
 		const choices: VoteType[] = [VoteType.NAY, VoteType.NOT_VOTING, VoteType.PRESENT, VoteType.YEA];
 		choices.forEach((choice) => {
 			votes[choice] = votes[choice].map(vote => {
@@ -40,7 +42,7 @@ export class Importer {
 				return;
 			}
 
-			for (let f in files) {
+			for (const f in files) {
 				const file = files[f];
 				const path = directory + "/" + file;
 
@@ -72,7 +74,7 @@ export class Importer {
 	}
 
 	private getOrCreateCategoryType = async (record: VoteImport) => {
-		let incoming = await this.database.categoryType.findFirst({
+		const incoming = await this.database.categoryType.findFirst({
 			where: {
 				name: record.category
 			}
@@ -92,7 +94,7 @@ export class Importer {
 	}
 	
 	private getOrCreateChamber = async (record: VoteImport) => {
-		let incoming = await this.database.chamber.findFirst({
+		const incoming = await this.database.chamber.findFirst({
 			where: {
 				name: record.chamber
 			}
@@ -112,7 +114,7 @@ export class Importer {
 	}
 
 	private getOrCreateCongressionalSession = async (record: VoteImport) => {
-		let incoming = await this.database.congressionalSession.findFirst({
+		const incoming = await this.database.congressionalSession.findFirst({
 			where: {
 				name: record.session
 			}
@@ -132,7 +134,7 @@ export class Importer {
 	}
 
 	private getOrCreateRequiresType = async (record: VoteImport) => {
-		let incoming = await this.database.requiresType.findFirst({
+		const incoming = await this.database.requiresType.findFirst({
 			where: {
 				name: record.requires
 			}
@@ -151,7 +153,7 @@ export class Importer {
 		})
 	}
 	private getOrCreateResultType = async (record: VoteImport) => {
-		let incoming = await this.database.resultType.findFirst({
+		const incoming = await this.database.resultType.findFirst({
 			where: {
 				name: record.result
 			}
@@ -170,7 +172,7 @@ export class Importer {
 		})
 	}
 	private getOrCreateVoteType = async (record: VoteImport) => {
-		let incoming = await this.database.voteType.findFirst({
+		const incoming = await this.database.voteType.findFirst({
 			where: {
 				name: record.type
 			}
@@ -244,6 +246,7 @@ export class Importer {
 		})
 
 		const ballots = this.getOrCreateBallots(record);
+		return ballots;
 	}
 
 	private clearConsole() {
