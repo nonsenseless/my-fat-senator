@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-import { CongressAPI } from '../interfaces/congress/vote';
+import { IVote } from '../interfaces/congress/vote';
 import { Utilities } from '../services/utlilities';
 
 export class ChamberService {
@@ -8,7 +8,7 @@ export class ChamberService {
 
 	}
 
-	getOrCreateChamber = async (record: CongressAPI.IVote) => {
+	getOrCreateChamber = async (record: IVote) => {
 		console.log('Creating chamber: ', record.chamber)
 		const incoming = await this.database.chamber.findFirst({
 			where: {

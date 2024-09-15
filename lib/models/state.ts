@@ -1,13 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 
-import { CongressAPI } from '../interfaces/congress/vote';
+import { IBallot } from '../interfaces/congress/vote';
 import { Utilities } from '../services/utlilities';
 
 export class StateService {
 	constructor(private database: PrismaClient) {
 
 	}
-	getOrCreateState = async (record: CongressAPI.IBallot) => {
+	getOrCreateState = async (record: IBallot) => {
 		console.log('Creating state: ', record.state)
 		const incoming = await this.database.state.findFirst({
 			where: {

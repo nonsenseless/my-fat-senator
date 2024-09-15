@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-import { CongressAPI } from '../interfaces/congress/vote';
+import { IBallot, IBallots, IVote, IVoteType } from '../interfaces/congress/vote';
 import { BallotService } from '../models/ballot';
 import { CategoryTypeService } from '../models/category-type';
 import { ChamberService } from '../models/chamber';
@@ -9,7 +9,6 @@ import { RequiresTypeService } from '../models/requires-type';
 import { ResultTypeService } from '../models/result-type';
 import { VoteTypeService } from '../models/vote-type';
 import { FileService } from '../services/file.service';
-
 
 export class VoteService {
 	constructor(private database: PrismaClient,
@@ -32,7 +31,7 @@ export class VoteService {
 	async importVote(path: string) {
 		const file = this.fileToVote(path);
 		if (file) {
-			return await this.getOrCreateVote(file);
+			return this.getOrCreateVote(file);
 		}
 		return Promise.resolve(null);
 	}
@@ -42,13 +41,17 @@ export class VoteService {
 	 * @param path
 	 * @returns 
 	 */
-	private fileToVote(path: string): CongressAPI.IVote {
-		const file = FileService.tryGetJSON(path) as CongressAPI.IVote;
-		const votes = file.votes as CongressAPI.IBallots;
+	private fileToVote(path: string): IVote | null {
+		const file = FileService.tryGetJSON(path) as IVote;
+		if (!file) {
+			return null;
+		}
+		file.ballots = [];
+		const votes = file.votes as IBallots;
 
 		// Congress doesn't actually put the vote *on* the vote record so we have to massage it.
-		Object.values(CongressAPI.VoteType).forEach((type: CongressAPI.VoteType) => {
-			file.ballots = file.ballots.concat(votes[type].map((vote: CongressAPI.IBallot) => {
+		Object.values(IVoteType).forEach((type: IVoteType) => {
+			file.ballots = file.ballots.concat(votes[type].map((vote: IBallot) => {
 				vote.vote = type; 
 				return vote;
 			}));
@@ -58,7 +61,7 @@ export class VoteService {
 		return file;
 	}
 
-	async getOrCreateVote(record: CongressAPI.IVote) {
+	async getOrCreateVote(record: IVote) {
 		let vote = await this.database.vote.findFirst({
 			where: {
 				congressional_vote_id: record.vote_id

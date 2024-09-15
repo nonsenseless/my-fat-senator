@@ -1,3 +1,4 @@
+import 'dotenv/config';
 
 import { Importer } from "@my-fat-senator/lib";
 import { BallotService } from "@my-fat-senator/lib/models/ballot";

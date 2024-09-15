@@ -1,13 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 
-import { CongressAPI } from '../interfaces/congress/vote';
+import { IBallot } from '../interfaces/congress/vote';
 import { Utilities } from '../services/utlilities';
 
 export class PartyService {
 	constructor(private database: PrismaClient) {
 
 	}
-	getOrCreateParty = async (record: CongressAPI.IBallot) => {
+	getOrCreateParty = async (record: IBallot) => {
 		console.log('Creating party: ', record.party)
 		const incoming = await this.database.party.findFirst({
 			where: {

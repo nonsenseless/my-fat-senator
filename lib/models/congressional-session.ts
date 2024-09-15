@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-import { CongressAPI } from '../interfaces/congress/vote';
+import { IVote } from '../interfaces/congress/vote';
 import { Utilities } from '../services/utlilities';
 
 export class CongressionalSessionService {
@@ -8,7 +8,7 @@ export class CongressionalSessionService {
 
 	}
 
-	getOrCreateCongressionalSession = async (record: CongressAPI.IVote) => {
+	getOrCreateCongressionalSession = async (record: IVote) => {
 		console.log('Creating congressional session: ', record.session)
 		const incoming = await this.database.congressionalSession.findFirst({
 			where: {

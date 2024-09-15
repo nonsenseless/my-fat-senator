@@ -11,6 +11,7 @@
 
     /* Modules */
     "module": "commonjs",                                /* Specify what module code is generated. */
+    "moduleResolution": "node",
     "rootDir": ".",                                  /* Specify the root folder within your source files. */
 
     "declaration": true,                              /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
