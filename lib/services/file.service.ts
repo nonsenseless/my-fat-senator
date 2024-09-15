@@ -39,7 +39,7 @@ export class FileService {
 		const file = this.readFile(path);
 		const extension = this.tryGetExtension(path);
 		if (!extension) {
-			return;
+			return null;
 		}
 
 		let record;
@@ -49,10 +49,10 @@ export class FileService {
 				return record;
 			case FileTypes.XML:
 				console.log("Oh an xml file, maybe we'll do something with this one day");
-				return;
+				return null;
 			default:
 				console.log("Unknown extension: ", extension);
-				return;
+				return null;
 		}
 	}
 }
