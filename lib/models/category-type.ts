@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-import { CongressAPI } from '../interfaces/congress/vote';
+import { IVote } from '../interfaces/congress/vote';
 import { Utilities } from '../services/utlilities';
 
 export class CategoryTypeService {
@@ -8,7 +8,7 @@ export class CategoryTypeService {
 
 	}
 
-	getOrCreateCategoryType = async (record: CongressAPI.IVote) => {
+	getOrCreateCategoryType = async (record: IVote) => {
 		const incoming = await this.database.categoryType.findFirst({
 			where: {
 				name: record.category

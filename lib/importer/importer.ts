@@ -51,10 +51,12 @@ export class Importer {
 				}
 
 				this.folders.push(f);
-				await this.import(path);
+				const importErrors = await this.import(path);
+				this.errors = this.errors.concat(importErrors);
 
 			} catch (error) {
 				this.logError(path, error);
+				return Promise.reject(error);
 			}
 		}
 		this.status();

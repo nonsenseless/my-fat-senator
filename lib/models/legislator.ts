@@ -1,6 +1,6 @@
 import { Legislator, PrismaClient } from '@prisma/client';
 
-import { CongressAPI } from '../interfaces/congress/vote';
+import { IBallot } from '../interfaces/congress/vote';
 
 import { PartyService } from './party';
 import { StateService } from './state';
@@ -13,7 +13,7 @@ export class LegislatorService {
 	) {
 	}
 
-	getOrCreateLegislator = async (record: CongressAPI.IBallot): Promise<Legislator> => {
+	getOrCreateLegislator = async (record: IBallot): Promise<Legislator> => {
 		console.log('Creating legislator: ', record.id);
 		const incoming = await this.database.legislator.findFirst({
 			where: {

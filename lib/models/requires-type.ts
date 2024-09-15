@@ -1,13 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 
-import { CongressAPI } from '../interfaces/congress/vote';
+import { IVote } from '../interfaces/congress/vote';
 import { Utilities } from '../services/utlilities';
 
 export class RequiresTypeService {
 	constructor(private database: PrismaClient) {
 
 	}
-	getOrCreateRequiresType = async (record: CongressAPI.IVote) => {
+	getOrCreateRequiresType = async (record: IVote) => {
 		console.log('Creating requires type: ', record.requires)
 		const incoming = await this.database.requiresType.findFirst({
 			where: {

@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-import { CongressAPI } from '../interfaces/congress/vote';
+import { IVote } from '../interfaces/congress/vote';
 import { Utilities } from '../services/utlilities';
 
 export class VoteTypeService {
@@ -8,7 +8,7 @@ export class VoteTypeService {
 
 	}
 
-	getOrCreateVoteType = async (record: CongressAPI.IVote) => {
+	getOrCreateVoteType = async (record: IVote) => {
 		console.log('Creating vote type: ', record.type)
 		const incoming = await this.database.voteType.findFirst({
 			where: {
