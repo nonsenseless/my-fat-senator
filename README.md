@@ -3,6 +3,10 @@
 ## Log
 20240825: Moved prisma to lib so workspaces can access the database without going through the my-fat-senator project. From the dependency perspective, this makes sense, but we may have regrets.
 
+20240906: Setup basic import of vote record sans ballots.
+20240913: Reformatted project as a monorepo with typescript support
+20240914: Moved entity creation to services. Setup ballot processing. Schema does not currently support legislators changing district. Also realized the xml schema is cleaner than json _if only I had looked at the xml files at all_.
+
 ## Workspace commands
 ### Add a new workspace project
 ```

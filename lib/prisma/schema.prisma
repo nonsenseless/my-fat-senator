@@ -89,15 +89,17 @@ model Vote {
 
 model Ballot {
   id              Int @id @default(autoincrement())
-  legislatorId    String
-  ballotChoiceId  Int
   reviewed        Boolean
   
   vote         Vote @relation(fields: [voteId], references: [id])
   voteId        Int
   
-  ballotChoiceType  BallotChoiceType @relation(fields: [ballotChoiceId], references: [id])
-  ballotChoiceTypeId  Int 
+  ballotChoiceType  BallotChoiceType @relation(fields: [ballotChoiceTypeId], references: [id])
+  ballotChoiceTypeId  Int
+
+  legislatorId   Int
+  legislator  Legislator @relation(fields: [legislatorId], references: [id])
+
 }
 
 model BallotChoiceType {
@@ -138,8 +140,11 @@ model CongressionalSession {
 
 model Legislator {
   id            Int @id @default(autoincrement())
+  bioguideid    String
   displayName  String
   reviewed      Boolean
+  firstName    String
+  lastName     String
   
   party       Party @relation(fields: [partyId], references: [id])
   partyId     Int
@@ -147,6 +152,8 @@ model Legislator {
   // TODO This will eventually need to be refactored to allow for legislators changing parties.
   state       State @relation(fields: [stateId], references: [id])
   stateId      Int
+
+  ballots     Ballot[]
 }
 
 model RequiresType {
