@@ -71,7 +71,6 @@ export class Importer {
 	}
 
 	status() {
-		this.clearConsole();
 		console.log(`${this.files.length} files read\t\t${this.folders.length} folders read. ${this.errors.length} errors.`);
 	}
 

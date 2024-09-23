@@ -56,7 +56,7 @@ model VoteImport {
   source_url    String
   type          String
   updated_at    DateTime
-  vote_id       String
+  vote_id       String @unique
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -79,7 +79,7 @@ model Vote {
   session       String
   sourceUrl    String
   congressional_updated_at  DateTime // Maps to updated_at
-  congressional_vote_id       String
+  congressional_vote_id       String @unique
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -100,12 +100,13 @@ model Ballot {
   legislatorId   Int
   legislator  Legislator @relation(fields: [legislatorId], references: [id])
 
+  @@unique([voteId, legislatorId])
 }
 
 model BallotChoiceType {
   id            Int @id @default(autoincrement())
   name          String
-  slug          String
+  slug          String @unique
   reviewed      Boolean
   
   ballots        Ballot[]
@@ -114,7 +115,7 @@ model BallotChoiceType {
 model CategoryType {
   id            Int @id @default(autoincrement())
   name          String
-  slug          String
+  slug          String @unique
   reviewed     Boolean
 
   votes         Vote[]
@@ -123,7 +124,7 @@ model CategoryType {
 model Chamber {
   id            Int @id @default(autoincrement())
   name          String
-  slug          String
+  slug          String @unique
   reviewed     Boolean
 
   votes         Vote[]
@@ -132,7 +133,7 @@ model Chamber {
 model CongressionalSession {
   id            Int @id @default(autoincrement())
   name          String
-  slug          String
+  slug          String @unique
   reviewed     Boolean
   
   votes         Vote[]
@@ -140,7 +141,7 @@ model CongressionalSession {
 
 model Legislator {
   id            Int @id @default(autoincrement())
-  bioguideid    String
+  bioguideid    String @unique
   displayName  String
   reviewed      Boolean
   firstName    String?
@@ -159,7 +160,7 @@ model Legislator {
 model RequiresType {
   id            Int @id @default(autoincrement())
   name          String
-  slug          String
+  slug          String @unique
   reviewed     Boolean
   
   votes         Vote[]
@@ -168,7 +169,7 @@ model RequiresType {
 model ResultType {
   id            Int @id @default(autoincrement())
   name          String
-  slug          String
+  slug          String @unique
   reviewed      Boolean
   
   votes         Vote[]
@@ -177,7 +178,7 @@ model ResultType {
 model Party {
   id            Int @id @default(autoincrement())
   name          String
-  slug          String
+  slug          String @unique
   reviewed      Boolean
 
   legislators   Legislator[]
@@ -186,7 +187,7 @@ model Party {
 model State {
   id            Int @id @default(autoincrement())
   name          String
-  shortName    String
+  shortName    String @unique
   reviewed      Boolean
 
   legislators   Legislator[]
@@ -195,7 +196,7 @@ model State {
 model VoteType {
   id            Int @id @default(autoincrement())
   name          String
-  slug          String
+  slug          String @unique
   reviewed      Boolean
   
   votes         Vote[]
