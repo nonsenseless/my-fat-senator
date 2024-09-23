@@ -20,8 +20,12 @@ export class ChamberService {
 			return incoming;
 		}
 
-		return await this.database.chamber.create({
-			data: {
+		return await this.database.chamber.upsert({
+			where: {
+				slug: Utilities.slugify(record.chamber),
+			},
+			update: {},
+			create: {
 				name: record.chamber,
 				slug: Utilities.slugify(record.chamber),
 				reviewed: false // TODO I suppose this should have a default

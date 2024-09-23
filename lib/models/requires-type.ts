@@ -19,8 +19,12 @@ export class RequiresTypeService {
 			return incoming;
 		}
 
-		return await this.database.requiresType.create({
-			data: {
+		return await this.database.requiresType.upsert({
+			where: {
+				slug: Utilities.slugify(record.requires),
+			},
+			update: {},
+			create: {
 				name: record.requires,
 				slug: Utilities.slugify(record.requires),
 				reviewed: false // TODO I suppose this should have a default

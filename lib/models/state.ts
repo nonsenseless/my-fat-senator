@@ -19,8 +19,12 @@ export class StateService {
 			return incoming;
 		}
 
-		return await this.database.state.create({
-			data: {
+		return await this.database.state.upsert({
+			where: {
+				shortName: Utilities.slugify(record.state),
+			},
+			update: {},
+			create: {
 				name: record.state,
 				shortName: Utilities.slugify(record.state),
 				reviewed: false // TODO I suppose this should have a default

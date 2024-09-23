@@ -20,8 +20,12 @@ export class ResultTypeService {
 			return incoming;
 		}
 
-		return await this.database.resultType.create({
-			data: {
+		return await this.database.resultType.upsert({
+			where: {
+				slug: Utilities.slugify(record.result),
+			},
+			update: {},
+			create: {
 				name: record.result,
 				slug: Utilities.slugify(record.result),
 				reviewed: false // TODO I suppose this should have a default
