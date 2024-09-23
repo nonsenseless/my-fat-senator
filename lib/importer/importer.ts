@@ -16,7 +16,6 @@ export class Importer {
 
 	// TODO: Logger
 	private logError(path: string, error: unknown) {
-		console.warn(error);
 		this.errors.push({
 			path,
 			error
@@ -73,7 +72,7 @@ export class Importer {
 
 	status() {
 		this.clearConsole();
-		console.log(`${this.files.length} files read\t\t${this.folders.length} folders read.`);
+		console.log(`${this.files.length} files read\t\t${this.folders.length} folders read. ${this.errors.length} errors.`);
 	}
 
 }
