@@ -64,56 +64,98 @@ export class VoteService {
 
 		try {
 			console.log("Attempting to create " + record.vote_id);
-			return Promise.resolve(this.database.vote.create({
-			data: {
-				category: {
-					create: {
-						name: record.category,
-						slug: Utilities.slugify(record.category),
-						reviewed: false // TODO I suppose this should have a default
-					}
+			return Promise.resolve(this.database.vote.upsert({
+				where: {
+					congressional_vote_id: record.vote_id
 				},
-				chamber: {
-					create: {
-						name: record.chamber,
-						slug: Utilities.slugify(record.chamber),
-						reviewed: false // TODO I suppose this should have a default
+				update: {},
+				create: {
+
+					chamber: {
+						create: {
+							name: record.chamber,
+							slug: Utilities.slugify(record.chamber),
+							reviewed: false // TODO I suppose this should have a default
+						}
+					},
+					category: {
+						create: {
+							name: record.category,
+							slug: Utilities.slugify(record.category),
+							reviewed: false // TODO I suppose this should have a default
+						}
+					},
+					congressionalSession: {
+						create: {
+							name: record.session,
+							slug: Utilities.slugify(record.session),
+							reviewed: false // TODO I suppose this should have a default
+						}
+					},
+					requiresType: {
+						create: {
+							name: record.requires,
+							slug: Utilities.slugify(record.requires),
+							reviewed: false // TODO I suppose this should have a default
+						}
+					},
+					resultType: {
+						create: {
+							name: record.result,
+							slug: Utilities.slugify(record.result),
+							reviewed: false // TODO I suppose this should have a default
+						}
+					},
+					voteType: {
+						create: {
+							name: record.type,
+							slug: Utilities.slugify(record.type),
+							reviewed: false // TODO I suppose this should have a default
+						}
+					},
+					congressional_vote_id: record.vote_id,
+					congressional_updated_at: record.updated_at,
+					session: record.session,
+					sourceUrl: record.source_url,
+					ballots: {
+						create: record.ballots.map(ballot => {
+							return {
+								reviewed: false,
+								ballotChoiceType: {
+									create: {
+										name: ballot.vote,
+										slug: Utilities.slugify(ballot.vote),
+										reviewed: true
+									}
+								},
+								legislator: {
+									create: {
+										bioguideid: ballot.id,
+										displayName: ballot.display_name,
+										firstName: ballot.first_name,
+										lastName: ballot.last_name,
+										party: {
+											create: {
+												name: ballot.party,
+												slug: Utilities.slugify(ballot.party),
+												reviewed: false // TODO I suppose this should have a default
+											}
+										},
+										state: {
+											create: {
+												name: ballot.state,
+												shortName: Utilities.slugify(ballot.state),
+												reviewed: false // TODO I suppose this should have a default
+											}
+										},
+										reviewed: false // TODO I suppose this should have a default
+									}
+								}
+							}
+						})
 					}
-				},
-				congressionalSession: {
-					create: {
-						name: record.session,
-						slug: Utilities.slugify(record.session),
-						reviewed: false // TODO I suppose this should have a default
-					}
-				},
-				requiresType: {
-					create: {
-						name: record.requires,
-						slug: Utilities.slugify(record.requires),
-						reviewed: false // TODO I suppose this should have a default
-					}
-				},
-				resultType: {
-					create: {
-						name: record.result,
-						slug: Utilities.slugify(record.result),
-						reviewed: false // TODO I suppose this should have a default
-					}
-				},
-				voteType: {
-					create: {
-						name: record.type,
-						slug: Utilities.slugify(record.type),
-						reviewed: false // TODO I suppose this should have a default
-					}
-				},
-				congressional_vote_id: record.vote_id,
-				congressional_updated_at: record.updated_at,
-				session: record.session,
-				sourceUrl: record.source_url,
-			}
-		}));
+				}
+			}));
 		} catch (error) {
 			console.error("Failed with error ", JSON.stringify(error));
 			return Promise.reject(error);
