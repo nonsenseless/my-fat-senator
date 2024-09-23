@@ -19,8 +19,12 @@ export class PartyService {
 			return incoming;
 		}
 
-		return await this.database.party.create({
-			data: {
+		return await this.database.party.upsert({
+			where: {
+				slug: Utilities.slugify(record.party),
+			},
+			update: {},
+			create: {
 				name: record.party,
 				slug: Utilities.slugify(record.party),
 				reviewed: false // TODO I suppose this should have a default

@@ -20,8 +20,12 @@ export class BallotChoiceTypeService {
 			return incoming;
 		}
 
-		return await this.database.ballotChoiceType.create({
-			data: {
+		return await this.database.ballotChoiceType.upsert({
+			where: {
+				slug: Utilities.slugify(record.vote),
+			},
+			update: {},
+			create: {
 				name: record.vote,
 				slug: Utilities.slugify(record.vote),
 				reviewed: false // TODO I suppose this should have a default

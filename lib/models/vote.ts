@@ -1,11 +1,27 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IBallot, IBallots, IVote, IVoteType } from '../interfaces/congress/vote';
+import { BallotService } from '../models/ballot';
+import { CategoryTypeService } from '../models/category-type';
+import { ChamberService } from '../models/chamber';
+import { CongressionalSessionService } from '../models/congressional-session';
+import { RequiresTypeService } from '../models/requires-type';
+import { ResultTypeService } from '../models/result-type';
+import { VoteTypeService } from '../models/vote-type';
 import { FileService } from '../services/file.service';
-import { Utilities } from '../services/utlilities';
 
 export class VoteService {
-	constructor(private database: PrismaClient) { }
+	constructor(private database: PrismaClient,
+		private ballotService: BallotService,
+		private categoryTypeService: CategoryTypeService,
+		private chamberService: ChamberService,
+		private congressionalSessionService: CongressionalSessionService,
+		private requiresTypeService: RequiresTypeService,
+		private resultTypeService: ResultTypeService,
+		private voteTypeService: VoteTypeService
+	) {
+
+	}
 
 	/**
 	 * Imports a vote from a Congress Vote file to local schema. Only supports JSON files.
@@ -26,7 +42,6 @@ export class VoteService {
 	 * @returns 
 	 */
 	private fileToVote(path: string): IVote | null {
-		console.log("Converting file at path ", path);
 		const file = FileService.tryGetJSON(path) as IVote;
 		if (!file) {
 			return null;
@@ -39,126 +54,71 @@ export class VoteService {
 
 		// Congress doesn't actually put the vote *on* the vote record so we have to massage it.
 		Object.values(IVoteType).forEach((type: IVoteType) => {
-			const addedVotes = votes[type];
-			if (addedVotes) {
-				file.ballots = file.ballots.concat(addedVotes.map((vote: IBallot) => {
-					vote.vote = type;
-					return vote;
-				}));
-			}
+			const votesOfType = votes[type] || [];
+			file.ballots = file.ballots.concat(votesOfType.map((vote: IBallot) => {
+				vote.vote = type; 
+				return vote;
+			}));
 		})
+		console.log('Ballots is now ', file.ballots);
 
 		return file;
 	}
 
 	async getOrCreateVote(record: IVote) {
-		const vote = await this.database.vote.findFirst({
+		let vote = await this.database.vote.findFirst({
 			where: {
 				congressional_vote_id: record.vote_id
 			}
 		})
 
 		if (vote) {
-			return Promise.resolve(vote);
+			return vote;
 		}
 
-		try {
-			console.log("Attempting to create " + record.vote_id);
-			return Promise.resolve(this.database.vote.upsert({
-				where: {
-					congressional_vote_id: record.vote_id
-				},
-				update: {},
-				create: {
+		const categoryType = await this.categoryTypeService.getOrCreateCategoryType(record);
+		console.log('Yielded ', categoryType.id);
+	
+		const chamber = await this.chamberService.getOrCreateChamber(record);
+		console.log('Yielded ', chamber.id);
 
-					chamber: {
-						create: {
-							name: record.chamber,
-							slug: Utilities.slugify(record.chamber),
-							reviewed: false // TODO I suppose this should have a default
-						}
-					},
-					category: {
-						create: {
-							name: record.category,
-							slug: Utilities.slugify(record.category),
-							reviewed: false // TODO I suppose this should have a default
-						}
-					},
-					congressionalSession: {
-						create: {
-							name: record.session,
-							slug: Utilities.slugify(record.session),
-							reviewed: false // TODO I suppose this should have a default
-						}
-					},
-					requiresType: {
-						create: {
-							name: record.requires,
-							slug: Utilities.slugify(record.requires),
-							reviewed: false // TODO I suppose this should have a default
-						}
-					},
-					resultType: {
-						create: {
-							name: record.result,
-							slug: Utilities.slugify(record.result),
-							reviewed: false // TODO I suppose this should have a default
-						}
-					},
-					voteType: {
-						create: {
-							name: record.type,
-							slug: Utilities.slugify(record.type),
-							reviewed: false // TODO I suppose this should have a default
-						}
-					},
-					congressional_vote_id: record.vote_id,
-					congressional_updated_at: record.updated_at,
-					session: record.session,
-					sourceUrl: record.source_url,
-					ballots: {
-						create: record.ballots.map(ballot => {
-							return {
-								reviewed: false,
-								ballotChoiceType: {
-									create: {
-										name: ballot.vote,
-										slug: Utilities.slugify(ballot.vote),
-										reviewed: true
-									}
-								},
-								legislator: {
-									create: {
-										bioguideid: ballot.id,
-										displayName: ballot.display_name,
-										firstName: ballot.first_name,
-										lastName: ballot.last_name,
-										party: {
-											create: {
-												name: ballot.party,
-												slug: Utilities.slugify(ballot.party),
-												reviewed: false // TODO I suppose this should have a default
-											}
-										},
-										state: {
-											create: {
-												name: ballot.state,
-												shortName: Utilities.slugify(ballot.state),
-												reviewed: false // TODO I suppose this should have a default
-											}
-										},
-										reviewed: false // TODO I suppose this should have a default
-									}
-								}
-							}
-						})
-					}
-				}
-			}));
-		} catch (error) {
-			console.error("Failed with error ", JSON.stringify(error));
-			return Promise.reject(error);
-		}
+		const congressionalSession = await this.congressionalSessionService.getOrCreateCongressionalSession(record);
+		console.log('Yielded ', congressionalSession.id);
+	
+		const requiresType = await this.requiresTypeService.getOrCreateRequiresType(record);
+		console.log('Yielded ', requiresType.id);
+
+		const resultType = await this.resultTypeService.getOrCreateResultType(record);
+		console.log('Yielded ', resultType.id);
+
+		const voteType = await this.voteTypeService.getOrCreateVoteType(record);
+		console.log('Yielded ', voteType.id);
+
+		vote = await this.database.vote.create({
+			data: {
+				categoryId: categoryType.id,
+				chamberId: chamber.id,
+				congressionalSessionId: congressionalSession.id,
+				requiresTypeId: requiresType.id,
+				resultTypeId: resultType.id,
+				voteTypeId: voteType.id,
+				congressional_vote_id: record.vote_id,
+				congressional_updated_at: record.updated_at,
+				session: record.session,
+				sourceUrl: record.source_url
+			}
+		})
+
+		const ballots = await this.ballotService.getOrCreateBallots(vote.id, record.ballots);
+		console.log('Ballots: ', ballots);
+		return this.database.vote.findFirst({
+			where: {
+				id: vote.id
+			},
+			include: {
+				ballots: true
+			}
+		});
 	}
+
 }

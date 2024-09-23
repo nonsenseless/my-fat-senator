@@ -20,8 +20,12 @@ export class CongressionalSessionService {
 			return incoming;
 		}
 
-		return await this.database.congressionalSession.create({
-			data: {
+		return await this.database.congressionalSession.upsert({
+			where: {
+				slug: Utilities.slugify(record.session),
+			},
+			update: {},
+			create: {
 				name: record.session,
 				slug: Utilities.slugify(record.session),
 				reviewed: false // TODO I suppose this should have a default

@@ -28,8 +28,12 @@ export class LegislatorService {
 		const state = await this.stateService.getOrCreateState(record);
 		const party = await this.partyService.getOrCreateParty(record);
 
-		return await this.database.legislator.create({
-			data: {
+		return await this.database.legislator.upsert({
+			where: {
+				bioguideid: record.id,
+			},
+			update: {},
+			create: {
 				bioguideid: record.id,
 				displayName: record.display_name,
 				firstName: record.first_name,
