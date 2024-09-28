@@ -6,7 +6,7 @@
 20240906: Setup basic import of vote record sans ballots.
 20240913: Reformatted project as a monorepo with typescript support
 20240914: Moved entity creation to services. Setup ballot processing. Schema does not currently support legislators changing district. Also realized the xml schema is cleaner than json _if only I had looked at the xml files at all_.
-
+20240926: Decided to just call prisma directly in vote type loader. It's not clear what value is added by wrapping basic prisma calls since you have to import all your dependencies into the module where you're using the service anyway. Also I don't want to stop and set up DI just yet. 
 ## Workspace commands
 ### Add a new workspace project
 ```
