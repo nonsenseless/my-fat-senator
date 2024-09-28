@@ -18,7 +18,7 @@ export default function VoteTypeIndex() {
 
 	return (
 		<div className="container">
-			<div>
+			<div className="prose">
 				<h1>Vote Types</h1>
 				<table className="table table-sm table-zebra">
 					<thead>
