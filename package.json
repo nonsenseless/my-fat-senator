@@ -5,9 +5,6 @@
     "lib",
     "packages/*"
   ],
-  "dependencies": {
-    "prisma": "^5.14.0"
-  },
   "description": "A monorepo for the My Fat Senator project",
   "scripts": {
     "build": "tsc --build --verbose",

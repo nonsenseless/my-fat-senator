@@ -1,3 +1,4 @@
+import { getVoteList } from '@my-fat-senator/lib';
 import { PrismaClient } from '@prisma/client';
 import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
@@ -8,50 +9,7 @@ import "ag-grid-community/styles/ag-grid.css";
 
 export const loader = async () => {
 	const prisma = new PrismaClient();
-	const votes = await prisma.vote.findMany({
-		select: {
-			session: true,
-			sourceUrl: true,
-			congressional_updated_at: true,
-			category: {
-				select: {
-					name: true,
-					slug: true
-				}
-			},
-			chamber: {
-				select: {
-					name: true,
-					slug: true
-				}
-			},
-			congressionalSession: {
-				select: {
-					name: true,
-					slug: true
-				}
-			},
-			requiresType: {
-				select: {
-					name: true,
-					slug: true
-				}
-			},
-			resultType: {
-				select: {
-					name: true,
-					slug: true
-				}
-			},
-			voteType: {
-				select: {
-					name: true,
-					slug: true
-				}
-			},
-
-		}
-	}); 
+	const votes = await prisma.$queryRawTyped(getVoteList()); 
 
 	return json({ votes });
 };

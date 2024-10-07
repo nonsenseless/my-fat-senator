@@ -8,6 +8,7 @@
 20240914: Moved entity creation to services. Setup ballot processing. Schema does not currently support legislators changing district. Also realized the xml schema is cleaner than json _if only I had looked at the xml files at all_.
 20240926: Decided to just call prisma directly in vote type loader. It's not clear what value is added by wrapping basic prisma calls since you have to import all your dependencies into the module where you're using the service anyway. Also I don't want to stop and set up DI just yet. 
 20241006: I decided it didn't make sense to add CRUD screens to this app.
+20241006: Just learned that Prisma doesn't support joins outside of mysql and postgres and am processing the eternal frustration that every ORM except PetaPoco requires you to learn their proprietary ciphers *and* SQL, and SQL is eternal.
 ## Workspace commands
 ### Add a new workspace project
 ```
