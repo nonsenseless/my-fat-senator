@@ -8,21 +8,64 @@ import "ag-grid-community/styles/ag-grid.css";
 
 export const loader = async () => {
 	const prisma = new PrismaClient();
-	const voteTypes = await prisma.voteType.findMany(); 
+	const votes = await prisma.vote.findMany({
+		select: {
+			session: true,
+			sourceUrl: true,
+			congressional_updated_at: true,
+			category: {
+				select: {
+					name: true,
+					slug: true
+				}
+			},
+			chamber: {
+				select: {
+					name: true,
+					slug: true
+				}
+			},
+			congressionalSession: {
+				select: {
+					name: true,
+					slug: true
+				}
+			},
+			requiresType: {
+				select: {
+					name: true,
+					slug: true
+				}
+			},
+			resultType: {
+				select: {
+					name: true,
+					slug: true
+				}
+			},
+			voteType: {
+				select: {
+					name: true,
+					slug: true
+				}
+			},
 
-	return json({ voteTypes });
+		}
+	}); 
+
+	return json({ votes });
 };
 
 export default function VoteTypeIndex() {
-	const { voteTypes } = useLoaderData<typeof loader>();
+	const { votes } = useLoaderData<typeof loader>();
 
 	 // Row Data: The data to be displayed.
-	 const [rowData] = useState(voteTypes);
+	 const [rowData] = useState(votes);
 	
 	// Column Definitions: Defines the columns to be displayed.
 	const [colDefs] = useState<ColDef[]>([
-		{ field: "name" },
-		{ field: "slug" },
+		{ field: "session" },
+		{ field: "source_url", type: "DateTime" },
 		{ field: "reviewed" }
 	]);
 
