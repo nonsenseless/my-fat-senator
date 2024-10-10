@@ -6,13 +6,15 @@
     "packages/*"
   ],
   "dependencies": {
+    "@types/html": "^1.0.4",
     "prisma": "^5.14.0"
   },
   "description": "A monorepo for the My Fat Senator project",
   "scripts": {
     "build": "tsc --build --verbose",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "import": "npm run start --workspace=@my-fat-senator/importer"
+    "import": "npm run start --workspace=@my-fat-senator/importer",
+    "dev": "npm run dev --workspace=@my-fat-senator/my-fat-senator"
   },
   "author": "nym",
   "license": "ISC",

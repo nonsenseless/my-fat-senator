@@ -1,47 +1,103 @@
-import { Bars4Icon } from '@heroicons/react/24/solid';
-import type { MetaFunction } from "@remix-run/node";
-import { Outlet } from "@remix-run/react";
+import { PrismaClient } from "@prisma/client";
+import { json, type MetaFunction } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import { ColDef } from 'ag-grid-community';
+import { AgGridReact } from "ag-grid-react";
+import { useState } from "react";
+import "ag-grid-community/styles/ag-grid.css";
 
 export const meta: MetaFunction = () => [{ title: "Vote Types" }];
 
+export const loader = async() => {
+	const prisma = new PrismaClient();
+	const votes = await prisma.vote.findMany({
+		select: {
+			session: true,
+			sourceUrl: true,
+			congressional_updated_at: true,
+			category: {
+				select: {
+					name: true,
+					slug: true
+				}
+			},
+			chamber: {
+				select: {
+					name: true,
+					slug: true
+				}
+			},
+			congressionalSession: {
+				select: {
+					name: true,
+					slug: true
+				}
+			},
+			requiresType: {
+				select: {
+					name: true,
+					slug: true
+				}
+			},
+			resultType: {
+				select: {
+					name: true,
+					slug: true
+				}
+			},
+			voteType: {
+				select: {
+					name: true,
+					slug: true
+				}
+			},
+		}
+	});
+
+	const mapped = votes.map((vote) => ({
+		sourceUrl: vote.sourceUrl,
+		session: vote.session,
+		categoryName: vote.category.name,
+		chamberName: vote.chamber.name,
+		congressionalSessionName: vote.congressionalSession.name,
+		requiresTypeName: vote.requiresType.name,
+		resultTypeName: vote.resultType.name,
+		voteTypeName: vote.voteType.name,
+	}));
+
+	return json({ votes: mapped });
+}
+
 export default function Index() {
+	const { votes } = useLoaderData<typeof loader>();
+
+	// Row Data: The data to be displayed.
+	const [rowData] = useState(votes);
+
+	// Column Definitions: Defines the columns to be displayed.
+	const [colDefs] = useState<ColDef[]>([
+		{ field: "session" },
+		{
+			field: "sourceUrl", headerName: "Source", cellRenderer: (r: { sourceUrl: string; }) => { 
+				return `<a href='${r.sourceUrl}'>Link</a>`
+			}
+		},
+		{ field: "voteTypeName", headerName: "Type" }
+	]);
   return (
-    <main>
-      <nav className="navbar bg-base-100">
-        <div className="flex-1">
-          <button className="btn btn-ghost text-xl">My Fat Senators</button>
-        </div>
-        <div className="flex-none gap-2">
-          <div className="form-control">
-            <label htmlFor="my-drawer" aria-label="open sidebar" className="btn drawer-button">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                className="inline-block h-6 w-6 stroke-current">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16M4 18h16"></path>
-              </svg>
-            </label>
-          </div>
-        </div>
-      </nav>
-      <div className="drawer">
-        <input id="my-drawer" type="checkbox" className="drawer-toggle" />
-        <div className="drawer-content p-5">
-          <Outlet />
-        </div>
-        <div className="drawer-side">
-          <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
-          <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
-            <li><a href="/votes">Votes</a></li>
-            <li><a href="/vote-types">Vote Types</a></li>
-          </ul>
-        </div>
-      </div>
-    </main>
+		<div className="container mx-auto">
+			<div className="prose">
+				<h1 className='mb-4'>Votes</h1>
+			</div>
+			<div
+				className="ag-theme-quartz" // applying the Data Grid theme
+				style={{ height: 500, width: "100%" }} // the Data Grid will fill the size of the parent container
+			>
+				<AgGridReact
+					rowData={rowData}
+					columnDefs={colDefs}
+				/>
+			</div>
+		</div>
   );
 }
