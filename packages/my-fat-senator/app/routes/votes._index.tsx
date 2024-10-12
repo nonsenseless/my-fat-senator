@@ -2,16 +2,22 @@ import { PrismaClient } from "@prisma/client";
 import { json, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { ColDef } from 'ag-grid-community';
-import { AgGridReact } from "ag-grid-react";
+import { AgGridReact, CustomCellRendererProps } from "ag-grid-react";
 import { useState } from "react";
 import "ag-grid-community/styles/ag-grid.css";
 
-export const meta: MetaFunction = () => [{ title: "Vote Types" }];
+export const meta: MetaFunction = () => [{ title: "Votes" }];
+
+// this comp gets inserted into the Cell
+export const TableLinkComponent = (props: CustomCellRendererProps) => {
+	return <><a href={props.data.sourceUrl}>Link</a></>;
+};
 
 export const loader = async() => {
 	const prisma = new PrismaClient();
 	const votes = await prisma.vote.findMany({
 		select: {
+			id: true,
 			session: true,
 			sourceUrl: true,
 			congressional_updated_at: true,
@@ -55,6 +61,7 @@ export const loader = async() => {
 	});
 
 	const mapped = votes.map((vote) => ({
+		id: vote.id,
 		sourceUrl: vote.sourceUrl,
 		session: vote.session,
 		categoryName: vote.category.name,
@@ -76,11 +83,12 @@ export default function Index() {
 
 	// Column Definitions: Defines the columns to be displayed.
 	const [colDefs] = useState<ColDef[]>([
+		{ headerName: "", cellRenderer: (props: CustomCellRendererProps) => {
+			return <><a href={`/votes/${props.data.id}`}>View</a></>;
+		}},
 		{ field: "session" },
 		{
-			field: "sourceUrl", headerName: "Source", cellRenderer: (r: { sourceUrl: string; }) => { 
-				return `<a href='${r.sourceUrl}'>Link</a>`
-			}
+			headerName: "Source", cellRenderer: TableLinkComponent,
 		},
 		{ field: "voteTypeName", headerName: "Type" }
 	]);

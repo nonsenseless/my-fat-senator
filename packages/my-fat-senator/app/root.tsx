@@ -76,10 +76,28 @@ export function ErrorBoundary() {
     );
   }
 
+  if (error instanceof Error) {
+    return (
+      <>
+        <h1>Error!</h1>
+        <p>{error.message }</p>
+      </>
+    );
+  }
+
+  if (typeof error === 'string') {
+    return (
+      <>
+        <h1>Error!</h1>
+        <p>{error}</p>
+      </>
+    );
+  }
+
   return (
     <>
       <h1>Error!</h1>
-      <p>{error && error.message ? error.message ?? "Unknown error"}</p>
+      <p>Unknown error</p>
     </>
   );
 }
