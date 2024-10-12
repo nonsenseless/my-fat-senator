@@ -1,3 +1,3 @@
 export interface ModelRendererProps {
-  children: React.ReactElement;
+  children?: React.ReactNode;
 }
