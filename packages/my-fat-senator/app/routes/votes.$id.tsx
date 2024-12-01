@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Ballot, PrismaClient } from "@prisma/client";
 import { json, LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
@@ -62,6 +62,45 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 		}
 	});
 
+	const ballots = await prisma.ballot.findMany({
+		where: {
+			voteId: $id
+		},
+		select: {
+			id: true,
+			vote: {
+				select: {
+					id: true
+				}
+			},
+			ballotChoiceType: {
+				select: {
+					name: true,
+					slug: true
+				}
+			},
+			legislator: {
+				select: {
+					displayName: true,
+					firstName: true,
+					lastName: true,
+					state: {
+						select: {
+							shortName: true,
+							name: true
+						}
+					},
+					party: {
+						select: {
+							name: true,
+							slug: true
+						}
+					}
+				}
+			}
+		}
+	});
+
 	const voteDetail = {
 		sourceUrl: vote?.sourceUrl,
 		session: vote?.session,
@@ -75,13 +114,14 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 		voteTypeName: vote?.voteType.name,
 	} as IVoteDetail;
 
-	return json({ vote: voteDetail });
+	return json({ vote: voteDetail, ballots: ballots });
 }
 
 export interface IVoteDetail {
 	sourceUrl: string;
 	updatedAt: Date;
 	session: string;
+	ballots: Ballot[];
 	categoryName: string;
 	chamberName: string;
 	congressionalSessionName: string;
@@ -92,7 +132,7 @@ export interface IVoteDetail {
 }
 
 export default function VoteDetail() {
-	const { vote } = useLoaderData<typeof loader>();
+	const { vote, ballots } = useLoaderData<typeof loader>();
 
 	return (
 		<div className="container mx-auto">
@@ -122,7 +162,48 @@ export default function VoteDetail() {
 							day: 'numeric'
 						})}
 					</div>
+				</div>
+				<div className="ballots">
+					<div className="ballot-choice-type-list">
+						<h2>Not Voting</h2>
+						{ballots
+							.filter((value) => value.ballotChoiceType.slug == 'voting')
+							.map((ballot, index) => (
+								<li key={index}>{ballot.legislator.displayName} ({ballot.legislator.party.slug}))</li>
+							))
+						}
 
+					</div>
+					<div className="ballot-choice-type-list">
+						<h2>Nay</h2>
+						{ballots
+							.filter((value) => value.ballotChoiceType.slug == 'nay')
+							.map((ballot, index) => (
+								<li key={index}>{ballot.legislator.displayName} ({ballot.legislator.party.slug}))</li>
+							))
+						}
+
+					</div>
+					<div className="ballot-choice-type-list">
+						<h2>Yea</h2>
+						{ballots
+							.filter((value) => value.ballotChoiceType.slug == 'yea')
+							.map((ballot, index) => (
+								<li key={index}>{ballot.legislator.displayName} ({ballot.legislator.party.slug}))</li>
+							))
+						}
+
+					</div>
+					<div className="ballot-choice-type-list">
+						<h2>Present</h2>
+						{ballots
+							.filter((value) => value.ballotChoiceType.slug == 'present')
+							.map((ballot, index) => (
+								<li key={index}>{ballot.legislator.displayName} ({ballot.legislator.party.slug}))</li>
+							))
+						}
+
+					</div>
 				</div>
 
 			</Card>
