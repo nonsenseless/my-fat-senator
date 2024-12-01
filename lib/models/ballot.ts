@@ -1,4 +1,4 @@
-import { Ballot, PrismaClient,  } from '@prisma/client';
+import { Ballot, PrismaClient  } from '@prisma/client';
 
 import { IBallot } from '../interfaces/congress/vote';
 
