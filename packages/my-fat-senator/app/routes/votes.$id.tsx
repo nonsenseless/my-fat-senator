@@ -10,7 +10,7 @@ export interface IVoteDetailParameters {
 	id: string; //Only a string because of the query string
 }
 
-export const loader = async({ params }: LoaderFunctionArgs) => {
+export const loader = async ({ params }: LoaderFunctionArgs) => {
 	const $id = parseInt(params.id as string);
 	const prisma = new PrismaClient();
 	const vote = await prisma.vote.findFirst({
@@ -22,6 +22,7 @@ export const loader = async({ params }: LoaderFunctionArgs) => {
 			sourceUrl: true,
 			congressional_vote_id: true,
 			congressional_updated_at: true,
+			updatedAt: true,
 			category: {
 				select: {
 					name: true,
@@ -64,6 +65,7 @@ export const loader = async({ params }: LoaderFunctionArgs) => {
 	const voteDetail = {
 		sourceUrl: vote?.sourceUrl,
 		session: vote?.session,
+		updatedAt: vote?.updatedAt,
 		categoryName: vote?.category.name,
 		chamberName: vote?.chamber.name,
 		congressionalSessionName: vote?.congressionalSession.name,
@@ -73,11 +75,12 @@ export const loader = async({ params }: LoaderFunctionArgs) => {
 		voteTypeName: vote?.voteType.name,
 	} as IVoteDetail;
 
-	return json({vote: voteDetail});
+	return json({ vote: voteDetail });
 }
 
 export interface IVoteDetail {
 	sourceUrl: string;
+	updatedAt: Date;
 	session: string;
 	categoryName: string;
 	chamberName: string;
@@ -91,21 +94,39 @@ export interface IVoteDetail {
 export default function VoteDetail() {
 	const { vote } = useLoaderData<typeof loader>();
 
-  return (
+	return (
 		<div className="container mx-auto">
-			<div className="prose">
-				<Card 
-					title={`Vote ${vote.congressionalVoteId}`}
-					actions={['Click me', 'No, Click Me']
-						.map((text, index) => {
-							return <button className='btn btn-primary' key={index}>{text}</button>
-						})
-					}>
-					Hello World
-				</Card>
-			</div>
-			<div>
-			</div>
+
+			<Card
+				title={`${vote.congressionalVoteId} - ${vote.chamberName} - ${vote.congressionalSessionName}`} width='full'>
+				<div className="metadata">
+					<div>
+						<span><a href={vote.sourceUrl}>Source</a></span>
+					</div>
+					<div>
+						<span>Type</span> {vote.voteTypeName}
+					</div>
+					<div>
+						<span>Requires</span> {vote.requiresTypeName}
+					</div>
+					<div>
+						<span>Result</span> {vote.resultTypeName}
+					</div>
+					<div>
+						<span>Congressional Vote Id</span> {vote.congressionalVoteId}
+					</div>
+					<div>
+						<span>Last Updated:</span> {new Date(vote.updatedAt).toLocaleDateString('en-US', {
+							year: 'numeric',
+							month: 'long',
+							day: 'numeric'
+						})}
+					</div>
+
+				</div>
+
+			</Card>
 		</div>
-  );
+
+	);
 }
