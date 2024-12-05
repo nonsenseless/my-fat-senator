@@ -14,7 +14,6 @@ export class VoteTypeService {
 	};
 
 	getOrCreateVoteType = async (record: IVote) => {
-		console.log('Creating vote type: ', record.type)
 		const incoming = await this.database.voteType.findFirst({
 			where: {
 				name: record.type
