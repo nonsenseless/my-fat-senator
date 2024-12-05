@@ -1,0 +1,10 @@
+.ballots-list .r-party-list-item{
+	background: rgba(255, 0, 0, .15);
+}
+.ballots-list .d-party-list-item{
+	background: rgba(0, 0, 255, .15);
+}
+
+.max-height-under-navbar{ 
+	max-height: calc(100vh - 100px);
+}

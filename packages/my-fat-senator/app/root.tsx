@@ -19,10 +19,12 @@ import stylesheet from "~/tailwind.css";
 import Drawer from "./shared/drawer";
 import { ModelRendererProps } from "./shared/model-renderer-props";
 import Navbar from "./shared/navbar";
+import styles from './styles/shared.css';
 
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
+  { rel: "stylesheet", href: styles },
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
@@ -42,7 +44,7 @@ export function Layout (props: PropsWithChildren<ModelRendererProps>)
         <Links />
       </head>
       <body className="h-full">
-        <main>
+        <main className="bg-slate-100">
           <Navbar></Navbar>
           <Drawer>
               { props.children }

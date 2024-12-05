@@ -1,8 +1,9 @@
-import { Ballot, PrismaClient } from "@prisma/client";
+import { BallotChoiceType, Legislator, Party, PrismaClient, State } from "@prisma/client";
 import { json, LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
-import { Card } from "~/shared/card";
+import { BallotsList } from "~/shared/ballots-list";
+import { Card, CardWidth } from "~/shared/card";
 
 export const meta: MetaFunction = () => [{ title: "Votes" }];
 
@@ -66,45 +67,26 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 		where: {
 			voteId: $id
 		},
-		select: {
-			id: true,
-			vote: {
-				select: {
-					id: true
-				}
-			},
-			ballotChoiceType: {
-				select: {
-					name: true,
-					slug: true
-				}
-			},
+		include: {
 			legislator: {
-				select: {
-					displayName: true,
-					firstName: true,
-					lastName: true,
-					state: {
-						select: {
-							shortName: true,
-							name: true
-						}
-					},
-					party: {
-						select: {
-							name: true,
-							slug: true
-						}
-					}
+				include: {
+					party: true,
+					state: true
 				}
-			}
-		}
+			},
+			ballotChoiceType: true,
+		},
 	});
 
 	const voteDetail = {
 		sourceUrl: vote?.sourceUrl,
 		session: vote?.session,
 		updatedAt: vote?.updatedAt,
+		updatedAtFormatted: new Date(vote!.updatedAt).toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric'
+		}),
 		categoryName: vote?.category.name,
 		chamberName: vote?.chamber.name,
 		congressionalSessionName: vote?.congressionalSession.name,
@@ -114,14 +96,14 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 		voteTypeName: vote?.voteType.name,
 	} as IVoteDetail;
 
-	return json({ vote: voteDetail, ballots: ballots });
+	return json({ vote: voteDetail, ballots });
 }
 
 export interface IVoteDetail {
 	sourceUrl: string;
 	updatedAt: Date;
+	updatedAtFormatted: string;
 	session: string;
-	ballots: Ballot[];
 	categoryName: string;
 	chamberName: string;
 	congressionalSessionName: string;
@@ -131,83 +113,58 @@ export interface IVoteDetail {
 	voteTypeName: string;
 }
 
+export interface LegislatorViewModel extends Legislator {
+	party: Party;
+	state: State;
+}
+
+export interface BallotViewModel {
+	ballotChoiceType: BallotChoiceType
+	legislator: LegislatorViewModel;
+
+}
+
 export default function VoteDetail() {
 	const { vote, ballots } = useLoaderData<typeof loader>();
 
 	return (
-		<div className="container mx-auto">
-
+		<div className="grid grid-cols-5 gap-3">
 			<Card
-				title={`${vote.congressionalVoteId} - ${vote.chamberName} - ${vote.congressionalSessionName}`} width='full'>
-				<div className="metadata">
-					<div>
-						<span><a href={vote.sourceUrl}>Source</a></span>
-					</div>
-					<div>
-						<span>Type</span> {vote.voteTypeName}
-					</div>
-					<div>
-						<span>Requires</span> {vote.requiresTypeName}
-					</div>
-					<div>
-						<span>Result</span> {vote.resultTypeName}
-					</div>
-					<div>
-						<span>Congressional Vote Id</span> {vote.congressionalVoteId}
-					</div>
-					<div>
-						<span>Last Updated:</span> {new Date(vote.updatedAt).toLocaleDateString('en-US', {
-							year: 'numeric',
-							month: 'long',
-							day: 'numeric'
-						})}
-					</div>
+				className="overflow-auto max-height-under-navbar"
+				title={`${vote.congressionalVoteId} - ${vote.chamberName} - ${vote.congressionalSessionName}`}
+				width={CardWidth["w-full"]}>
+				<dl className='prose-sm'>
+					<dt><a href={vote.sourceUrl}>Source</a></dt>
+					<dt>Type</dt>
+					<dd>{vote.voteTypeName}</dd>
+					<dt>Requires</dt>
+					<dd>{vote.requiresTypeName}</dd>
+					<dt>Result</dt>
+					<dd>{vote.resultTypeName}</dd>
+					<dt>Congressional Vote Id</dt>
+					<dd>{vote.congressionalVoteId}</dd>
+					<dt>Last Updated</dt>
+					<dd>{vote.updatedAtFormatted}</dd>
+				</dl>
+			</Card>
+			<Card
+				className="col-span-4 overflow-auto max-height-under-navbar"
+				width={CardWidth["w-full"]}>
+				<div className="ballots flex justify-between">
+					<BallotsList
+						ballotChoiceType='Not Voting'
+						ballots={ballots.filter((value) => value.ballotChoiceType.slug == 'not_voting')}></BallotsList>
+					<BallotsList ballotChoiceType='Nay' ballots={
+						ballots.filter((value) => value.ballotChoiceType.slug == 'nay')
+					}></BallotsList>
+					<BallotsList ballotChoiceType='Yea' ballots={
+						ballots.filter((value) => value.ballotChoiceType.slug == 'yea')
+					}></BallotsList>
+					<BallotsList ballotChoiceType='Present' ballots={
+						ballots.filter((value) => value.ballotChoiceType.slug == 'present')
+					}></BallotsList>
 				</div>
-				<div className="ballots">
-					<div className="ballot-choice-type-list">
-						<h2>Not Voting</h2>
-						{ballots
-							.filter((value) => value.ballotChoiceType.slug == 'voting')
-							.map((ballot, index) => (
-								<li key={index}>{ballot.legislator.displayName} ({ballot.legislator.party.slug}))</li>
-							))
-						}
-
-					</div>
-					<div className="ballot-choice-type-list">
-						<h2>Nay</h2>
-						{ballots
-							.filter((value) => value.ballotChoiceType.slug == 'nay')
-							.map((ballot, index) => (
-								<li key={index}>{ballot.legislator.displayName} ({ballot.legislator.party.slug}))</li>
-							))
-						}
-
-					</div>
-					<div className="ballot-choice-type-list">
-						<h2>Yea</h2>
-						{ballots
-							.filter((value) => value.ballotChoiceType.slug == 'yea')
-							.map((ballot, index) => (
-								<li key={index}>{ballot.legislator.displayName} ({ballot.legislator.party.slug}))</li>
-							))
-						}
-
-					</div>
-					<div className="ballot-choice-type-list">
-						<h2>Present</h2>
-						{ballots
-							.filter((value) => value.ballotChoiceType.slug == 'present')
-							.map((ballot, index) => (
-								<li key={index}>{ballot.legislator.displayName} ({ballot.legislator.party.slug}))</li>
-							))
-						}
-
-					</div>
-				</div>
-
 			</Card>
 		</div>
-
 	);
 }
