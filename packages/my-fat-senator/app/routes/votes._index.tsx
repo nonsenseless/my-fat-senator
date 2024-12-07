@@ -31,68 +31,29 @@ export const loader = async ({request}: LoaderFunctionArgs) => {
 		filter[key] = value;
 	})
 
+	filter["congressional_vote_id"] = `%${filter["congressional_vote_id"]}%`
+
 	const prisma = new PrismaClient();
-	const votes = await prisma.vote.findMany({
-		where: filter as Prisma.VoteWhereInput,
-		select: {
-			id: true,
-			session: true,
-			sourceUrl: true,
-			congressional_vote_id: true,
-			congressional_updated_at: true,
-			category: {
-				select: {
-					name: true,
-					slug: true
-				}
-			},
-			chamber: {
-				select: {
-					name: true,
-					slug: true
-				}
-			},
-			congressionalSession: {
-				select: {
-					name: true,
-					slug: true
-				}
-			},
-			requiresType: {
-				select: {
-					name: true,
-					slug: true
-				}
-			},
-			resultType: {
-				select: {
-					name: true,
-					slug: true
-				}
-			},
-			voteType: {
-				select: {
-					name: true,
-					slug: true
-				}
-			},
-		}
-	});
+	const query = Prisma.sql`
+			SELECT Vote.id, session, sourceUrl, congressional_vote_id, congressional_updated_at,
+			CategoryType.name as categoryTypeName, 
+			Chamber.name as chamberName, 
+			CongressionalSession.name as congressionalSessionName, 
+			RequiresType.name as requiresTypeName, 
+			ResultType.name as resultTypeName, 
+			VoteType.name as voteTypeName 
+			FROM Vote 
+				JOIN CategoryType ON Vote.categoryId = CategoryType.id
+				JOIN Chamber on Vote.chamberId = Chamber.id
+				JOIN CongressionalSession on Vote.congressionalSessionId = CongressionalSession.id
+				JOIN RequiresType on Vote.requiresTypeId = RequiresType.id
+				JOIN ResultType on Vote.resultTypeId = ResultType.id
+				JOIN VoteType on Vote.voteTypeId = VoteType.id
+				${filter["congressional_vote_id"] ? Prisma.join([Prisma.sql`WHERE Vote.congressional_vote_id LIKE `, Prisma.sql`${filter["congressional_vote_id"]}`, Prisma.sql``], "") : Prisma.empty}
+				`;
+	const votes = await prisma.$queryRaw(query);
 
-	const mapped = votes.map((vote) => ({
-		id: vote.id,
-		sourceUrl: vote.sourceUrl,
-		session: vote.session,
-		categoryName: vote.category.name,
-		chamberName: vote.chamber.name,
-		congressionalSessionName: vote.congressionalSession.name,
-		congressionalVoteId:vote.congressional_vote_id,
-		requiresTypeName: vote.requiresType.name,
-		resultTypeName: vote.resultType.name,
-		voteTypeName: vote.voteType.name,
-	}));
-
-	return json({ votes: mapped });
+	return json({ votes });
 }
 
 export default function Index() {
@@ -130,7 +91,7 @@ export default function Index() {
 									{votes.map((vote, index) =>
 										<tr key={index} className="hover">
 											<td><a href={`/votes/${vote.id}`}>View</a></td>
-											<td>{vote.congressionalVoteId}</td>
+											<td>{vote.congressional_vote_id}</td>
 											<td>{vote.session}</td>
 											<td>{vote.chamberName}</td>
 											<td>{vote.voteTypeName}</td>
