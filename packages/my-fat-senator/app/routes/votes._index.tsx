@@ -116,7 +116,7 @@ export default function Index() {
 							</Form>
 						</div>
 						<div className="col-span-4">
-							<table className="table-auto table-zebra prose max-w-full">
+							<table className="table-auto table-zebra prose w-full max-w-full">
 								<thead>
 									<tr>
 										<th>Source</th>
