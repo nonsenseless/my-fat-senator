@@ -11,14 +11,21 @@ export interface IVoteDetailParameters {
 	id: string; //Only a string because of the query string
 }
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 	const $id = parseInt(params.id as string);
+
+	const searchParams = new URL(request.url).searchParams;
+	const where = searchParams.size ? {
+		congressional_vote_id: searchParams.get('name')?.toString()
+	} : {
+		id: $id
+	}
+
 	const prisma = new PrismaClient();
 	const vote = await prisma.vote.findFirst({
-		where: {
-			id: $id
-		},
+		where: where,
 		select: {
+			id: true,
 			session: true,
 			sourceUrl: true,
 			congressional_vote_id: true,
@@ -79,6 +86,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 	});
 
 	const voteDetail = {
+		id: vote?.id,
 		sourceUrl: vote?.sourceUrl,
 		session: vote?.session,
 		updatedAt: vote?.updatedAt,
@@ -100,6 +108,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export interface IVoteDetail {
+	id: number;
 	sourceUrl: string;
 	updatedAt: Date;
 	updatedAtFormatted: string;
@@ -121,8 +130,8 @@ export interface LegislatorViewModel extends Legislator {
 export interface BallotViewModel {
 	ballotChoiceType: BallotChoiceType
 	legislator: LegislatorViewModel;
-
 }
+
 
 export default function VoteDetail() {
 	const { vote, ballots } = useLoaderData<typeof loader>();
@@ -134,6 +143,7 @@ export default function VoteDetail() {
 				title={`${vote.congressionalVoteId} - ${vote.chamberName} - ${vote.congressionalSessionName}`}
 				width={CardWidth["w-full"]}>
 				<dl className='prose-sm'>
+					<hr/>
 					<dt><a href={vote.sourceUrl}>Source</a></dt>
 					<dt>Type</dt>
 					<dd>{vote.voteTypeName}</dd>
