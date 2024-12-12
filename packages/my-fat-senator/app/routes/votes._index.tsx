@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { ActionFunctionArgs, json, LoaderFunctionArgs, redirect, type MetaFunction } from "@remix-run/node";
-import { Form, useLoaderData, useSearchParams } from "@remix-run/react";
+import { Form, useLoaderData, useSearchParams, useSubmit } from "@remix-run/react";
 
 import "ag-grid-community/styles/ag-grid.css";
 import { Card, CardWidth } from "~/shared/card";
@@ -98,6 +98,7 @@ export const loader = async ({request}: LoaderFunctionArgs) => {
 }
 
 export default function Index() {
+	const submit = useSubmit();
 	const { votes, lookups } = useLoaderData<typeof loader>();
 	const [ searchParams ] = useSearchParams();
 
@@ -109,12 +110,19 @@ export default function Index() {
 				width={CardWidth["w-full"]}>
 					<div className="grid grid-cols-5 gap-3 ">
 						<div>
-							<Form id="VoteSearchForm" method="GET" action={`/votes`}>
+							<Form 
+								id="VoteSearchForm" 
+								method="GET" 
+								action={`/votes`}
+								onChange={(e) => submit(e.currentTarget)}
+								>
 								<label className="form-control mb-5">
 									<span className="sr-only">Bill Name</span>
 									<input 
 										type="text" 
-										value={searchParams.get("congressional_vote_id") || undefined} // TODO is there any practical reason to treat undefined and null as different?
+										defaultValue={searchParams.get("congressional_vote_id") || undefined} // TODO is there any practical reason to treat undefined and null as different?
+										value=""
+										
 										name="congressional_vote_id" 
 										placeholder="Bill Name" 
 										className="input input-primary input-bordered"/>
@@ -122,75 +130,95 @@ export default function Index() {
 								<label className="form-control mb-5">
 									<span className="sr-only">Chamber</span>
 									<select 
+									defaultValue="0"
+										value={searchParams.get("chamberId") || undefined}
 										name="chamberId" 
 										className="select select-primary w-full max-w-xs">
-											<option disabled selected>Chamber</option>
+											<option value="0" disabled>Chamber</option>
 											{	
 											lookups.chambers.map((chamber) => {
 												return <option 
 													key={chamber.id} 
 													value={chamber.id} 
-													selected={searchParams.get("chamberId") != null}
 													>{chamber.name}</option>
 											})}
 									</select>
 								</label>
 								<label className="form-control mb-5">
 									<span className="sr-only">Category</span>
-									<select name="categoryId" className="select select-primary w-full max-w-xs">
-										<option disabled selected>Category</option>
+									<select
+									defaultValue={0}
+									value={searchParams.get("categoryId") || undefined}
+									name="categoryId" 
+									className="select select-primary w-full max-w-xs">
+										<option value={0} disabled>Category</option>
 										{lookups.categoryTypes.map((category) => {
 											return <option 
 												key={category.id} 
 												value={category.id}
-												selected={searchParams.get("categoryId") != null}
 												>{category.name}</option>
 										})}
 									</select>
 								</label>
 								<label className="form-control mb-5">
 									<span className="sr-only">Requires</span>
-									<select name="requiresTypeId" className="select select-primary w-full max-w-xs">
-										<option disabled selected>Requires</option>
+									<select 
+										name="requiresTypeId" 
+										defaultValue={0}
+										value={searchParams.get("requiresTypeId") || undefined}
+										className="select select-primary w-full max-w-xs">
+										<option value={0} disabled>Requires</option>
 										{lookups.requiresTypes.map((requiresType) => {
 											return <option 
 												key={requiresType.id} 
 												value={requiresType.id}
-												selected={searchParams.get("requiresTypeId") != null}
 												>{requiresType.name}</option>
 										})}
 									</select>
 								</label>
 								<label className="form-control mb-5">
 									<span className="sr-only">Result Type</span>
-									<select name="resultTypeId" className="select select-primary w-full max-w-xs">
-										<option disabled selected>Result Type</option>
+									<select 
+										name="resultTypeId" 
+										defaultValue={0}
+										value={searchParams.get("resultTypeId") || undefined}
+										className="select select-primary w-full max-w-xs">
+										<option value={0} disabled>Result Type</option>
 										{lookups.resultTypes.map((resultType) => {
 											return <option 
 												key={resultType.id} 
 												value={resultType.id}
-												selected={searchParams.get("resultTypeId") != null}
 												>{resultType.name}</option>
 										})}
 									</select>
 								</label>
 								<label className="form-control mb-5">
 									<span className="sr-only">Session</span>
-									<select name="congressionalSessionId" className="select select-primary w-full max-w-xs">
-										<option disabled selected>Type</option>
+									<select 
+									name="congressionalSessionId" 
+									defaultValue={0}
+									value={searchParams.get("congressionalSessionId") || undefined}
+									className="select select-primary w-full max-w-xs">
+										<option value={0} disabled>Type</option>
 										{lookups.congressionalSessions.map((congressionalSession) => {
 											return <option 
 												key={congressionalSession.id} 
 												value={congressionalSession.id}
-												selected={searchParams.get("congressionalSessionId") != null}
 												>{congressionalSession.name}</option>
 										})}
 									</select>
 								</label>
 								<label className="form-control mb-5">
 									<span className="sr-only">Vote Type</span>
-									<select name="voteTypeId" className="select select-primary w-full max-w-xs">
-										<option disabled selected>Vote Type</option>
+									<select 
+									name="voteTypeId" 
+									defaultValue={0}
+									value={searchParams.get("voteTypeId") || undefined}
+									className="select select-primary w-full max-w-xs"
+									>
+										<option value={0} 
+										
+										disabled>Vote Type</option>
 										{lookups.voteTypes.map((voteType) => {
 											return <option key={voteType.id} value={voteType.id}>{voteType.name}</option>
 										})}
@@ -198,8 +226,12 @@ export default function Index() {
 								</label>
 								
 								<div className="flex justify-between">
-									<button className="btn btn-sm" type="submit">Submit</button>
-									<button className="btn btn-sm" type="button">Reset</button>
+									<button 
+										className="btn btn-sm" 
+										type="submit">Submit</button>
+									<button 
+										className="btn btn-sm" 
+										type="reset">Reset</button>
 								</div>
 							</Form>
 						</div>
