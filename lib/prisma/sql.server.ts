@@ -44,7 +44,8 @@ export class SqlBuilder {
 		for (const field of Object.keys(fields)) {
 			const param = params.get(field);
 			if (param) {
-				const clause = `Vote.${field} = ?`;
+				const key = (field as keyof typeof fields);	
+				const clause = `${fields[key].modelName}.${field} = ?`;
 				clauses.push(clause);
 				values.push(param);
 			}
