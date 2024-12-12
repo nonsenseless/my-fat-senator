@@ -1,8 +1,8 @@
-import { Prisma, PrismaClient } from "@prisma/client";
-import { ActionFunctionArgs, json, LoaderFunctionArgs, redirect, type MetaFunction } from "@remix-run/node";
-import { Form, useLoaderData, useSearchParams } from "@remix-run/react";
+import { SqlBuilder } from "@my-fat-senator/lib";
+import { PrismaClient } from "@prisma/client";
+import { json, LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
+import { Form, useLoaderData, useSearchParams, useSubmit } from "@remix-run/react";
 
-import "ag-grid-community/styles/ag-grid.css";
 import { Card, CardWidth } from "~/shared/card";
 
 export const meta: MetaFunction = () => [{ title: "Votes" }];
@@ -10,29 +10,6 @@ export const meta: MetaFunction = () => [{ title: "Votes" }];
 export interface QueryPaging {
 	page: number;
 	pageSize: number;
-}
-
-export interface VoteQueryFilter {
-	congressional_vote_id_like?: string;
-	chamberId?: string;
-	resultTypeId?: string;
-	requiresTypeId?: string;
-	categoryId?: string;
-	voteTypeId?: string;
-}
-
-export async function action({
-  request,
-}: ActionFunctionArgs) {
-	const formData = await request.formData();
-	const filter: SearchFilter = {};
-
-	for (const pair of formData.entries()) {
-		filter[pair[0]] = pair[1] as string;
-	}
-
-	const params = new URLSearchParams(filter).toString()
-  return redirect(`/votes?${params}`);
 }
 
 export const loader = async ({request}: LoaderFunctionArgs) => {
@@ -46,36 +23,14 @@ export const loader = async ({request}: LoaderFunctionArgs) => {
 		voteTypes: await prisma.voteType.findMany(),
 		categoryTypes: await prisma.categoryType.findMany()
 	}
+
 	// Process search form
 	const params = new URL(request.url).searchParams;
-	let whereClause = Prisma.empty;
-	if (params.size > 0) {
-		const clauses = [];
-
-		let param = params.get("congressional_vote_id");
-		if (param){
-			param = `%${param}%`
-			clauses.push(Prisma.sql`Vote.congressional_vote_id LIKE ${param}`)
-		} 
-		const whitelist = [
-			"voteTypeId", "chamberId", "requiresTypeId", "resultTypeId", "congressionalSessionId"
-		]
-		whitelist.forEach((field) => {
-			param = params.get(field);
-			if (param) {
-				clauses.push(
-					Prisma.join([
-						Prisma.raw(`Vote.${field} = `), Prisma.sql`${param}`
-					], " ")
-				)
-			}
-		})
-		if (clauses.length > 0) {
-			whereClause = Prisma.join([Prisma.sql`WHERE`, Prisma.join([...clauses], " AND ")], " ");
-		}
-	}
-
-	const query = Prisma.sql`
+	const votes = await SqlBuilder.executeRawUnsafe({
+		db: prisma,
+		fields: prisma.vote.fields,
+		params: new Map([...new URLSearchParams(params)]),
+		query: ` 
 			SELECT Vote.id, session, sourceUrl, congressional_vote_id, congressional_updated_at,
 			CategoryType.name as categoryTypeName, 
 			Chamber.name as chamberName, 
@@ -90,14 +45,14 @@ export const loader = async ({request}: LoaderFunctionArgs) => {
 				JOIN RequiresType on Vote.requiresTypeId = RequiresType.id
 				JOIN ResultType on Vote.resultTypeId = ResultType.id
 				JOIN VoteType on Vote.voteTypeId = VoteType.id
-				${whereClause}
-				`;
-	const votes = await prisma.$queryRaw(query);
+				`
+	});
 
 	return json({ votes, lookups });
 }
 
 export default function Index() {
+	const submit = useSubmit();
 	const { votes, lookups } = useLoaderData<typeof loader>();
 	const [ searchParams ] = useSearchParams();
 
@@ -109,13 +64,14 @@ export default function Index() {
 				width={CardWidth["w-full"]}>
 					<div className="grid grid-cols-5 gap-3 ">
 						<div>
-							<Form id="VoteSearchForm" method="GET" action={`/votes`}>
+							<Form id="VoteSearchForm" method="GET" action={`/votes`} >
 								<label className="form-control mb-5">
 									<span className="sr-only">Bill Name</span>
 									<input 
 										type="text" 
-										value={searchParams.get("congressional_vote_id") || undefined} // TODO is there any practical reason to treat undefined and null as different?
-										name="congressional_vote_id" 
+										onChange={(e) => submit(e.currentTarget.form)}
+										value={searchParams.get("congressional_vote_id_LIKE") || undefined} // TODO is there any practical reason to treat undefined and null as different?
+										name="congressional_vote_id_LIKE" 
 										placeholder="Bill Name" 
 										className="input input-primary input-bordered"/>
 								</label>
@@ -123,6 +79,7 @@ export default function Index() {
 									<span className="sr-only">Chamber</span>
 									<select 
 										name="chamberId" 
+										onChange={(e) => submit(e.currentTarget.form)}
 										className="select select-primary w-full max-w-xs">
 											<option disabled selected>Chamber</option>
 											{	
@@ -137,7 +94,10 @@ export default function Index() {
 								</label>
 								<label className="form-control mb-5">
 									<span className="sr-only">Category</span>
-									<select name="categoryId" className="select select-primary w-full max-w-xs">
+									<select 
+										onChange={(e) => submit(e.currentTarget.form)}
+										name="categoryId" 
+										className="select select-primary w-full max-w-xs">
 										<option disabled selected>Category</option>
 										{lookups.categoryTypes.map((category) => {
 											return <option 
@@ -150,7 +110,10 @@ export default function Index() {
 								</label>
 								<label className="form-control mb-5">
 									<span className="sr-only">Requires</span>
-									<select name="requiresTypeId" className="select select-primary w-full max-w-xs">
+									<select 
+										onChange={(e) => submit(e.currentTarget.form)}
+										name="requiresTypeId" 
+										className="select select-primary w-full max-w-xs">
 										<option disabled selected>Requires</option>
 										{lookups.requiresTypes.map((requiresType) => {
 											return <option 
@@ -163,7 +126,10 @@ export default function Index() {
 								</label>
 								<label className="form-control mb-5">
 									<span className="sr-only">Result Type</span>
-									<select name="resultTypeId" className="select select-primary w-full max-w-xs">
+									<select 
+										onChange={(e) => submit(e.currentTarget.form)}
+										name="resultTypeId" 
+										className="select select-primary w-full max-w-xs">
 										<option disabled selected>Result Type</option>
 										{lookups.resultTypes.map((resultType) => {
 											return <option 
@@ -176,7 +142,10 @@ export default function Index() {
 								</label>
 								<label className="form-control mb-5">
 									<span className="sr-only">Session</span>
-									<select name="congressionalSessionId" className="select select-primary w-full max-w-xs">
+									<select 
+										onChange={(e) => submit(e.currentTarget.form)}
+										name="congressionalSessionId" 
+										className="select select-primary w-full max-w-xs">
 										<option disabled selected>Type</option>
 										{lookups.congressionalSessions.map((congressionalSession) => {
 											return <option 
@@ -189,7 +158,10 @@ export default function Index() {
 								</label>
 								<label className="form-control mb-5">
 									<span className="sr-only">Vote Type</span>
-									<select name="voteTypeId" className="select select-primary w-full max-w-xs">
+									<select 
+										onChange={(e) => submit(e.currentTarget.form)}
+										name="voteTypeId" 
+										className="select select-primary w-full max-w-xs">
 										<option disabled selected>Vote Type</option>
 										{lookups.voteTypes.map((voteType) => {
 											return <option key={voteType.id} value={voteType.id}>{voteType.name}</option>
