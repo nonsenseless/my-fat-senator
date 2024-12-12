@@ -10,7 +10,7 @@ export interface IQuerySpecification {
 }
 
 export interface IWhere {
-	sql: Prisma.Sql;
+	sql: string;
 	values: string[];
 }
 
@@ -27,12 +27,7 @@ export class SqlBuilder {
 		invariant(query, 'query required');
 
 		const where = this.unsafeBuildWhere(fields, params);
-		const sql = Prisma.join([
-			Prisma.raw(`${query}`),
-			Prisma.raw(`${where.sql.sql}`)
-		], " ");
-
-		return await db.$queryRawUnsafe(`${query} ${where.sql.sql}`, ...where.values);
+		return await db.$queryRawUnsafe(`${query} ${where.sql}`, ...where.values);
 	};
 	
 	static unsafeBuildWhere(fields: Prisma.VoteFieldRefs, params: Map<string, string>): IWhere {
@@ -41,7 +36,7 @@ export class SqlBuilder {
 
 		if (params.size == 0) {
 			return {
-				sql: Prisma.empty,
+				sql: ``,
 				values: [] 
 			};
 		}
@@ -49,22 +44,19 @@ export class SqlBuilder {
 		for (const field of Object.keys(fields)) {
 			const param = params.get(field);
 			if (param) {
-				const clause = Prisma.raw(`Vote.${field} = ?`);
+				const clause = `Vote.${field} = ?`;
 				clauses.push(clause);
 				values.push(param);
 			}
 
 			if (params.get(field + "_LIKE")) {
-				const clause = Prisma.raw(`Vote.${field} LIKE %?%`);
+				const clause = `Vote.${field} LIKE %?%`;
 				clauses.push(clause);
 				values.push(`${"%" + params.get(field) + "%"}`);
 			}
 		}
-		const sql = Prisma.join(
-			[
-				Prisma.sql`WHERE`, 
-				Prisma.join([...clauses], " AND ")
-			], " "); 
+		const sql = `WHERE ${clauses.join(" AND ")}`;
+		
 		return {
 			sql,
 			values
