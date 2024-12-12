@@ -7,7 +7,8 @@
   ],
   "dependencies": {
     "@types/html": "^1.0.4",
-    "prisma": "^5.14.0"
+    "prisma": "^5.14.0",
+    "tiny-variant": "^0.0.0"
   },
   "description": "A monorepo for the My Fat Senator project",
   "scripts": {
