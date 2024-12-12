@@ -70,8 +70,8 @@ export default function Index() {
 									<input 
 										type="text" 
 										onChange={(e) => submit(e.currentTarget.form)}
-										value={searchParams.get("congressional_vote_id_LIKE") || undefined} // TODO is there any practical reason to treat undefined and null as different?
-										name="congressional_vote_id_LIKE" 
+										value={searchParams.get("congressional_vote_id") || undefined} // TODO is there any practical reason to treat undefined and null as different?
+										name="congressional_vote_id" 
 										placeholder="Bill Name" 
 										className="input input-primary input-bordered"/>
 								</label>
