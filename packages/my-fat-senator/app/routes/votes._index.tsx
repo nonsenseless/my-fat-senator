@@ -102,49 +102,38 @@ export default function Index() {
 	const { votes, lookups } = useLoaderData<typeof loader>();
 	const [ searchParams ] = useSearchParams();
 
-	const [congressionalVoteId, setCongressionalVoteId] = useState(
-		searchParams.get("congressional_vote_id") || ""
-  );
-	const [chamberId, setChamberId] = useState(
-		searchParams.get("chamberId") || ""
-  );
-	const [categoryId, setCategoryId] = useState(
-		searchParams.get("categoryId") || ""
-  );
-	const [resultTypeId, setResultTypeId] = useState(
-		searchParams.get("resultTypeId") || ""
-  );
-	const [requiresTypeId, setRequiresTypeId] = useState(
-		searchParams.get("requiresTypeId") || ""
-  );
-	const [congressionalSessionId, setCongressionalSessionId] = useState(
-		searchParams.get("congressionalSessionId") || ""
-  );
-	const [voteTypeId, setVoteTypeId] = useState(
-		searchParams.get("voteTypeId") || ""
-  );
+	const buildForm = (searchParams: URLSearchParams) => {
+		return {
+			congressional_vote_id: searchParams.get("congressional_vote_id") || "",
+			chamberId: searchParams.get("chamberId") || "",
+			categoryId: searchParams.get("categoryId") || "",
+			resultTypeId: searchParams.get("resultTypeId") || "",
+			requiresTypeId: searchParams.get("requiresTypeId") || "",
+			congressionalSessionId: searchParams.get("congressionalSessionId") || "",
+			voteTypeId: searchParams.get("voteTypeId") || "",
+		}
+	}
+
+	const [form, setForm] = useState(buildForm(searchParams))
 
 	const handleReset = () => {
-		setCongressionalVoteId("");
-		setChamberId("");
-		setCategoryId("");
-		setResultTypeId("");
-		setRequiresTypeId("");
-		setCongressionalSessionId("");
+		setForm({
+			congressional_vote_id: "",
+			chamberId: "",
+			categoryId: "",
+			resultTypeId: "",
+			requiresTypeId: "",
+			congressionalSessionId: "",
+			voteTypeId: "",
+		})
 	}
 
   // Update the state when the params change
   // (form submission or link click)
   useEffect(() => {
-		setCongressionalVoteId(congressionalVoteId);
-		setChamberId(chamberId);
-		setCategoryId(categoryId);
-		setResultTypeId(resultTypeId);
-		setRequiresTypeId(requiresTypeId);
-		setCongressionalSessionId(congressionalSessionId);
+		setForm(buildForm(searchParams))
   }, [
-		congressionalVoteId, chamberId, categoryId, 
-		resultTypeId, requiresTypeId, congressionalSessionId
+		searchParams
 	]);
 
 	return (
@@ -164,11 +153,14 @@ export default function Index() {
 									<span className="sr-only">Bill Name</span>
 									<input 
 										type="text" 
-										value={congressionalVoteId}
+										value={form.congressional_vote_id}
 										name="congressional_vote_id" 
 										placeholder="Bill Name" 
 										onChange={(e) => {
-											setCongressionalVoteId(e.currentTarget.value);
+											setForm({
+												...form,
+												congressional_vote_id: e.currentTarget.value
+										});
 										}}
 										className="input input-primary input-bordered"/>
 								</label>
@@ -177,9 +169,12 @@ export default function Index() {
 									<select 
 										name="chamberId" 
 										className="select select-primary w-full max-w-xs"
-										value={chamberId}
+										value={form.chamberId}
 										onChange={(e) => {
-											setChamberId(e.currentTarget.value);
+											setForm({
+												...form,
+												chamberId: e.currentTarget.value
+											});
 										}}
 										>
 											<option value="">Chamber</option>
@@ -197,9 +192,12 @@ export default function Index() {
 									<select
 									name="categoryId" 
 									className="select select-primary w-full max-w-xs"
-									value={categoryId}
+									value={form.categoryId}
 									onChange={(e) => {
-										setCategoryId(e.currentTarget.value);
+										setForm({
+											...form,
+											categoryId: e.currentTarget.value 
+										})
 									}}
 									>
 										<option value="">Category</option>
@@ -216,9 +214,12 @@ export default function Index() {
 									<select 
 										name="requiresTypeId" 
 										className="select select-primary w-full max-w-xs"
-										value={requiresTypeId}
+										value={form.requiresTypeId}
 										onChange={(e) => {
-											setRequiresTypeId(e.currentTarget.value);
+											setForm({
+												...form,
+												requiresTypeId: e.currentTarget.value
+										});
 										}}
 										>
 										<option value="">Requires</option>
@@ -235,9 +236,9 @@ export default function Index() {
 									<select 
 										name="resultTypeId" 
 										className="select select-primary w-full max-w-xs"
-										value={resultTypeId}
+										value={form.resultTypeId}
 										onChange={(e) => {
-											setResultTypeId(e.currentTarget.value);
+											setForm({...form, resultTypeId: e.currentTarget.value});
 										}}
 										>
 										<option value="">Result Type</option>
@@ -254,9 +255,9 @@ export default function Index() {
 									<select 
 									name="congressionalSessionId" 
 									className="select select-primary w-full max-w-xs"
-									value={congressionalSessionId}
+									value={form.congressionalSessionId}
 									onChange={(e) => {
-										setCongressionalSessionId(e.currentTarget.value);
+											setForm({...form, congressionalSessionId: e.currentTarget.value});
 									}}
 									>
 										<option value="" >Type</option>
@@ -273,9 +274,9 @@ export default function Index() {
 									<select 
 									name="voteTypeId" 
 									className="select select-primary w-full max-w-xs"
-									value={voteTypeId}
+									value={form.voteTypeId}
 									onChange={(e) => {
-										setVoteTypeId(e.currentTarget.value);
+										setForm({...form, voteTypeId: e.currentTarget.value});
 									}}
 									>
 										<option value="" >Vote Type</option>
