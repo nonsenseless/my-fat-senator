@@ -1,8 +1,9 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { ActionFunctionArgs, json, LoaderFunctionArgs, redirect, type MetaFunction } from "@remix-run/node";
-import { Form, useLoaderData, useSearchParams, useSubmit } from "@remix-run/react";
-
+import { Form, useLoaderData, useSearchParams } from "@remix-run/react";
 import "ag-grid-community/styles/ag-grid.css";
+import { useEffect, useState } from "react";
+
 import { Card, CardWidth } from "~/shared/card";
 
 export const meta: MetaFunction = () => [{ title: "Votes" }];
@@ -98,9 +99,53 @@ export const loader = async ({request}: LoaderFunctionArgs) => {
 }
 
 export default function Index() {
-	const submit = useSubmit();
 	const { votes, lookups } = useLoaderData<typeof loader>();
 	const [ searchParams ] = useSearchParams();
+
+	const [congressionalVoteId, setCongressionalVoteId] = useState(
+		searchParams.get("congressional_vote_id") || ""
+  );
+	const [chamberId, setChamberId] = useState(
+		searchParams.get("chamberId") || ""
+  );
+	const [categoryId, setCategoryId] = useState(
+		searchParams.get("categoryId") || ""
+  );
+	const [resultTypeId, setResultTypeId] = useState(
+		searchParams.get("resultTypeId") || ""
+  );
+	const [requiresTypeId, setRequiresTypeId] = useState(
+		searchParams.get("requiresTypeId") || ""
+  );
+	const [congressionalSessionId, setCongressionalSessionId] = useState(
+		searchParams.get("congressionalSessionId") || ""
+  );
+	const [voteTypeId, setVoteTypeId] = useState(
+		searchParams.get("voteTypeId") || ""
+  );
+
+	const handleReset = () => {
+		setCongressionalVoteId("");
+		setChamberId("");
+		setCategoryId("");
+		setResultTypeId("");
+		setRequiresTypeId("");
+		setCongressionalSessionId("");
+	}
+
+  // Update the state when the params change
+  // (form submission or link click)
+  useEffect(() => {
+		setCongressionalVoteId(congressionalVoteId);
+		setChamberId(chamberId);
+		setCategoryId(categoryId);
+		setResultTypeId(resultTypeId);
+		setRequiresTypeId(requiresTypeId);
+		setCongressionalSessionId(congressionalSessionId);
+  }, [
+		congressionalVoteId, chamberId, categoryId, 
+		resultTypeId, requiresTypeId, congressionalSessionId
+	]);
 
 	return (
 		<div >
@@ -114,27 +159,30 @@ export default function Index() {
 								id="VoteSearchForm" 
 								method="GET" 
 								action={`/votes`}
-								onChange={(e) => submit(e.currentTarget)}
 								>
 								<label className="form-control mb-5">
 									<span className="sr-only">Bill Name</span>
 									<input 
 										type="text" 
-										defaultValue={searchParams.get("congressional_vote_id") || undefined} // TODO is there any practical reason to treat undefined and null as different?
-										value=""
-										
+										value={congressionalVoteId}
 										name="congressional_vote_id" 
 										placeholder="Bill Name" 
+										onChange={(e) => {
+											setCongressionalVoteId(e.currentTarget.value);
+										}}
 										className="input input-primary input-bordered"/>
 								</label>
 								<label className="form-control mb-5">
 									<span className="sr-only">Chamber</span>
 									<select 
-									defaultValue="0"
-										value={searchParams.get("chamberId") || undefined}
 										name="chamberId" 
-										className="select select-primary w-full max-w-xs">
-											<option value="0" disabled>Chamber</option>
+										className="select select-primary w-full max-w-xs"
+										value={chamberId}
+										onChange={(e) => {
+											setChamberId(e.currentTarget.value);
+										}}
+										>
+											<option value="">Chamber</option>
 											{	
 											lookups.chambers.map((chamber) => {
 												return <option 
@@ -147,11 +195,14 @@ export default function Index() {
 								<label className="form-control mb-5">
 									<span className="sr-only">Category</span>
 									<select
-									defaultValue={0}
-									value={searchParams.get("categoryId") || undefined}
 									name="categoryId" 
-									className="select select-primary w-full max-w-xs">
-										<option value={0} disabled>Category</option>
+									className="select select-primary w-full max-w-xs"
+									value={categoryId}
+									onChange={(e) => {
+										setCategoryId(e.currentTarget.value);
+									}}
+									>
+										<option value="">Category</option>
 										{lookups.categoryTypes.map((category) => {
 											return <option 
 												key={category.id} 
@@ -164,10 +215,13 @@ export default function Index() {
 									<span className="sr-only">Requires</span>
 									<select 
 										name="requiresTypeId" 
-										defaultValue={0}
-										value={searchParams.get("requiresTypeId") || undefined}
-										className="select select-primary w-full max-w-xs">
-										<option value={0} disabled>Requires</option>
+										className="select select-primary w-full max-w-xs"
+										value={requiresTypeId}
+										onChange={(e) => {
+											setRequiresTypeId(e.currentTarget.value);
+										}}
+										>
+										<option value="">Requires</option>
 										{lookups.requiresTypes.map((requiresType) => {
 											return <option 
 												key={requiresType.id} 
@@ -180,10 +234,13 @@ export default function Index() {
 									<span className="sr-only">Result Type</span>
 									<select 
 										name="resultTypeId" 
-										defaultValue={0}
-										value={searchParams.get("resultTypeId") || undefined}
-										className="select select-primary w-full max-w-xs">
-										<option value={0} disabled>Result Type</option>
+										className="select select-primary w-full max-w-xs"
+										value={resultTypeId}
+										onChange={(e) => {
+											setResultTypeId(e.currentTarget.value);
+										}}
+										>
+										<option value="">Result Type</option>
 										{lookups.resultTypes.map((resultType) => {
 											return <option 
 												key={resultType.id} 
@@ -196,10 +253,13 @@ export default function Index() {
 									<span className="sr-only">Session</span>
 									<select 
 									name="congressionalSessionId" 
-									defaultValue={0}
-									value={searchParams.get("congressionalSessionId") || undefined}
-									className="select select-primary w-full max-w-xs">
-										<option value={0} disabled>Type</option>
+									className="select select-primary w-full max-w-xs"
+									value={congressionalSessionId}
+									onChange={(e) => {
+										setCongressionalSessionId(e.currentTarget.value);
+									}}
+									>
+										<option value="" >Type</option>
 										{lookups.congressionalSessions.map((congressionalSession) => {
 											return <option 
 												key={congressionalSession.id} 
@@ -212,13 +272,13 @@ export default function Index() {
 									<span className="sr-only">Vote Type</span>
 									<select 
 									name="voteTypeId" 
-									defaultValue={0}
-									value={searchParams.get("voteTypeId") || undefined}
 									className="select select-primary w-full max-w-xs"
+									value={voteTypeId}
+									onChange={(e) => {
+										setVoteTypeId(e.currentTarget.value);
+									}}
 									>
-										<option value={0} 
-										
-										disabled>Vote Type</option>
+										<option value="" >Vote Type</option>
 										{lookups.voteTypes.map((voteType) => {
 											return <option key={voteType.id} value={voteType.id}>{voteType.name}</option>
 										})}
@@ -231,6 +291,7 @@ export default function Index() {
 										type="submit">Submit</button>
 									<button 
 										className="btn btn-sm" 
+										onClick={handleReset}
 										type="reset">Reset</button>
 								</div>
 							</Form>
