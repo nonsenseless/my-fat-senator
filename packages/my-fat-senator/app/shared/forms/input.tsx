@@ -2,12 +2,13 @@ import { useSearchParams } from "@remix-run/react";
 import React from 'react';
 
 
-export interface ITextInputProps {
+export interface IInputProps {
 	name: string;
 	placeholder: string;
+	className?: string;
 }
 
-export const TextInput: React.FC<ITextInputProps> = ({ name, placeholder }) => {
+export const Input: React.FC<IInputProps> = ({ name, placeholder, className="" }) => {
 
 	const [searchParams] = useSearchParams();
 	const [text, setText] = React.useState(
@@ -20,7 +21,7 @@ export const TextInput: React.FC<ITextInputProps> = ({ name, placeholder }) => {
 	}, [name, searchParams]);
 
 	return (
-		<label className="form-control mb-5">
+		<label className={`form-control ${className}`}>
 			<span className="sr-only">{placeholder}</span>
 			<input 
 				type="text" 
