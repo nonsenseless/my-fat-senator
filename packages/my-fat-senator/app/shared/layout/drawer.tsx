@@ -1,6 +1,6 @@
 import { PropsWithChildren } from "react"
 
-import { ModelRendererProps } from "./model-renderer-props"
+import { ModelRendererProps } from "../model-renderer-props"
 
 export default function Drawer(props: PropsWithChildren<ModelRendererProps>) {
 

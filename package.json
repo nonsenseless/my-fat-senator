@@ -6,9 +6,8 @@
     "packages/*"
   ],
   "dependencies": {
-    "@prisma/client": "^6.0.1",
     "@types/html": "^1.0.4",
-    "tiny-variant": "^0.0.0"
+    "prisma": "^5.14.0"
   },
   "description": "A monorepo for the My Fat Senator project",
   "scripts": {
@@ -24,7 +23,6 @@
     "@types/node": "^22.5.4",
     "daisyui": "^4.12.10",
     "dotenv": "^16.4.5",
-    "prisma": "^6.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   }

@@ -1,9 +1,11 @@
 import { SqlBuilder } from "@my-fat-senator/lib";
 import { PrismaClient } from "@prisma/client";
 import { json, LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
-import { Form, useLoaderData, useSearchParams, useSubmit } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 
-import { Card, CardWidth } from "~/shared/card";
+import { Input } from "~/shared/forms/input";
+import { Select } from "~/shared/forms/select";
+import { Card, CardWidth } from "~/shared/layout/card";
 
 export const meta: MetaFunction = () => [{ title: "Votes" }];
 
@@ -52,126 +54,62 @@ export const loader = async ({request}: LoaderFunctionArgs) => {
 }
 
 export default function Index() {
-	const submit = useSubmit();
 	const { votes, lookups } = useLoaderData<typeof loader>();
-	const [ searchParams ] = useSearchParams();
 
 	return (
-		<div >
 			<Card 
-				className="overflow-auto max-height-under-navbar"
+				className="overflow-auto"
 				title="Votes"
-				width={CardWidth["w-full"]}>
+				width={CardWidth.Full}>
 					<div className="grid grid-cols-5 gap-3 ">
 						<div>
-							<Form id="VoteSearchForm" method="GET" action={`/votes`} >
-								<label className="form-control mb-5">
-									<span className="sr-only">Bill Name</span>
-									<input 
-										type="text" 
-										onChange={(e) => submit(e.currentTarget.form)}
-										value={searchParams.get("congressional_vote_id") || undefined} // TODO is there any practical reason to treat undefined and null as different?
+							<Form 
+								id="VoteSearchForm" 
+								method="GET" 
+								action={`/votes`}
+								>
+									<Input 
 										name="congressional_vote_id" 
-										placeholder="Bill Name" 
-										className="input input-primary input-bordered"/>
-								</label>
-								<label className="form-control mb-5">
-									<span className="sr-only">Chamber</span>
-									<select 
-										name="chamberId" 
-										onChange={(e) => submit(e.currentTarget.form)}
-										className="select select-primary w-full max-w-xs">
-											<option disabled selected>Chamber</option>
-											{	
-											lookups.chambers.map((chamber) => {
-												return <option 
-													key={chamber.id} 
-													value={chamber.id} 
-													selected={searchParams.get("chamberId") != null}
-													>{chamber.name}</option>
-											})}
-									</select>
-								</label>
-								<label className="form-control mb-5">
-									<span className="sr-only">Category</span>
-									<select 
-										onChange={(e) => submit(e.currentTarget.form)}
-										name="categoryId" 
-										className="select select-primary w-full max-w-xs">
-										<option disabled selected>Category</option>
-										{lookups.categoryTypes.map((category) => {
-											return <option 
-												key={category.id} 
-												value={category.id}
-												selected={searchParams.get("categoryId") != null}
-												>{category.name}</option>
-										})}
-									</select>
-								</label>
-								<label className="form-control mb-5">
-									<span className="sr-only">Requires</span>
-									<select 
-										onChange={(e) => submit(e.currentTarget.form)}
-										name="requiresTypeId" 
-										className="select select-primary w-full max-w-xs">
-										<option disabled selected>Requires</option>
-										{lookups.requiresTypes.map((requiresType) => {
-											return <option 
-												key={requiresType.id} 
-												value={requiresType.id}
-												selected={searchParams.get("requiresTypeId") != null}
-												>{requiresType.name}</option>
-										})}
-									</select>
-								</label>
-								<label className="form-control mb-5">
-									<span className="sr-only">Result Type</span>
-									<select 
-										onChange={(e) => submit(e.currentTarget.form)}
-										name="resultTypeId" 
-										className="select select-primary w-full max-w-xs">
-										<option disabled selected>Result Type</option>
-										{lookups.resultTypes.map((resultType) => {
-											return <option 
-												key={resultType.id} 
-												value={resultType.id}
-												selected={searchParams.get("resultTypeId") != null}
-												>{resultType.name}</option>
-										})}
-									</select>
-								</label>
-								<label className="form-control mb-5">
-									<span className="sr-only">Session</span>
-									<select 
-										onChange={(e) => submit(e.currentTarget.form)}
-										name="congressionalSessionId" 
-										className="select select-primary w-full max-w-xs">
-										<option disabled selected>Type</option>
-										{lookups.congressionalSessions.map((congressionalSession) => {
-											return <option 
-												key={congressionalSession.id} 
-												value={congressionalSession.id}
-												selected={searchParams.get("congressionalSessionId") != null}
-												>{congressionalSession.name}</option>
-										})}
-									</select>
-								</label>
-								<label className="form-control mb-5">
-									<span className="sr-only">Vote Type</span>
-									<select 
-										onChange={(e) => submit(e.currentTarget.form)}
-										name="voteTypeId" 
-										className="select select-primary w-full max-w-xs">
-										<option disabled selected>Vote Type</option>
-										{lookups.voteTypes.map((voteType) => {
-											return <option key={voteType.id} value={voteType.id}>{voteType.name}</option>
-										})}
-									</select>
-								</label>
-								
+										className="mb-5"
+										placeholder="Bill Name">
+									</Input>
+									<Select
+										name="chamberId"
+										className="mb-5"
+										placeholder="Chamber"
+										options={lookups.chambers}></Select>
+									<Select
+										name="categoryTypeId"
+										className="mb-5"
+										placeholder="Category"
+										options={lookups.categoryTypes}></Select>
+									<Select
+										name="requiresTypeId"
+										className="mb-5"
+										placeholder="Requires"
+										options={lookups.requiresTypes}></Select>
+									<Select
+										name="resultTypeId"
+										className="mb-5"
+										placeholder="Result"
+										options={lookups.resultTypes}></Select>
+									<Select
+										name="congressionalSessionId"
+										className="mb-5"
+										placeholder="Congressional Session"
+										options={lookups.congressionalSessions}></Select>
+									<Select
+										name="voteTypeId"
+										className="mb-5"
+										placeholder="Vote Type"
+										options={lookups.voteTypes}></Select>
 								<div className="flex justify-between">
-									<button className="btn btn-sm" type="submit">Submit</button>
-									<button className="btn btn-sm" type="button">Reset</button>
+									<button 
+										className="btn btn-sm" 
+										type="submit">Submit</button>
+									<button 
+										className="btn btn-sm" 
+										type="reset">Reset</button>
 								</div>
 							</Form>
 						</div>
@@ -201,6 +139,5 @@ export default function Index() {
 						</div>
 					</div>
 			</Card>
-		</div>
 	);
 }

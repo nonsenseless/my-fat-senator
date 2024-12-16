@@ -16,9 +16,9 @@ import { PropsWithChildren } from "react";
 import { getUser } from "~/session.server";
 import stylesheet from "~/tailwind.css";
 
-import Drawer from "./shared/drawer";
+import Drawer from "./shared/layout/drawer";
+import Navbar from "./shared/layout/navbar";
 import { ModelRendererProps } from "./shared/model-renderer-props";
-import Navbar from "./shared/navbar";
 import styles from './styles/shared.css';
 
 

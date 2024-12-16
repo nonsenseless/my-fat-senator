@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { ModelRendererProps } from './model-renderer-props';
+import { ModelRendererProps } from '../model-renderer-props';
 
 
 export enum CardWidth {
-	"w-full",
-	"w-96"
+	Full = "w-full",
+	W96 = "w-96"
 }
 
 export enum CardBackgroundBase {
