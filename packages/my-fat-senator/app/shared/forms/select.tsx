@@ -11,9 +11,10 @@ export interface ISelectProps {
 	name: string;
 	placeholder: string;
 	options: ISelectOption[];
+	className?: string;
 }
 
-export const Select: React.FC<ISelectProps> = ({ name, placeholder, options }) => {
+export const Select: React.FC<ISelectProps> = ({ name, placeholder, options, className="" }) => {
 	tinyinvariant(options, "Options required for select.");
 
 	const [searchParams] = useSearchParams();
@@ -27,7 +28,7 @@ export const Select: React.FC<ISelectProps> = ({ name, placeholder, options }) =
 	}, [name, searchParams]);
 
 	return (
-			<label className="form-control mb-5">
+			<label className={`form-control ${className}`}>
 				<span className="sr-only">{placeholder}</span>
 				<select
 					name={name}

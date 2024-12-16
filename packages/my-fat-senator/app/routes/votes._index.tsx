@@ -2,8 +2,8 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import { ActionFunctionArgs, json, LoaderFunctionArgs, redirect, type MetaFunction } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 
+import { Input } from "~/shared/forms/input";
 import { Select } from "~/shared/forms/select";
-import { TextInput } from "~/shared/forms/text-input";
 import { Card, CardWidth } from "~/shared/layout/card";
 
 export const meta: MetaFunction = () => [{ title: "Votes" }];
@@ -114,32 +114,39 @@ export default function Index() {
 								method="GET" 
 								action={`/votes`}
 								>
-									<TextInput 
+									<Input 
 										name="congressional_vote_id" 
+										className="mb-5"
 										placeholder="Bill Name">
-									</TextInput>
+									</Input>
 									<Select
 										name="chamberId"
+										className="mb-5"
 										placeholder="Chamber"
 										options={lookups.chambers}></Select>
 									<Select
 										name="categoryTypeId"
+										className="mb-5"
 										placeholder="Category"
 										options={lookups.categoryTypes}></Select>
 									<Select
 										name="requiresTypeId"
+										className="mb-5"
 										placeholder="Requires"
 										options={lookups.requiresTypes}></Select>
 									<Select
 										name="resultTypeId"
+										className="mb-5"
 										placeholder="Result"
 										options={lookups.resultTypes}></Select>
 									<Select
 										name="congressionalSessionId"
+										className="mb-5"
 										placeholder="Congressional Session"
 										options={lookups.congressionalSessions}></Select>
 									<Select
 										name="voteTypeId"
+										className="mb-5"
 										placeholder="Vote Type"
 										options={lookups.voteTypes}></Select>
 								<div className="flex justify-between">
