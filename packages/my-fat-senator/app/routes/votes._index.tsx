@@ -1,5 +1,4 @@
-import { SqlBuilder } from "@my-fat-senator/lib";
-import { PrismaClient } from "@prisma/client";
+import { SqlBuilder, prisma } from "@my-fat-senator/lib";
 import { json, LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 
@@ -15,7 +14,7 @@ export interface QueryPaging {
 }
 
 export const loader = async ({request}: LoaderFunctionArgs) => {
-	const prisma = new PrismaClient();
+	const sqlBuilder = new SqlBuilder(prisma);
 	// Get lookups
 	const lookups = {
 		chambers: await prisma.chamber.findMany(),
@@ -26,12 +25,9 @@ export const loader = async ({request}: LoaderFunctionArgs) => {
 		categoryTypes: await prisma.categoryType.findMany()
 	}
 
-	// Process search form
-	const params = new URL(request.url).searchParams;
-	const votes = await SqlBuilder.executeRawUnsafe({
-		db: prisma,
+	const votes = await sqlBuilder.executeRawUnsafe({
 		fields: prisma.vote.fields,
-		params: new Map([...new URLSearchParams(params)]),
+		params: new Map([...new URL(request.url).searchParams]),
 		query: ` 
 			SELECT Vote.id, session, sourceUrl, congressional_vote_id, congressional_updated_at,
 			CategoryType.name as categoryTypeName, 
