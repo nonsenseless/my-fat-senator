@@ -1,9 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { RawValue } from "@prisma/client/runtime/library";
 import invariant from 'tiny-invariant';
 
 export interface IQuerySpecification {
-	db: PrismaClient;
 	fields: Prisma.VoteFieldRefs;
 	params: Map<string, string>;
 	query: string;
@@ -15,36 +13,37 @@ export interface IWhere {
 }
 
 export class SqlBuilder {
+	constructor(private db: PrismaClient){
+		invariant(db, "SqlBuilder requires a db instance");
+	};
 
-	static async executeRawUnsafe(specification: IQuerySpecification) {
+	async executeRawUnsafe(specification: IQuerySpecification) {
 		const fields = specification.fields;
 		const params = specification.params;
 		const query = specification.query;
-		const db = specification.db;
-		invariant(db);
 		invariant(fields, 'fields required for query.');
 		invariant(params, 'params required');
 		invariant(query, 'query required');
 
 		const where = this.unsafeBuildWhere(fields, params);
-		return await db.$queryRawUnsafe(`${query} ${where.sql}`, ...where.values);
+		return await this.db.$queryRawUnsafe(`${query} ${where.sql}`, ...where.values);
 	};
-	
-	static unsafeBuildWhere(fields: Prisma.VoteFieldRefs, params: Map<string, string>): IWhere {
-		const clauses: RawValue[] = [];
+
+	unsafeBuildWhere(fields: Prisma.VoteFieldRefs, params: Map<string, string>): IWhere {
+		const clauses: string[] = [];
 		const values: string[] = [];
 
 		if (params.size == 0) {
 			return {
 				sql: ``,
-				values: [] 
+				values: []
 			};
 		}
-	
+
 		for (const field of Object.keys(fields)) {
 			const param = params.get(field);
 			if (param) {
-				const key = (field as keyof typeof fields);	
+				const key = (field as keyof typeof fields);
 				const clause = `${fields[key].modelName}.${field} = ?`;
 				clauses.push(clause);
 				values.push(param);
@@ -57,11 +56,11 @@ export class SqlBuilder {
 			}
 		}
 		const sql = `WHERE ${clauses.join(" AND ")}`;
-		
+
 		return {
 			sql,
 			values
-		} 
+		}
 	}
 
 }
