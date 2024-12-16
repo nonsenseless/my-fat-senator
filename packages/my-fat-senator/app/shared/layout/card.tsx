@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ModelRendererProps } from './model-renderer-props';
+import { ModelRendererProps } from '../model-renderer-props';
 
 
 export enum CardWidth {
