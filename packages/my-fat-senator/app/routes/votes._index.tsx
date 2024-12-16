@@ -102,11 +102,10 @@ export default function Index() {
 	const { votes, lookups } = useLoaderData<typeof loader>();
 
 	return (
-		<div >
 			<Card 
 				className="overflow-auto"
 				title="Votes"
-				width={CardWidth["w-full"]}>
+				width={CardWidth.Full}>
 					<div className="grid grid-cols-5 gap-3 ">
 						<div>
 							<Form 
@@ -185,6 +184,5 @@ export default function Index() {
 						</div>
 					</div>
 			</Card>
-		</div>
 	);
 }
