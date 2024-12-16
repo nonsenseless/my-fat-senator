@@ -2,7 +2,7 @@
 export default function Navbar() {
 
 	return (
-		<nav className="navbar bg-base-100">
+		<nav className="navbar bg-base-100 navbar-bottom-margin">
 			<div className="flex-1">
 				<button className="btn btn-ghost text-xl">My Fat Senators</button>
 			</div>

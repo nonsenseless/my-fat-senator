@@ -3,7 +3,7 @@ import { json, LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
 import { BallotsList } from "~/shared/ballots-list";
-import { Card, CardWidth } from "~/shared/card";
+import { Card, CardWidth } from "~/shared/layout/card";
 
 export const meta: MetaFunction = () => [{ title: "Votes" }];
 
@@ -139,7 +139,7 @@ export default function VoteDetail() {
 	return (
 		<div className="grid grid-cols-5 gap-3">
 			<Card
-				className="overflow-auto max-height-under-navbar"
+				className="overflow-auto"
 				title={`${vote.congressionalVoteId} - ${vote.chamberName} - ${vote.congressionalSessionName}`}
 				width={CardWidth["w-full"]}>
 				<dl className='prose-sm'>

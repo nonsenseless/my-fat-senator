@@ -1,10 +1,10 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { ActionFunctionArgs, json, LoaderFunctionArgs, redirect, type MetaFunction } from "@remix-run/node";
-import { Form, useLoaderData, useSearchParams } from "@remix-run/react";
-import "ag-grid-community/styles/ag-grid.css";
-import { useEffect, useState } from "react";
+import { Form, useLoaderData } from "@remix-run/react";
 
-import { Card, CardWidth } from "~/shared/card";
+import { Select } from "~/shared/forms/select";
+import { TextInput } from "~/shared/forms/text-input";
+import { Card, CardWidth } from "~/shared/layout/card";
 
 export const meta: MetaFunction = () => [{ title: "Votes" }];
 
@@ -100,46 +100,11 @@ export const loader = async ({request}: LoaderFunctionArgs) => {
 
 export default function Index() {
 	const { votes, lookups } = useLoaderData<typeof loader>();
-	const [ searchParams ] = useSearchParams();
-
-	const buildForm = (searchParams: URLSearchParams) => {
-		return {
-			congressional_vote_id: searchParams.get("congressional_vote_id") || "",
-			chamberId: searchParams.get("chamberId") || "",
-			categoryId: searchParams.get("categoryId") || "",
-			resultTypeId: searchParams.get("resultTypeId") || "",
-			requiresTypeId: searchParams.get("requiresTypeId") || "",
-			congressionalSessionId: searchParams.get("congressionalSessionId") || "",
-			voteTypeId: searchParams.get("voteTypeId") || "",
-		}
-	}
-
-	const [form, setForm] = useState(buildForm(searchParams))
-
-	const handleReset = () => {
-		setForm({
-			congressional_vote_id: "",
-			chamberId: "",
-			categoryId: "",
-			resultTypeId: "",
-			requiresTypeId: "",
-			congressionalSessionId: "",
-			voteTypeId: "",
-		})
-	}
-
-  // Update the state when the params change
-  // (form submission or link click)
-  useEffect(() => {
-		setForm(buildForm(searchParams))
-  }, [
-		searchParams
-	]);
 
 	return (
 		<div >
 			<Card 
-				className="overflow-auto max-height-under-navbar"
+				className="overflow-auto"
 				title="Votes"
 				width={CardWidth["w-full"]}>
 					<div className="grid grid-cols-5 gap-3 ">
@@ -149,150 +114,40 @@ export default function Index() {
 								method="GET" 
 								action={`/votes`}
 								>
-								<label className="form-control mb-5">
-									<span className="sr-only">Bill Name</span>
-									<input 
-										type="text" 
-										value={form.congressional_vote_id}
+									<TextInput 
 										name="congressional_vote_id" 
-										placeholder="Bill Name" 
-										onChange={(e) => {
-											setForm({
-												...form,
-												congressional_vote_id: e.currentTarget.value
-										});
-										}}
-										className="input input-primary input-bordered"/>
-								</label>
-								<label className="form-control mb-5">
-									<span className="sr-only">Chamber</span>
-									<select 
-										name="chamberId" 
-										className="select select-primary w-full max-w-xs"
-										value={form.chamberId}
-										onChange={(e) => {
-											setForm({
-												...form,
-												chamberId: e.currentTarget.value
-											});
-										}}
-										>
-											<option value="">Chamber</option>
-											{	
-											lookups.chambers.map((chamber) => {
-												return <option 
-													key={chamber.id} 
-													value={chamber.id} 
-													>{chamber.name}</option>
-											})}
-									</select>
-								</label>
-								<label className="form-control mb-5">
-									<span className="sr-only">Category</span>
-									<select
-									name="categoryId" 
-									className="select select-primary w-full max-w-xs"
-									value={form.categoryId}
-									onChange={(e) => {
-										setForm({
-											...form,
-											categoryId: e.currentTarget.value 
-										})
-									}}
-									>
-										<option value="">Category</option>
-										{lookups.categoryTypes.map((category) => {
-											return <option 
-												key={category.id} 
-												value={category.id}
-												>{category.name}</option>
-										})}
-									</select>
-								</label>
-								<label className="form-control mb-5">
-									<span className="sr-only">Requires</span>
-									<select 
-										name="requiresTypeId" 
-										className="select select-primary w-full max-w-xs"
-										value={form.requiresTypeId}
-										onChange={(e) => {
-											setForm({
-												...form,
-												requiresTypeId: e.currentTarget.value
-										});
-										}}
-										>
-										<option value="">Requires</option>
-										{lookups.requiresTypes.map((requiresType) => {
-											return <option 
-												key={requiresType.id} 
-												value={requiresType.id}
-												>{requiresType.name}</option>
-										})}
-									</select>
-								</label>
-								<label className="form-control mb-5">
-									<span className="sr-only">Result Type</span>
-									<select 
-										name="resultTypeId" 
-										className="select select-primary w-full max-w-xs"
-										value={form.resultTypeId}
-										onChange={(e) => {
-											setForm({...form, resultTypeId: e.currentTarget.value});
-										}}
-										>
-										<option value="">Result Type</option>
-										{lookups.resultTypes.map((resultType) => {
-											return <option 
-												key={resultType.id} 
-												value={resultType.id}
-												>{resultType.name}</option>
-										})}
-									</select>
-								</label>
-								<label className="form-control mb-5">
-									<span className="sr-only">Session</span>
-									<select 
-									name="congressionalSessionId" 
-									className="select select-primary w-full max-w-xs"
-									value={form.congressionalSessionId}
-									onChange={(e) => {
-											setForm({...form, congressionalSessionId: e.currentTarget.value});
-									}}
-									>
-										<option value="" >Type</option>
-										{lookups.congressionalSessions.map((congressionalSession) => {
-											return <option 
-												key={congressionalSession.id} 
-												value={congressionalSession.id}
-												>{congressionalSession.name}</option>
-										})}
-									</select>
-								</label>
-								<label className="form-control mb-5">
-									<span className="sr-only">Vote Type</span>
-									<select 
-									name="voteTypeId" 
-									className="select select-primary w-full max-w-xs"
-									value={form.voteTypeId}
-									onChange={(e) => {
-										setForm({...form, voteTypeId: e.currentTarget.value});
-									}}
-									>
-										<option value="" >Vote Type</option>
-										{lookups.voteTypes.map((voteType) => {
-											return <option key={voteType.id} value={voteType.id}>{voteType.name}</option>
-										})}
-									</select>
-								</label>
-								
+										placeholder="Bill Name">
+									</TextInput>
+									<Select
+										name="chamberId"
+										placeholder="Chamber"
+										options={lookups.chambers}></Select>
+									<Select
+										name="categoryTypeId"
+										placeholder="Category"
+										options={lookups.categoryTypes}></Select>
+									<Select
+										name="requiresTypeId"
+										placeholder="Requires"
+										options={lookups.requiresTypes}></Select>
+									<Select
+										name="resultTypeId"
+										placeholder="Result"
+										options={lookups.resultTypes}></Select>
+									<Select
+										name="congressionalSessionId"
+										placeholder="Congressional Session"
+										options={lookups.congressionalSessions}></Select>
+									<Select
+										name="voteTypeId"
+										placeholder="Vote Type"
+										options={lookups.voteTypes}></Select>
 								<div className="flex justify-between">
 									<button 
 										className="btn btn-sm" 
 										type="submit">Submit</button>
 									<button 
 										className="btn btn-sm" 
-										onClick={handleReset}
 										type="reset">Reset</button>
 								</div>
 							</Form>
