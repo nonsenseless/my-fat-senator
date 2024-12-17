@@ -1,4 +1,5 @@
-import { SqlBuilder, prisma } from "@my-fat-senator/lib";
+import { SqlBuilder } from "@my-fat-senator/lib/prisma/sql.server";
+import { PrismaClient } from "@prisma/client";
 import { json, LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 
@@ -14,6 +15,7 @@ export interface QueryPaging {
 }
 
 export const loader = async ({request}: LoaderFunctionArgs) => {
+	const prisma = new PrismaClient();
 	const sqlBuilder = new SqlBuilder(prisma);
 	// Get lookups
 	const lookups = {
@@ -45,7 +47,6 @@ export const loader = async ({request}: LoaderFunctionArgs) => {
 				JOIN VoteType on Vote.voteTypeId = VoteType.id
 				`
 	});
-
 	return json({ votes, lookups });
 }
 
