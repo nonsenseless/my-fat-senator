@@ -3,8 +3,15 @@ import invariant from 'tiny-invariant';
 
 export interface IQuerySpecification {
 	fields: Prisma.VoteFieldRefs;
+	select: string;
+	from: string;
 	params: Map<string, string>;
-	query: string;
+	orderBy: string;
+}
+
+export interface IQueryResult<T> {
+	results: T[];
+	count: number;
 }
 
 export interface IWhere {
@@ -17,28 +24,41 @@ export class SqlBuilder {
 		invariant(db, "SqlBuilder requires a db instance");
 	};
 
-	async executeRawUnsafe(specification: IQuerySpecification) {
+	async executeRawUnsafe<T>(specification: IQuerySpecification): Promise<IQueryResult<T>> {
 		const fields = specification.fields;
 		const params = specification.params;
-		const query = specification.query;
+		const select = specification.select;
+		const from = specification.from;
 		invariant(fields, 'fields required for query.');
 		invariant(params, 'params required');
-		invariant(query, 'query required');
+		invariant(select, 'select required');
+		invariant(from, 'from required');
 
 		const where = this.unsafeBuildWhere(fields, params);
-		return await this.db.$queryRawUnsafe(`${query} ${where.sql}`, ...where.values);
+		let sql = `
+			${select}
+			${from}
+			${where.sql} 
+			${specification.orderBy}
+			`; 
+		const results = await this.db.$queryRawUnsafe(sql, ...where.values) as T[];
+		
+		sql = `
+			SELECT COUNT(*) as count
+			${from}
+			${where.sql}`; 
+		const count = await this.db.$queryRawUnsafe(sql, ...where.values);
+		
+		return {
+			results,
+			count: Number(count[0].count)
+		}
+
 	};
 
 	unsafeBuildWhere(fields: Prisma.VoteFieldRefs, params: Map<string, string>): IWhere {
 		const clauses: string[] = [];
 		const values: string[] = [];
-
-		if (params.size == 0) {
-			return {
-				sql: ``,
-				values: []
-			};
-		}
 
 		for (const field of Object.keys(fields)) {
 			const param = params.get(field);
@@ -55,6 +75,14 @@ export class SqlBuilder {
 				values.push(`${"%" + params.get(field) + "%"}`);
 			}
 		}
+
+		if (clauses.length == 0) {
+			return {
+				sql: ``,
+				values: []
+			};
+		}
+
 		const sql = `WHERE ${clauses.join(" AND ")}`;
 
 		return {

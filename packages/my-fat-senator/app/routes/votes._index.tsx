@@ -6,15 +6,29 @@ import { Form, useLoaderData } from "@remix-run/react";
 import { Input } from "~/shared/forms/input";
 import { Select } from "~/shared/forms/select";
 import { Card, CardWidth } from "~/shared/layout/card";
+import { PaginationBar } from "~/shared/table/pagination";
 
 export const meta: MetaFunction = () => [{ title: "Votes" }];
 
-export interface QueryPaging {
-	page: number;
-	pageSize: number;
+export interface IVoteTableRow {
+	id: number;
+	session: string;
+	sourceUrl: string;
+	congressional_vote_id: string; 
+	congressional_updated_at: Date;
+	categoryTypeName: string; 
+	chamberName: string; 
+	congressionalSessionName: string; 
+	requiresTypeName: string;
+	resultTypeName: string;
+	voteTypeName: string
 }
 
 export const loader = async ({request}: LoaderFunctionArgs) => {
+	const url = new URL(request.url);
+	const $top = Number(url.searchParams.get("$top")) || 10
+  const $skip = Number(url.searchParams.get("$skip")) || 0
+
 	const prisma = new PrismaClient();
 	const sqlBuilder = new SqlBuilder(prisma);
 	// Get lookups
@@ -27,10 +41,10 @@ export const loader = async ({request}: LoaderFunctionArgs) => {
 		categoryTypes: await prisma.categoryType.findMany()
 	}
 
-	const votes = await sqlBuilder.executeRawUnsafe({
+	const data = await sqlBuilder.executeRawUnsafe<IVoteTableRow>({
 		fields: prisma.vote.fields,
-		params: new Map([...new URL(request.url).searchParams]),
-		query: ` 
+		params: new Map([...url.searchParams]),
+		select: ` 
 			SELECT Vote.id, session, sourceUrl, congressional_vote_id, congressional_updated_at,
 			CategoryType.name as categoryTypeName, 
 			Chamber.name as chamberName, 
@@ -38,20 +52,22 @@ export const loader = async ({request}: LoaderFunctionArgs) => {
 			RequiresType.name as requiresTypeName, 
 			ResultType.name as resultTypeName, 
 			VoteType.name as voteTypeName 
-			FROM Vote 
+				`,
+		from: `FROM Vote 
 				JOIN CategoryType ON Vote.categoryId = CategoryType.id
 				JOIN Chamber on Vote.chamberId = Chamber.id
 				JOIN CongressionalSession on Vote.congressionalSessionId = CongressionalSession.id
 				JOIN RequiresType on Vote.requiresTypeId = RequiresType.id
 				JOIN ResultType on Vote.resultTypeId = ResultType.id
-				JOIN VoteType on Vote.voteTypeId = VoteType.id
-				`
+				JOIN VoteType on Vote.voteTypeId = VoteType.id`,
+		orderBy: `ORDER BY Vote.congressional_vote_id ASC LIMIT ${$top} OFFSET ${$skip}`
 	});
-	return json({ votes, lookups });
+	return json({ data, lookups });
 }
 
 export default function Index() {
-	const { votes, lookups } = useLoaderData<typeof loader>();
+	const { data, lookups } = useLoaderData<typeof loader>();
+	const votes = data.results;
 
 	return (
 			<Card 
@@ -132,6 +148,11 @@ export default function Index() {
 										</tr>
 									)}
 								</tbody>
+								<tfoot>
+									<tr>
+										<PaginationBar total={data.count}></PaginationBar>
+									</tr>
+								</tfoot>
 							</table>
 						</div>
 					</div>
