@@ -8,14 +8,16 @@ export function PaginationBar({
 	total: number
 }) {
 	const [searchParams] = useSearchParams()
+	const maxPages = 7
+	const midpoint = Math.floor(maxPages / 2)
+
 	const $skip = Number(searchParams.get("$skip")) || 0
 	const $top = Number(searchParams.get("$top")) || 10
-	const totalPages = Math.ceil(total / $top)
 	const currentPage = Math.floor($skip / $top) + 1
-	const maxPages = 7
-	const halfMaxPages = Math.floor(maxPages / 2)
+	const totalPages = Math.ceil(total / $top)
+
 	const canPageBackwards = $skip > 0
-	const canPageForwards = $skip + $top < total
+	const canPageForwards = ($skip + $top) < total
 	const pageNumbers = [] as number[]
 
 	if (totalPages <= maxPages) {
@@ -23,8 +25,8 @@ export function PaginationBar({
 			pageNumbers.push(i)
 		}
 	} else {
-		let startPage = currentPage - halfMaxPages
-		let endPage = currentPage + halfMaxPages
+		let startPage = currentPage - midpoint
+		let endPage = currentPage + midpoint
 		if (startPage < 1) {
 			endPage += Math.abs(startPage) + 1
 			startPage = 1
@@ -39,41 +41,45 @@ export function PaginationBar({
 	}
 
 	return (
-		<div className="flex items-center gap-1">
-			<button
-				disabled={!canPageBackwards}
-			>
-				<Link
-					to={{
-						search: Utilities.setSearchParamsString(searchParams, {
-							$skip: 0,
-						}),
-					}}
-					preventScrollReset
-					prefetch="intent"
-					className="text-neutral-600"
+		<div className="flex items-center gap-1 w-full">
+
+			<div>
+				<button className="mr-1.5"
+					disabled={!canPageBackwards}
 				>
-					<span className="sr-only"> First page</span>
-					&lt;
-				</Link>
-			</button>
-			<button
-				disabled={!canPageBackwards}
-			>
-				<Link
-					to={{
-						search: Utilities.setSearchParamsString(searchParams, {
-							$skip: Math.max($skip - $top, 0),
-						}),
-					}}
-					preventScrollReset
-					prefetch="intent"
-					className="text-neutral-600"
+					<Link
+						to={{
+							search: Utilities.setSearchParamsString(searchParams, {
+								$skip: 0,
+							}),
+						}}
+						preventScrollReset
+						prefetch="intent"
+						className="text-neutral-600"
+					>
+						<span className="sr-only"> First page</span>
+						&lt;&lt;
+					</Link>
+				</button>
+				<button
+					disabled={!canPageBackwards}
 				>
-					<span className="sr-only"> Previous page</span>
-					&lt;
-				</Link>
-			</button>
+					<Link
+						to={{
+							search: Utilities.setSearchParamsString(searchParams, {
+								$skip: Math.max($skip - $top, 0),
+							}),
+						}}
+						preventScrollReset
+						prefetch="intent"
+						className="text-neutral-600"
+					>
+						<span className="sr-only"> Previous page</span>
+						&lt;
+					</Link>
+				</button>
+			</div>
+
 			{pageNumbers.map((pageNumber) => {
 				const pageSkip = (pageNumber - 1) * $top
 				const isCurrentPage = pageNumber === currentPage
@@ -115,40 +121,44 @@ export function PaginationBar({
 					)
 				}
 			})}
-			<button
-				disabled={!canPageForwards}
-			>
-				<Link
-					to={{
-						search: Utilities.setSearchParamsString(searchParams, {
-							$skip: $skip + $top,
-						}),
-					}}
-					preventScrollReset
-					prefetch="intent"
-					className="text-neutral-600"
+			<div>
+				<button className='mr-1.5'
+					disabled={!canPageForwards}
 				>
-					<span className="sr-only"> Next page</span>
-					&gt;
-				</Link>
-			</button>
-			<button
-				disabled={!canPageForwards}
-			>
-				<Link
-					to={{
-						search: Utilities.setSearchParamsString(searchParams, {
-							$skip: (totalPages - 1) * $top,
-						}),
-					}}
-					preventScrollReset
-					prefetch="intent"
-					className="text-neutral-600"
+					<Link
+						to={{
+							search: Utilities.setSearchParamsString(searchParams, {
+								$skip: $skip + $top,
+							}),
+						}}
+						preventScrollReset
+						prefetch="intent"
+						className="text-neutral-600"
+					>
+						<span className="sr-only"> Next page</span>
+						&gt;
+					</Link>
+				</button>
+				<button
+					disabled={!canPageForwards}
 				>
-					<span className="sr-only"> Last page</span>
-					&gt;
-				</Link>
-			</button>
+					<Link
+						to={{
+							search: Utilities.setSearchParamsString(searchParams, {
+								$skip: (totalPages - 1) * $top,
+							}),
+						}}
+						preventScrollReset
+						prefetch="intent"
+						className="text-neutral-600"
+					>
+						<span className="sr-only"> Last page</span>
+						&gt;&gt;
+					</Link>
+				</button>
+			</div>
+
+			<span>{total} records</span>
 		</div>
 	)
 }
