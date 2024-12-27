@@ -148,12 +148,8 @@ export default function Index() {
 										</tr>
 									)}
 								</tbody>
-								<tfoot>
-									<tr>
-										<PaginationBar total={data.count}></PaginationBar>
-									</tr>
-								</tfoot>
 							</table>
+							<PaginationBar total={data.count}></PaginationBar>
 						</div>
 					</div>
 			</Card>
