@@ -1,6 +1,5 @@
 import { cssBundleHref } from "@remix-run/css-bundle";
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LinksFunction } from "@remix-run/node";
 import {
   isRouteErrorResponse,
   Links,
@@ -13,7 +12,6 @@ import {
 } from "@remix-run/react";
 import { PropsWithChildren } from "react";
 
-import { getUser } from "~/session.server";
 import stylesheet from "~/tailwind.css";
 
 import Drawer from "./shared/layout/drawer";
@@ -27,10 +25,6 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
-
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  return json({ user: await getUser(request) });
-};
 
 
 export function Layout (props: PropsWithChildren<ModelRendererProps>)
