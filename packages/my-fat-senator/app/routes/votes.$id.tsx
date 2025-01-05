@@ -141,7 +141,7 @@ export default function VoteDetail() {
 			<Card
 				className="overflow-auto"
 				title={`${vote.congressionalVoteId} - ${vote.chamberName} - ${vote.congressionalSessionName}`}
-				width={CardWidth["w-full"]}>
+				width={CardWidth.Full}>
 				<dl className='prose-sm'>
 					<hr/>
 					<dt><a href={vote.sourceUrl}>Source</a></dt>
@@ -159,7 +159,7 @@ export default function VoteDetail() {
 			</Card>
 			<Card
 				className="col-span-4 overflow-auto max-height-under-navbar"
-				width={CardWidth["w-full"]}>
+				width={CardWidth.Full}>
 				<div className="ballots flex justify-between">
 					<BallotsList
 						ballotChoiceType='Not Voting'
