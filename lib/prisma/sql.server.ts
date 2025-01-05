@@ -19,6 +19,10 @@ export interface IWhere {
 	values: string[];
 }
 
+export interface IQueryCount {
+	count: number;
+} 
+
 export class SqlBuilder {
 	constructor(private db: PrismaClient){
 		invariant(db, "SqlBuilder requires a db instance");
@@ -47,7 +51,8 @@ export class SqlBuilder {
 			SELECT COUNT(*) as count
 			${from}
 			${where.sql}`; 
-		const count = await this.db.$queryRawUnsafe(sql, ...where.values);
+
+		const count = await this.db.$queryRawUnsafe(sql, ...where.values) as IQueryCount[];
 		
 		return {
 			results,
