@@ -13,7 +13,13 @@ export enum CardBackgroundBase {
 }
 
 export enum CardShadow {
-	"shadow-xl"
+	XL = "shadow-xl",
+	None = "shadow-none"
+}
+
+export enum CardBorder {
+	None = "border-0",
+	Two = "border-2",
 }
 
 interface Props extends ModelRendererProps {
@@ -22,12 +28,13 @@ interface Props extends ModelRendererProps {
 	bgBase?: CardBackgroundBase;
 	width?: CardWidth;
 	shadow?: CardShadow;
+	border?: CardBorder;
 	className?: string;
 }
 
-export const Card: React.FC<Props> = ({ title, children, actions, className, bgBase="bg-base-100", width="w-96", shadow='shadow-xl' }) => {
+export const Card: React.FC<Props> = ({ title, children, actions, className="", bgBase="bg-base-100", width="w-96", shadow='shadow-xl', border='border-none' }) => {
 	return (
-		<div className={`card ${bgBase} ${width} ${shadow} ${className}`}>
+		<div className={`card ${bgBase} ${width} ${shadow} ${className} ${border}`}>
 			<div className="card-body">
 				<h2 className="card-title">{title}</h2>
 				<div>{children}</div>

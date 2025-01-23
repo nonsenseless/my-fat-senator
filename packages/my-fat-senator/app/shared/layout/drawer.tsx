@@ -5,7 +5,7 @@ import { ModelRendererProps } from "../model-renderer-props"
 export default function Drawer(props: PropsWithChildren<ModelRendererProps>) {
 
 	return (
-		<div className="drawer">
+		<div className="drawer application-height">
 			<input id="my-drawer" type="checkbox" className="drawer-toggle" />
 			<div className="drawer-content p-5">
 				{ props.children }
