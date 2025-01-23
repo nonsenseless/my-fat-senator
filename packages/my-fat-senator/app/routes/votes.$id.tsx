@@ -158,7 +158,7 @@ export default function VoteDetail() {
 				</dl>
 			</Card>
 			<Card
-				className="col-span-4 overflow-auto max-height-under-navbar"
+				className="col-span-4 overflow-auto"
 				width={CardWidth.Full}>
 				<div className="ballots flex justify-between">
 					<BallotsList

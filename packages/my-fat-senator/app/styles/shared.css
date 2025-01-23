@@ -6,5 +6,10 @@
 }
 
 .navbar-bottom-margin { 
+	max-height: 100px;
+}
+
+.drawer.application-height {
 	max-height: calc(100vh - 100px);
+	overflow:scroll;
 }
