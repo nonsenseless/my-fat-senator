@@ -2,10 +2,12 @@ import React from 'react';
 
 import { BallotViewModel } from '~/routes/votes.$id';
 
-import { CardBorder } from './layout/card';
+import { BallotsListItem } from './ballots-list-item';
+
 
 interface BallotsListProps {
 	ballotChoiceType: string
+	showAsList: boolean;
 	ballots: BallotViewModel[]
 }
 
@@ -15,20 +17,10 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		<ul>
 			{props.ballots
 				.map((ballot, index) => (
-					<div key={index} className={`${CardBorder.Two} pr-4 mb-1 w-100 flex flex-row items-center`}>
-
-							<div className="bg-neutral text-neutral-content w-1/3">
-								<img alt="Stock Avatar" src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
-							</div>
-
-							<div className='pl-2 w-full'>
-								<span className="text-xl"> {ballot.legislator.displayName}</span>
-								<div className="flex justify-between">
-									<span>{ballot.legislator.state.name}</span>
-									<span>{ballot.legislator.party.name}</span>
-								</div>
-							</div>
-					</div>
+					<BallotsListItem
+						key={index} 
+						showAsList={props.showAsList}
+						legislator={ballot.legislator}></BallotsListItem> 
 				))
 			}
 		</ul>
