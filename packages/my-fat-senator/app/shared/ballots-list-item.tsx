@@ -22,7 +22,7 @@ export const BallotsListItem: React.FC<BallotsListItemProps> = (props) => {
 				</div>
 
 				<div className='pl-2 w-full'>
-					<span className="text-xl"> {props.legislator.displayName}</span>
+					<span className="text-xl"> {`${props.legislator.lastName}, ${props.legislator.firstName}`}</span>
 					<div className="flex justify-between">
 						<span>{legislator.state.name}</span>
 						<span>{legislator.party.name}</span>
