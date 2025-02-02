@@ -1,6 +1,7 @@
 import { BallotChoiceType, Legislator, Party, PrismaClient, State } from "@prisma/client";
 import { json, LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { useState } from "react";
 
 import { BallotsList } from "~/shared/ballots-list";
 import { Card, CardWidth } from "~/shared/layout/card";
@@ -135,6 +136,11 @@ export interface BallotViewModel {
 
 export default function VoteDetail() {
 	const { vote, ballots } = useLoaderData<typeof loader>();
+	const [ showAsList, setShowAsList] = useState(true);
+
+	const toggleShowAsList = () => {
+		setShowAsList(!showAsList);
+	}
 
 	return (
 		<div className="grid grid-cols-5 gap-3">
@@ -143,6 +149,13 @@ export default function VoteDetail() {
 				title={`${vote.congressionalVoteId} - ${vote.chamberName} - ${vote.congressionalSessionName}`}
 				width={CardWidth.Full}>
 				<dl className='prose-sm'>
+					<hr/>
+					<div className="form-control">
+						<label className="label cursor-pointer">
+							<span className="label-text">Show as List</span>
+							<input type="checkbox" className="toggle toggle-primary" checked={showAsList} onChange={toggleShowAsList} />
+						</label>
+					</div>
 					<hr/>
 					<dt><a href={vote.sourceUrl}>Source</a></dt>
 					<dt>Type</dt>
@@ -163,14 +176,24 @@ export default function VoteDetail() {
 				<div className="ballots flex justify-between">
 					<BallotsList
 						ballotChoiceType='Not Voting'
+						showAsList={showAsList}
 						ballots={ballots.filter((value) => value.ballotChoiceType.slug == 'not_voting')}></BallotsList>
-					<BallotsList ballotChoiceType='Nay' ballots={
+					<BallotsList 
+						ballotChoiceType='Nay' 
+						showAsList={showAsList}
+						ballots={
 						ballots.filter((value) => value.ballotChoiceType.slug == 'nay')
 					}></BallotsList>
-					<BallotsList ballotChoiceType='Yea' ballots={
+					<BallotsList 
+						ballotChoiceType='Yea' 
+						showAsList={showAsList}
+						ballots={
 						ballots.filter((value) => value.ballotChoiceType.slug == 'yea')
 					}></BallotsList>
-					<BallotsList ballotChoiceType='Present' ballots={
+					<BallotsList 
+						ballotChoiceType='Present' 
+						showAsList={showAsList}
+						ballots={
 						ballots.filter((value) => value.ballotChoiceType.slug == 'present')
 					}></BallotsList>
 				</div>
