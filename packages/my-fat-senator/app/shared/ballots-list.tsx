@@ -2,7 +2,7 @@ import React from 'react';
 
 import { BallotViewModel } from '~/routes/votes.$id';
 
-import { Card, CardBorder, CardShadow } from './layout/card';
+import { CardBorder } from './layout/card';
 
 interface BallotsListProps {
 	ballotChoiceType: string
