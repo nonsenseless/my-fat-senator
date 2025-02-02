@@ -21,9 +21,9 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 								<img alt="Stock Avatar" src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
 							</div>
 
-							<div className='pl-2'>
+							<div className='pl-2 w-full'>
 								<span className="text-xl"> {ballot.legislator.displayName}</span>
-								<div>
+								<div className="flex justify-between">
 									<span>{ballot.legislator.state.name}</span>
 									<span>{ballot.legislator.party.name}</span>
 								</div>
