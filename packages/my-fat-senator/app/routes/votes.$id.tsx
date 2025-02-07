@@ -142,6 +142,8 @@ export default function VoteDetail() {
 		setShowAsList(!showAsList);
 	}
 
+	
+
 	return (
 		<div className="grid grid-cols-5 gap-3">
 			<Card
