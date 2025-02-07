@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { LegislatorViewModel } from "~/routes/votes.$id";
 
@@ -12,6 +12,16 @@ interface BallotsListItemProps {
 export const BallotsListItem: React.FC<BallotsListItemProps> = (props) => {
 	const legislator = props.legislator;
 	const avatarImageSrc = props.avatarImageSrc || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
+	const [ top, setTop ] = useState(1);
+
+	/*
+	useEffect(() => {
+		
+    const intervalId = setInterval(() => {
+      setTop(t => t + 1);
+    }, 300);
+    return () => clearInterval(intervalId);
+  }, []);*/
 
 	if (props.showAsList) {
 		return (
@@ -22,7 +32,7 @@ export const BallotsListItem: React.FC<BallotsListItemProps> = (props) => {
 				</div>
 
 				<div className='pl-2 w-full'>
-					<span className="text-xl"> {`${props.legislator.lastName}, ${props.legislator.firstName}`}</span>
+					<span className="text-l"> {`${props.legislator.lastName}, ${props.legislator.firstName}`}</span>
 					<div className="flex justify-between">
 						<span>{legislator.state.name}</span>
 						<span>{legislator.party.name}</span>
@@ -32,7 +42,7 @@ export const BallotsListItem: React.FC<BallotsListItemProps> = (props) => {
 		)
 	} else {
 		return (
-			<div className="avatar">
+			<div className={`avatar`} style={{top: top}}>
 				<div className="w-12 rounded-full">
 					<img src={avatarImageSrc} alt="Stock avatar" />
 				</div>
