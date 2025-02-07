@@ -12,16 +12,21 @@ interface BallotsListItemProps {
 export const BallotsListItem: React.FC<BallotsListItemProps> = (props) => {
 	const legislator = props.legislator;
 	const avatarImageSrc = props.avatarImageSrc || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
-	const [ top, setTop ] = useState(1);
+	const [ x, setX ] = useState(0);
+	const [ xVelocity, setXVelocity ] = useState(Math.floor(Math.random() * 5));
+	const [ y, setY ] = useState(0);
+	const [ yVelocity, setYVelocity ] = useState(Math.floor(Math.random() * 5));
 
-	/*
+
+
 	useEffect(() => {
 		
     const intervalId = setInterval(() => {
-      setTop(t => t + 1);
+      setX(x => x + xVelocity);
+      setY(y => y + yVelocity);
     }, 300);
     return () => clearInterval(intervalId);
-  }, []);*/
+  }, [xVelocity, yVelocity]);
 
 	if (props.showAsList) {
 		return (
@@ -42,7 +47,7 @@ export const BallotsListItem: React.FC<BallotsListItemProps> = (props) => {
 		)
 	} else {
 		return (
-			<div className={`avatar`} style={{top: top}}>
+			<div className={`avatar`} style={{top: x, left: y}}>
 				<div className="w-12 rounded-full">
 					<img src={avatarImageSrc} alt="Stock avatar" />
 				</div>

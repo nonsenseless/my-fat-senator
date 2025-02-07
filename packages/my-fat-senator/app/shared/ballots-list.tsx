@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { BallotViewModel } from '~/routes/votes.$id';
 
@@ -21,33 +21,47 @@ interface IToken {
 }
 
 export const BallotsList: React.FC<BallotsListProps> = (props) => {
+	const canvasRef = useRef(null);
 
-	const detectCollision = (a: IToken, b: IToken) => {
-		if (a.x1 > b.x1 && a.x1 < b.x1) {
-			console.log('Detected');
+  useEffect(() => {
+    
+		const draw = (ctx: CanvasRenderingContext2D, frameCount: number) => {
+
+
+			const img = new Image();
+
+			img.onload = function() {
+					const radius = ctx.canvas.width / 4;
+					ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+					ctx.save();
+					ctx.beginPath();
+					ctx.arc(radius, radius, radius, 0, Math.PI * 2, true);
+					ctx.closePath();
+					ctx.clip();
+					ctx.drawImage(img, 0, 0, radius * 2, radius * 2);
+					ctx.restore();
+			};
+
+			img.src = "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
 		}
-	}
 
-	const calculateAngleOfImpact = (a: IToken, b: IToken) => {
-			console.log('calculated');
+    const canvas = canvasRef.current
+    const context = canvas.getContext('2d')
+    let frameCount = 0
+    let animationFrameId: number;
+    
+    //Our draw came here
+    const render = () => {
+      frameCount++
+      draw(context, frameCount)
+      animationFrameId = window.requestAnimationFrame(render)
+    }
+    render()
+    
+    return () => {
+      window.cancelAnimationFrame(animationFrameId)
+    }
+  }, [props.ballots])
 
-	}
-
-	const convertMomentum = (a: IToken, b: IToken) => {
-			console.log('converted');
-	}
-
-	return (<div className="ballots-list w-1/4 relative">
-		<h3>{props.ballotChoiceType} ({props.ballots.length})</h3>
-		<ul>
-			{props.ballots
-				.map((ballot, index) => (
-					<BallotsListItem
-						key={index} 
-						showAsList={props.showAsList}
-						legislator={ballot.legislator}></BallotsListItem> 
-				))
-			}
-		</ul>
-	</div>)
+	return <canvas ref={canvasRef} width={200} height={400}/>
 }
