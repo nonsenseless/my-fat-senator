@@ -60,7 +60,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	}))
 
 	const render = useCallback((ctx: CanvasRenderingContext2D) => {
-		ballots.forEach((b, index, array) => {
+		ballots.map((b, index, array) => {
 			const ballot = array[index];
 			if (ballot.x > maxWidth || ballot.x < 0) {
 				ballot.xVelocity = -1 * ballot.xVelocity;
@@ -69,18 +69,20 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 				ballot.yVelocity = -1 * ballot.yVelocity;
 			}
 
-			Canvaser.renderToken(ctx, ballot)
-
 			ballot.x += ballot.xVelocity;
 			ballot.y += ballot.yVelocity;
+
+			Canvaser.renderToken(ctx, ballot)
+
+			return ballot;
 		})
 
 		return window.requestAnimationFrame((timestamp) => {
-			 const elapsed = (timestamp - start!) / 1000;
-			 console.log(elapsed);
-			 if (Math.floor(elapsed) % 1000 == 0){
-			 	setStart(timestamp);
-			 }
+			//  const elapsed = (timestamp - start!) / 1000;
+			//  console.log(elapsed);
+			//  if (Math.floor(elapsed) % 1000 == 0){
+			//  	setStart(timestamp);
+			//  }
 			return render(ctx);
 	});
 	}, [ballots, start, maxHeight, maxWidth]);
