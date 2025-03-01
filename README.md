@@ -10,6 +10,12 @@
 20241006: I decided it didn't make sense to add CRUD screens to this app.
 20241201: Back from vacation, returning a date from the server serializes it to a string and it doesn't automatically unserialize so will have to implement a workaround. Tailwind also continues to exist as an antipattern.
 20241207: I don't want this whole log to be complaining about the ecosystem but now I'm digging into prisma more and the LIKE operator is only supported on postgres and TypedSQL let's you compile SQL to typesafe queries but doesn't support optional parameters. For any significant system, I'd prefer to use a data mapper closer to Petapoco.
+
+## Helpful Reading
+* React and Canvas
+https://stackoverflow.com/questions/72228029/accessing-and-updating-canvas-node-callback-inside-of-useeffect-react
+
+https://medium.com/@ruse.marshall/converting-a-vanilla-js-canvas-animation-to-react-78443bad6d7b
 ## Workspace commands
 ### Add a new workspace project
 ```
