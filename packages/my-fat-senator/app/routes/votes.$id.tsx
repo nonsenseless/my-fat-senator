@@ -129,8 +129,25 @@ export interface LegislatorViewModel extends Legislator {
 }
 
 export interface BallotViewModel {
+	y: number;
+	x: number;
+	yVelocity: number;
+	xVelocity: number;
+	radius: number;
 	ballotChoiceType: BallotChoiceType
 	legislator: LegislatorViewModel;
+}
+
+const mapBallot = (ballot) => {
+	return {
+		x: 0,
+		y: 0,
+		xVelocity: 0,
+		yVelocity: 0,
+		legislator: ballot.legislator,
+		radius: 0,
+		ballotChoiceType: ballot.ballotChoiceType
+	} as BallotViewModel
 }
 
 
@@ -140,9 +157,7 @@ export default function VoteDetail() {
 
 	const toggleShowAsList = () => {
 		setShowAsList(!showAsList);
-	}
-
-	
+	}	
 
 	return (
 		<div className="grid grid-cols-5 gap-3">
@@ -176,27 +191,13 @@ export default function VoteDetail() {
 				className="col-span-4 overflow-auto"
 				width={CardWidth.Full}>
 				<div className="ballots flex justify-between">
-					<BallotsList
-						ballotChoiceType='Not Voting'
-						showAsList={showAsList}
-						ballots={ballots.filter((value) => value.ballotChoiceType.slug == 'not_voting')}></BallotsList>
 					<BallotsList 
 						ballotChoiceType='Nay' 
 						showAsList={showAsList}
 						ballots={
-						ballots.filter((value) => value.ballotChoiceType.slug == 'nay')
-					}></BallotsList>
-					<BallotsList 
-						ballotChoiceType='Yea' 
-						showAsList={showAsList}
-						ballots={
-						ballots.filter((value) => value.ballotChoiceType.slug == 'yea')
-					}></BallotsList>
-					<BallotsList 
-						ballotChoiceType='Present' 
-						showAsList={showAsList}
-						ballots={
-						ballots.filter((value) => value.ballotChoiceType.slug == 'present')
+						ballots
+						.filter((value) => ['nay', 'yea'].indexOf(value.ballotChoiceType.slug) != -1)
+						.map(mapBallot)
 					}></BallotsList>
 				</div>
 			</Card>
