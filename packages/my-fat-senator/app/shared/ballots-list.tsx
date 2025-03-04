@@ -39,7 +39,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const [margin] = useState(30);
 	const [tokensPerLine] = useState(5);
 	const [baseRadius] = useState((maxWidth / tokensPerLine / 10))
-	const [start, setStart] = useState<number>(0);
+	const [start, setStart] = useState(0);
 
 	const [ballots, setBallots] = useState(props.ballots.map((ballot, index) => {
 		ballot.xVelocity = Math.floor(Math.random() * 5);
@@ -59,31 +59,37 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		return ballot;
 	}))
 
-	const render = useCallback((ctx: CanvasRenderingContext2D) => {
-		ballots.map((b, index, array) => {
-			const ballot = array[index];
-			if (ballot.x > maxWidth || ballot.x < 0) {
-				ballot.xVelocity = -1 * ballot.xVelocity;
-			}
-			if (ballot.y > maxHeight || ballot.y < 0) {
-				ballot.yVelocity = -1 * ballot.yVelocity;
-			}
+	const render = useCallback((ctx: CanvasRenderingContext2D, timestamp: number) => {
+		const now = timestamp;
+		const elapsed = now - start;
+		
+		const fps = 30;
+		const fpsInterval = 1000 / fps;
+		if (elapsed > fpsInterval) {
+			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+			setStart(now - (elapsed % fpsInterval)); // https://jsfiddle.net/chicagogrooves/nRpVD/2/; resets start to interval marker
 
-			ballot.x += ballot.xVelocity;
-			ballot.y += ballot.yVelocity;
+			ballots.map((b, index, array) => {
+				const ballot = array[index];
+				if (ballot.x > maxWidth || ballot.x < 0) {
+					ballot.xVelocity = -1 * ballot.xVelocity;
+				}
+				if (ballot.y > maxHeight || ballot.y < 0) {
+					ballot.yVelocity = -1 * ballot.yVelocity;
+				}
+	
+				ballot.x += ballot.xVelocity;
+				ballot.y += ballot.yVelocity;
+	
+				Canvaser.renderToken(ctx, ballot)
+	
+				return ballot;
+			})
+		}
 
-			Canvaser.renderToken(ctx, ballot)
-
-			return ballot;
-		})
 
 		return window.requestAnimationFrame((timestamp) => {
-			//  const elapsed = (timestamp - start!) / 1000;
-			//  console.log(elapsed);
-			//  if (Math.floor(elapsed) % 1000 == 0){
-			//  	setStart(timestamp);
-			//  }
-			return render(ctx);
+			return render(ctx, timestamp);
 	});
 	}, [ballots, start, maxHeight, maxWidth]);
 
@@ -103,7 +109,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		}
     
     return () => {
-      window.cancelAnimationFrame(animationFrameId);
+      window.cancelAnimationFrame(animationFrameId); // TODO How confident are we that this animationFrameId is always the most recent one from inside the loop?
     }
   }, [canvasRef, ballots, render])
 
