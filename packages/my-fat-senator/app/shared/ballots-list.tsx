@@ -24,20 +24,23 @@ export const Canvaser = class {
 			ctx.drawImage(image, dx, dy, ballot.radius * 2, ballot.radius * 2);
 
 			ctx.restore();
-
 	}
+}
+
+export const LogBallot = (ballot: BallotViewModel) => {
+	console.log("X,Y: ", "(", ballot.x, ",", ballot.y, "), ", ballot.xVelocity, " - ", ballot.yVelocity);
 }
 
 export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const canvasRef = useRef(null);
-	const [maxWidth] = useState(1200);
-	const [maxHeight] = useState(1200);
+	const [maxWidth] = useState(600);
+	const [maxHeight] = useState(600);
 	const [margin] = useState(30);
 	const [tokensPerLine] = useState(5);
 	const [baseRadius] = useState((maxWidth / tokensPerLine / 10))
 	const [start, setStart] = useState(0);
 
-	const [ballots] = useState(props.ballots.map((ballot, index) => {
+	const [ballots, setBallots] = useState(props.ballots.map((ballot, index) => {
 		ballot.xVelocity = Math.floor(Math.random() * 5);
 		ballot.yVelocity = Math.floor(Math.random() * 5);
 		ballot.radius = baseRadius;
@@ -53,7 +56,8 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		ballot.y = cumulativeYMargin;
 	
 		return ballot;
-	}))
+	}
+))
   const [isLoaded, setIsLoaded] = useState(false);
 	const imageRef = useRef<HTMLImageElement | null>(null);
 
@@ -67,34 +71,38 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
   }, []);
 
 
-	const render = useCallback((ctx: CanvasRenderingContext2D, timestamp: number) => {
-		const now = timestamp;
+	const render = useCallback((ctx: CanvasRenderingContext2D, ts: number) => {
+		const now = ts;
 		const elapsed = now - start;
 		
-		const fps = 1;
-		const fpsInterval = 10000 / fps;
-		if (elapsed > fpsInterval) {
-			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-			setStart(now - (elapsed % fpsInterval)); // https://jsfiddle.net/chicagogrooves/nRpVD/2/; resets start to interval marker
+		const fps = 30;
+		const fpsInterval = 1000 / fps;
 
-			ballots.map((b, index, array) => {
-				const ballot = array[index];
-				if (ballot.x > maxWidth || ballot.x < 0) {
+		if (elapsed > fpsInterval) {
+			setStart(now - (elapsed % fpsInterval)); // https://jsfiddle.net/chicagogrooves/nRpVD/2/; resets start to interval marker
+			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+			setBallots(ballots.map((b) => {
+				const ballot = {...b};
+				const rightEdge = (ballot.x + ballot.radius);
+				const leftEdge = (ballot.x - ballot.radius);
+				if (rightEdge >= maxWidth || leftEdge <= 0) {
 					ballot.xVelocity = -1 * ballot.xVelocity;
 				}
-				if (ballot.y > maxHeight || ballot.y < 0) {
+				const bottomEdge = (ballot.y + ballot.radius);
+				const topEdge = (ballot.y - ballot.radius);
+				if (bottomEdge > maxHeight || topEdge < 0) {
 					ballot.yVelocity = -1 * ballot.yVelocity;
 				}
 	
-				ballot.x += ballot.xVelocity;
-				ballot.y += ballot.yVelocity;
-	
-				Canvaser.renderToken(ctx, ballot, imageRef.current!)
-	
+				ballot.x = ballot.x + ballot.xVelocity;
+				ballot.y = ballot.y + ballot.yVelocity;
 				return ballot;
+			}))
+			ballots.forEach((ballot) => {
+				Canvaser.renderToken(ctx, ballot, imageRef.current!)
 			})
 		}
-
 
 		return window.requestAnimationFrame((timestamp) => {
 			return render(ctx, timestamp);
@@ -122,7 +130,29 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 			}
 		}
 
-  }, [canvasRef, ballots, render, isLoaded])
+  }, [canvasRef, render, isLoaded])
 
-	return <canvas ref={canvasRef} width={maxWidth} height={maxHeight}/>
+	return (<div>
+			<div className="debug-panel">
+			<table className="table-auto table-zebra prose w-full max-w-full">
+				<thead>
+					<tr>
+						<th>Legislator</th>
+						<th>Position (X, Y)</th>
+						<th>Velocity (X, Y)</th>
+					</tr>
+				</thead>
+				<tbody>
+				{ballots.map((ballot) => {
+					return <tr key={ballot.legislator.id}>
+						<td>{ballot.legislator.id}</td>
+						<td>{ballot.x}, {ballot.y}</td>
+						<td>{ballot.xVelocity}, {ballot.yVelocity}</td>
+					</tr>
+				})}
+				</tbody>
+			</table>
+			</div>
+			<canvas className='border-solid border' ref={canvasRef} width={maxWidth} height={maxHeight}/>
+		</div>)
 }
