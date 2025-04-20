@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, MouseEvent } from 'react';
 
 import { BallotViewModel } from '~/routes/votes.$id';
 
@@ -8,9 +8,14 @@ interface BallotsListProps {
 	ballots: BallotViewModel[]
 }
 
+interface MousePosition {
+	x: number;
+	y: number;
+}
+
 export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const canvasRef = useRef(null);
-	const [maxWidth] = useState(600);
+	const [maxWidth] = useState(1200);
 	const [maxHeight] = useState(600);
 	const [margin] = useState(30);
 	const [tokensPerLine] = useState(5);
@@ -32,17 +37,45 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		ballot.x = cumulativeXMargin;
 		ballot.y = cumulativeYMargin;
 
+		ballot.includesCoordinate = (x: number, y: number) => {
+			return ballot.x + ballot.radius > x &&
+			ballot.x - ballot.radius < x &&
+			ballot.y + ballot.radius > y &&
+			ballot.y - ballot.radius < y;
+		}
+
+		ballot.bottomEdge = () => {
+			return (ballot.y + ballot.radius);
+		}
+		ballot.topEdge = () => {
+			return (ballot.y - ballot.radius);
+		}
+		ballot.rightEdge = () => {
+			return (ballot.x + ballot.radius)
+		}
+		ballot.leftEdge = () => {
+			return (ballot.x - ballot.radius)
+		}
 		return ballot;
 	}
 	))
 
 	const image = useRef<HTMLImageElement | null>(null);
+	const mousePosition = useRef<MousePosition>({x: 0, y: 0});
+
+	const handleMouseMove = (event: MouseEvent) => {
+		const canvas = event.currentTarget as HTMLCanvasElement;
+		const canvasBounds = canvas.getBoundingClientRect();
+
+		mousePosition.current.x = event.clientX - canvasBounds.left;
+		mousePosition.current.y = event.clientY - canvasBounds.top;
+		console.log(mousePosition.current);
+	}
 
 	const renderToken = useCallback((ctx: CanvasRenderingContext2D, 
 		ballot: BallotViewModel,
 		image: HTMLImageElement
 	) => {
-			console.log("useCallback token: ", ballot.legislator.bioguideid)
 			const dx = ballot.x - ballot.radius;
 			const dy = ballot.y - ballot.radius;
 			ctx.save();
@@ -63,25 +96,35 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		const fpsInterval = 1000 / fps;
 
 		if (elapsed > fpsInterval) {
-			console.log("useCallback: ", start, ", ", now, ", ", elapsed, ", ", fpsInterval);
 			start.current = (now - (elapsed % fpsInterval));
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
 			
 			ballots.current.forEach((ballot) => {
-					const rightEdge = (ballot.x + ballot.radius);
-					const leftEdge = (ballot.x - ballot.radius);
-					if (rightEdge >= maxWidth || leftEdge <= 0) {
+					if (ballot.rightEdge() >= maxWidth || ballot.leftEdge() <= 0) {
 						ballot.xVelocity = -1 * ballot.xVelocity;
 					}
-					const bottomEdge = (ballot.y + ballot.radius);
-					const topEdge = (ballot.y - ballot.radius);
-					if (bottomEdge > maxHeight || topEdge < 0) {
+					if (ballot.topEdge() >= maxHeight || ballot.bottomEdge() <= 0) {
+						let excess = 0;
+						if (ballot.topEdge() > maxHeight) {
+							excess = ballot.topEdge() - maxHeight;
+							ballot.x = ballot.x - excess;
+						}
+
+						if (ballot.bottomEdge() <= 0) {
+							excess = ballot.bottomEdge();
+							ballot.y = ballot.y - excess;
+						}
 						ballot.yVelocity = -1 * ballot.yVelocity;
 					}
 
-					ballot.x = ballot.x + ballot.xVelocity;
-					ballot.y = ballot.y + ballot.yVelocity;
+					if (ballot.includesCoordinate(mousePosition.current.x, mousePosition.current.y)) {
+						console.log(ballot);
+					}
+
+					if (!ballot.includesCoordinate(mousePosition.current.x, mousePosition.current.y)) {
+						ballot.x = ballot.x + ballot.xVelocity;
+						ballot.y = ballot.y + ballot.yVelocity;
+					}
 					renderToken(ctx, ballot, image.current!)
 			})
 		}
@@ -118,6 +161,11 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
   }, [image, render])
 
 	return (<div>
-			<canvas className='border-solid border' ref={canvasRef} width={maxWidth} height={maxHeight}/>
+			<canvas 
+				onMouseMove={handleMouseMove}
+				className='border-solid border' 
+				ref={canvasRef} 
+				width={maxWidth} 
+				height={maxHeight}/>
 		</div>)
 }

@@ -128,7 +128,7 @@ export interface LegislatorViewModel extends Legislator {
 	state: State;
 }
 
-export interface BallotViewModel {
+export interface BallotViewModel extends InteractiveCircle {
 	y: number;
 	x: number;
 	yVelocity: number;
@@ -136,6 +136,14 @@ export interface BallotViewModel {
 	radius: number;
 	ballotChoiceType: BallotChoiceType
 	legislator: LegislatorViewModel;
+}
+
+export interface InteractiveCircle {
+	includesCoordinate: (x: number, y: number) => boolean;
+	rightEdge: () => number;
+	leftEdge: () => number;
+	topEdge: () => number;
+	bottomEdge: () => number;
 }
 
 const mapBallot = (ballot) => {
