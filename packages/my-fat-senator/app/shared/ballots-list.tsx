@@ -88,6 +88,35 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 			ctx.restore();
 	}, [])
 
+        // Collision detection logic
+        const detectAndHandleCollision = (ballotA: BallotViewModel, ballotB: BallotViewModel) => {
+					const dx = ballotA.x - ballotB.x;
+					const dy = ballotA.y - ballotB.y;
+					const distance = Math.sqrt(dx * dx + dy * dy);
+
+					if (distance < ballotA.radius + ballotB.radius) {
+							// Simple elastic collision: swap velocities
+							const tempXVelocity = ballotA.xVelocity;
+							const tempYVelocity = ballotA.yVelocity;
+
+							ballotA.xVelocity = ballotB.xVelocity;
+							ballotA.yVelocity = ballotB.yVelocity;
+
+							ballotB.xVelocity = tempXVelocity;
+							ballotB.yVelocity = tempYVelocity;
+
+							// Adjust positions to prevent overlap
+							const overlap = (ballotA.radius + ballotB.radius) - distance;
+							const adjustmentFactor = overlap / distance / 2;
+
+							ballotA.x += dx * adjustmentFactor;
+							ballotA.y += dy * adjustmentFactor;
+
+							ballotB.x -= dx * adjustmentFactor;
+							ballotB.y -= dy * adjustmentFactor;
+					}
+			};
+
 	const render = useCallback((ctx: CanvasRenderingContext2D, ts: number) => {
 		const now = ts;
 		const elapsed = now - start.current;
@@ -99,7 +128,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 			start.current = (now - (elapsed % fpsInterval));
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 			
-			ballots.current.forEach((ballot) => {
+			ballots.current.forEach((ballot, i) => {
 					if (ballot.rightEdge() >= maxWidth || ballot.leftEdge() <= 0) {
 						ballot.xVelocity = -1 * ballot.xVelocity;
 					}
@@ -117,9 +146,11 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 						ballot.yVelocity = -1 * ballot.yVelocity;
 					}
 
-					if (ballot.includesCoordinate(mousePosition.current.x, mousePosition.current.y)) {
-						console.log(ballot);
+					// Check for collisions with other ballots
+					for (let j = i + 1; j < ballots.current.length; j++) {
+							detectAndHandleCollision(ballot, ballots.current[j]);
 					}
+
 
 					if (!ballot.includesCoordinate(mousePosition.current.x, mousePosition.current.y)) {
 						ballot.x = ballot.x + ballot.xVelocity;
