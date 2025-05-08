@@ -1,4 +1,5 @@
-import { BallotChoiceType, Legislator, Party, PrismaClient, State } from "@prisma/client";
+import { LegislatorViewModel, BallotViewModel } from "@my-fat-senator/lib/interfaces";
+import { BallotChoiceType, PrismaClient } from "@prisma/client";
 import { json, LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
@@ -121,29 +122,6 @@ export interface IVoteDetail {
 	requiresTypeName: string;
 	resultTypeName: string;
 	voteTypeName: string;
-}
-
-export interface LegislatorViewModel extends Legislator {
-	party: Party;
-	state: State;
-}
-
-export interface BallotViewModel extends InteractiveCircle {
-	y: number;
-	x: number;
-	yVelocity: number;
-	xVelocity: number;
-	radius: number;
-	ballotChoiceType: BallotChoiceType
-	legislator: LegislatorViewModel;
-}
-
-export interface InteractiveCircle {
-	includesCoordinate: (x: number, y: number) => boolean;
-	rightEdge: () => number;
-	leftEdge: () => number;
-	topEdge: () => number;
-	bottomEdge: () => number;
 }
 
 const mapBallot = (ballot: { legislator: LegislatorViewModel; ballotChoiceType: BallotChoiceType; }) => {
