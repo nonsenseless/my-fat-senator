@@ -1,3 +1,4 @@
+import { IMousePosition } from '@my-fat-senator/lib/interfaces';
 import React, { useCallback, useEffect, useRef, useState, MouseEvent } from 'react';
 
 import { BallotViewModel } from '~/routes/votes.$id';
@@ -6,11 +7,6 @@ interface BallotsListProps {
 	ballotChoiceType: string
 	showAsList: boolean;
 	ballots: BallotViewModel[]
-}
-
-interface MousePosition {
-	x: number;
-	y: number;
 }
 
 export const BallotsList: React.FC<BallotsListProps> = (props) => {
@@ -60,7 +56,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	))
 
 	const image = useRef<HTMLImageElement | null>(null);
-	const mousePosition = useRef<MousePosition>({x: 0, y: 0});
+	const mousePosition = useRef<IMousePosition>({x: 0, y: 0});
 
 	const handleMouseMove = (event: MouseEvent) => {
 		const canvas = event.currentTarget as HTMLCanvasElement;
