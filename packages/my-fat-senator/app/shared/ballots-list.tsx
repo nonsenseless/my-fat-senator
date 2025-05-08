@@ -1,7 +1,6 @@
-import { IMousePosition } from '@my-fat-senator/lib/interfaces';
+import { IMousePosition, BallotViewModel } from '@my-fat-senator/lib/interfaces';
 import React, { useCallback, useEffect, useRef, useState, MouseEvent } from 'react';
 
-import { BallotViewModel } from '~/routes/votes.$id';
 
 interface BallotsListProps {
 	ballotChoiceType: string
@@ -64,7 +63,6 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 
 		mousePosition.current.x = event.clientX - canvasBounds.left;
 		mousePosition.current.y = event.clientY - canvasBounds.top;
-		console.log(mousePosition.current);
 	}
 
 	const renderToken = useCallback((ctx: CanvasRenderingContext2D, 
