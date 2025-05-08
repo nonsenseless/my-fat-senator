@@ -146,7 +146,7 @@ export interface InteractiveCircle {
 	bottomEdge: () => number;
 }
 
-const mapBallot = (ballot) => {
+const mapBallot = (ballot: { legislator: LegislatorViewModel; ballotChoiceType: BallotChoiceType; }) => {
 	return {
 		x: 0,
 		y: 0,

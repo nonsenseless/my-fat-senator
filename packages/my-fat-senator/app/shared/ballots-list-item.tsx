@@ -13,14 +13,11 @@ export const BallotsListItem: React.FC<BallotsListItemProps> = (props) => {
 	const legislator = props.legislator;
 	const avatarImageSrc = props.avatarImageSrc || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
 	const [ x, setX ] = useState(0);
-	const [ xVelocity, setXVelocity ] = useState(Math.floor(Math.random() * 5));
+	const [ xVelocity ] = useState(Math.floor(Math.random() * 5));
 	const [ y, setY ] = useState(0);
-	const [ yVelocity, setYVelocity ] = useState(Math.floor(Math.random() * 5));
-
-
+	const [ yVelocity ] = useState(Math.floor(Math.random() * 5));
 
 	useEffect(() => {
-		
     const intervalId = setInterval(() => {
       setX(x => x + xVelocity);
       setY(y => y + yVelocity);

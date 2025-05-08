@@ -1,6 +1,6 @@
 import { Legislator, PrismaClient } from '@prisma/client';
 
-import { IBallot } from '../interfaces/congress/vote';
+import { IBallot } from '../interfaces';
 
 import { PartyService } from './party';
 import { StateService } from './state';
