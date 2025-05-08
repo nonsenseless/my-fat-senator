@@ -30,7 +30,6 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		const currentRow = Math.floor(index / tokensPerLine);
 		const currentColumn = index % tokensPerLine;
 
-		// base left radius + ballot radius for default center + 
 		const cumulativeXMargin = margin + ballot.radius + (((ballot.radius * 4) + margin) * currentColumn);
 		const cumulativeYMargin = 0 + ballot.radius + (2 * ballot.radius * currentRow);
 
@@ -39,9 +38,9 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 
 		ballot.includesCoordinate = (x: number, y: number) => {
 			return ballot.x + ballot.radius > x &&
-			ballot.x - ballot.radius < x &&
-			ballot.y + ballot.radius > y &&
-			ballot.y - ballot.radius < y;
+				ballot.x - ballot.radius < x &&
+				ballot.y + ballot.radius > y &&
+				ballot.y - ballot.radius < y;
 		}
 
 		ballot.bottomEdge = () => {
@@ -88,34 +87,34 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 			ctx.restore();
 	}, [])
 
-        // Collision detection logic
-        const detectAndHandleCollision = (ballotA: BallotViewModel, ballotB: BallotViewModel) => {
-					const dx = ballotA.x - ballotB.x;
-					const dy = ballotA.y - ballotB.y;
-					const distance = Math.sqrt(dx * dx + dy * dy);
+	// Collision detection logic
+	const detectAndHandleCollision = (ballotA: BallotViewModel, ballotB: BallotViewModel) => {
+		const dx = ballotA.x - ballotB.x;
+		const dy = ballotA.y - ballotB.y;
+		const distance = Math.sqrt(dx * dx + dy * dy);
 
-					if (distance < ballotA.radius + ballotB.radius) {
-							// Simple elastic collision: swap velocities
-							const tempXVelocity = ballotA.xVelocity;
-							const tempYVelocity = ballotA.yVelocity;
+		if (distance < ballotA.radius + ballotB.radius) {
+			// Simple elastic collision: swap velocities
+			const tempXVelocity = ballotA.xVelocity;
+			const tempYVelocity = ballotA.yVelocity;
 
-							ballotA.xVelocity = ballotB.xVelocity;
-							ballotA.yVelocity = ballotB.yVelocity;
+			ballotA.xVelocity = ballotB.xVelocity;
+			ballotA.yVelocity = ballotB.yVelocity;
 
-							ballotB.xVelocity = tempXVelocity;
-							ballotB.yVelocity = tempYVelocity;
+			ballotB.xVelocity = tempXVelocity;
+			ballotB.yVelocity = tempYVelocity;
 
-							// Adjust positions to prevent overlap
-							const overlap = (ballotA.radius + ballotB.radius) - distance;
-							const adjustmentFactor = overlap / distance / 2;
+			// Adjust positions to prevent overlap
+			const overlap = (ballotA.radius + ballotB.radius) - distance;
+			const adjustmentFactor = overlap / distance / 2;
 
-							ballotA.x += dx * adjustmentFactor;
-							ballotA.y += dy * adjustmentFactor;
+			ballotA.x += dx * adjustmentFactor;
+			ballotA.y += dy * adjustmentFactor;
 
-							ballotB.x -= dx * adjustmentFactor;
-							ballotB.y -= dy * adjustmentFactor;
-					}
-			};
+			ballotB.x -= dx * adjustmentFactor;
+			ballotB.y -= dy * adjustmentFactor;
+		}
+	};
 
 	const render = useCallback((ctx: CanvasRenderingContext2D, ts: number) => {
 		const now = ts;

@@ -1,6 +1,6 @@
 import { Ballot, PrismaClient  } from '@prisma/client';
 
-import { IBallot } from '../interfaces/congress/vote';
+import { IBallot } from '../interfaces/';
 
 import { BallotChoiceTypeService } from './ballot-choice-type';
 import { LegislatorService } from './legislator';

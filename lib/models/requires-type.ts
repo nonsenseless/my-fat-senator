@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-import { IVote } from '../interfaces/congress/vote';
+import { IVote } from '../interfaces';
 import { Utilities } from '../services/utlilities';
 
 export class RequiresTypeService {

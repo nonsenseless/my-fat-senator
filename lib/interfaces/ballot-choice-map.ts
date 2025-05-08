@@ -1,6 +1,6 @@
 import { Ballot } from "@prisma/client"
 
-import { IVoteType } from "./congress/vote"
+import { IVoteType } from "./"
 
 export interface IBallotChoiceMap {
   [IVoteType.NOT_VOTING]: Ballot[]
