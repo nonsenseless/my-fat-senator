@@ -147,8 +147,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 							detectAndHandleCollision(ballot, ballots.current[j]);
 					}
 
-					const selected = !ballot.includesCoordinate(mousePosition.current.x, mousePosition.current.y)
-
+					const selected = ballot.includesCoordinate(mousePosition.current.x, mousePosition.current.y)
 					if (selected) {
 						anyBallotSelected = true;
 						selectedBallot.current = ballot;
@@ -169,8 +168,6 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	}, [ballots, start, maxHeight, maxWidth, renderToken, image]);
 
   useEffect(() => {
-		console.log("useEffect render")
-
 			image.current = new Image();
 			image.current.src = "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
 
