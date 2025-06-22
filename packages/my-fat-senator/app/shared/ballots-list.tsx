@@ -1,6 +1,7 @@
 import { IMousePosition, BallotViewModel } from '@my-fat-senator/lib/interfaces';
 import React, { useCallback, useEffect, useRef, useState, MouseEvent } from 'react';
 
+import { BallotPopup } from './ballot-popup';
 
 interface BallotsListProps {
 	ballotChoiceType: string
@@ -16,6 +17,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const [tokensPerLine] = useState(5);
 	const [baseRadius] = useState((maxWidth / tokensPerLine / 10))
 	const start = useRef(0);
+	const selectedBallot = useRef<BallotViewModel | null>(null);
 
 	const ballots = useRef(props.ballots.map((ballot, index) => {
 		ballot.xVelocity = Math.floor(Math.random() * 5);
@@ -113,7 +115,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const render = useCallback((ctx: CanvasRenderingContext2D, ts: number) => {
 		const now = ts;
 		const elapsed = now - start.current;
-		
+	
 		const fps = 30;
 		const fpsInterval = 1000 / fps;
 
@@ -121,6 +123,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 			start.current = (now - (elapsed % fpsInterval));
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 			
+			let anyBallotSelected = false;
 			ballots.current.forEach((ballot, i) => {
 					if (ballot.rightEdge() >= maxWidth || ballot.leftEdge() <= 0) {
 						ballot.xVelocity = -1 * ballot.xVelocity;
@@ -144,13 +147,20 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 							detectAndHandleCollision(ballot, ballots.current[j]);
 					}
 
+					const selected = !ballot.includesCoordinate(mousePosition.current.x, mousePosition.current.y)
 
-					if (!ballot.includesCoordinate(mousePosition.current.x, mousePosition.current.y)) {
+					if (selected) {
+						anyBallotSelected = true;
+						selectedBallot.current = ballot;
+					} else {
 						ballot.x = ballot.x + ballot.xVelocity;
 						ballot.y = ballot.y + ballot.yVelocity;
 					}
 					renderToken(ctx, ballot, image.current!)
 			})
+			if (!anyBallotSelected) {
+				selectedBallot.current = null;
+			}
 		}
 
 		return window.requestAnimationFrame((timestamp) => {
