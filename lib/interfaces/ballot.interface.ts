@@ -1,9 +1,9 @@
 import { BallotChoiceType } from "@prisma/client";
 
-import { InteractiveCircle } from "./interactive-circle.interface";
+import { InteractiveElement } from "./interactive-element.interface";
 import { LegislatorViewModel } from "./legislator.interface";
 
-export interface BallotViewModel extends InteractiveCircle {
+export interface BallotViewModel extends InteractiveElement {
 	y: number;
 	x: number;
 	yVelocity: number;
