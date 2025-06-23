@@ -12,5 +12,13 @@ export default {
   ],
   daisyui: {
     themes: ["corporate"]
-  }
+  },
+  safelist:[
+      {
+        pattern: /top-(\d+|auto)/,
+      },
+    {
+        pattern: /left-(\d+|auto)/,
+      }
+  ]
 } satisfies Config;
