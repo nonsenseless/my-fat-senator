@@ -1,5 +1,5 @@
 import { IMousePosition, BallotViewModel } from '@my-fat-senator/lib/interfaces';
-import React, { useCallback, useEffect, useRef, useState, MouseEvent } from 'react';
+import React, { useCallback, useEffect, useRef, useState, MouseEvent, memo } from 'react';
 
 import { BallotPopup } from './ballot-popup';
 
@@ -17,9 +17,14 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const [tokensPerLine] = useState(5);
 	const [baseRadius] = useState((maxWidth / tokensPerLine / 10))
 	const start = useRef(0);
-	const selectedBallot = useRef<BallotViewModel | null>(null);
+	const [selectedBallot, setSelectedBallot] = useState<BallotViewModel | null>(null);
 
-	const ballots = useRef(props.ballots.map((ballot, index) => {
+	const ballots = useRef<BallotViewModel[]>([]);
+	if (ballots.current.length === 0) {
+		ballots.current = props.ballots.map((ballot, index) => {
+		if (index === 1) {
+			//console.log("Initializing ballot", index);
+		}
 		ballot.xVelocity = Math.floor(Math.random() * 5);
 		ballot.yVelocity = Math.floor(Math.random() * 5);
 		ballot.radius = baseRadius;
@@ -54,18 +59,19 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		}
 		return ballot;
 	}
-	))
+	)
+}
 
 	const image = useRef<HTMLImageElement | null>(null);
 	const mousePosition = useRef<IMousePosition>({x: 0, y: 0});
 
-	const handleMouseMove = (event: MouseEvent) => {
+	const handleMouseMove = useCallback((event: MouseEvent) => {
 		const canvas = event.currentTarget as HTMLCanvasElement;
 		const canvasBounds = canvas.getBoundingClientRect();
 
 		mousePosition.current.x = event.clientX - canvasBounds.left;
 		mousePosition.current.y = event.clientY - canvasBounds.top;
-	}
+	}, [])
 
 	const renderToken = useCallback((ctx: CanvasRenderingContext2D, 
 		ballot: BallotViewModel,
@@ -84,7 +90,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	}, [])
 
 	// Collision detection logic
-	const detectAndHandleCollision = (ballotA: BallotViewModel, ballotB: BallotViewModel) => {
+	const detectAndHandleCollision = useCallback((ballotA: BallotViewModel, ballotB: BallotViewModel) => {
 		const dx = ballotA.x - ballotB.x;
 		const dy = ballotA.y - ballotB.y;
 		const distance = Math.sqrt(dx * dx + dy * dy);
@@ -110,9 +116,10 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 			ballotB.x -= dx * adjustmentFactor;
 			ballotB.y -= dy * adjustmentFactor;
 		}
-	};
+	}, []);
 
 	const render = useCallback((ctx: CanvasRenderingContext2D, ts: number) => {
+		//console.log("render", ts);
 		const now = ts;
 		const elapsed = now - start.current;
 	
@@ -150,7 +157,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 					const selected = ballot.includesCoordinate(mousePosition.current.x, mousePosition.current.y)
 					if (selected) {
 						anyBallotSelected = true;
-						selectedBallot.current = ballot;
+						setSelectedBallot(ballot);
 					} else {
 						ballot.x = ballot.x + ballot.xVelocity;
 						ballot.y = ballot.y + ballot.yVelocity;
@@ -158,16 +165,17 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 					renderToken(ctx, ballot, image.current!)
 			})
 			if (!anyBallotSelected) {
-				selectedBallot.current = null;
+					setSelectedBallot(null);
 			}
 		}
 
 		return window.requestAnimationFrame((timestamp) => {
 			return render(ctx, timestamp);
 	});
-	}, [ballots, start, maxHeight, maxWidth, renderToken, image]);
+	}, [maxHeight, maxWidth, renderToken, image, detectAndHandleCollision]);
 
   useEffect(() => {
+		console.log("useEffect");
 			image.current = new Image();
 			image.current.src = "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
 
@@ -189,14 +197,33 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 				window.cancelAnimationFrame(animationFrameId); // TODO How confident are we that this animationFrameId is always the most recent one from inside the loop?
 			}
 
-  }, [image, render])
+  }, [render])
+
 
 	return (<div>
-			<canvas 
-				onMouseMove={handleMouseMove}
-				className='border-solid border' 
-				ref={canvasRef} 
-				width={maxWidth} 
-				height={maxHeight}/>
+		<canvas ref={canvasRef} width={maxWidth} height={maxHeight} onMouseMove={handleMouseMove} />
+		{ selectedBallot ? 
+			<BallotPopup ballot={selectedBallot} /> : null }
 		</div>)
 }
+
+interface CanvasProps {
+    handleMouseMove: (event: React.MouseEvent<HTMLCanvasElement>) => void;
+    width: number;
+    height: number;
+}
+	
+const MyCanvas = memo(React.forwardRef(
+	// eslint-disable-next-line react/prop-types
+	function MyCanvasComponent({handleMouseMove, width, height}: CanvasProps, ref: React.Ref<HTMLCanvasElement>) {
+		console.log("MyCanvasComponent render");
+		return (<canvas
+			onMouseMove={handleMouseMove}
+			className='border-solid border'
+			ref={ref}
+			width={width}
+			height={height} />
+		);
+	}
+	)
+);
