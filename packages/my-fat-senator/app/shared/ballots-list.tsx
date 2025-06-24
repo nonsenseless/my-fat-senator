@@ -22,9 +22,6 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const ballots = useRef<BallotViewModel[]>([]);
 	if (ballots.current.length === 0) {
 		ballots.current = props.ballots.map((ballot, index) => {
-		if (index === 1) {
-			//console.log("Initializing ballot", index);
-		}
 		ballot.xVelocity = Math.floor(Math.random() * 5);
 		ballot.yVelocity = Math.floor(Math.random() * 5);
 		ballot.radius = baseRadius;
@@ -174,7 +171,6 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	}, [maxHeight, maxWidth, renderToken, image, detectAndHandleCollision]);
 
   useEffect(() => {
-		console.log("useEffect");
 			image.current = new Image();
 			image.current.src = "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
 
@@ -199,7 +195,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
   }, [render])
 
 
-	return (<div>
+	return (<div className='relative'>
 		<canvas ref={canvasRef} width={maxWidth} height={maxHeight} onMouseMove={handleMouseMove} />
 		{ selectedBallot ? 
 			<BallotPopup ballot={selectedBallot} /> : null }
