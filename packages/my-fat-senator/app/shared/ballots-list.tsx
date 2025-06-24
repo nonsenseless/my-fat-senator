@@ -119,7 +119,6 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	}, []);
 
 	const render = useCallback((ctx: CanvasRenderingContext2D, ts: number) => {
-		//console.log("render", ts);
 		const now = ts;
 		const elapsed = now - start.current;
 	
@@ -206,24 +205,3 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 			<BallotPopup ballot={selectedBallot} /> : null }
 		</div>)
 }
-
-interface CanvasProps {
-    handleMouseMove: (event: React.MouseEvent<HTMLCanvasElement>) => void;
-    width: number;
-    height: number;
-}
-	
-const MyCanvas = memo(React.forwardRef(
-	// eslint-disable-next-line react/prop-types
-	function MyCanvasComponent({handleMouseMove, width, height}: CanvasProps, ref: React.Ref<HTMLCanvasElement>) {
-		console.log("MyCanvasComponent render");
-		return (<canvas
-			onMouseMove={handleMouseMove}
-			className='border-solid border'
-			ref={ref}
-			width={width}
-			height={height} />
-		);
-	}
-	)
-);
