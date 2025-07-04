@@ -128,20 +128,33 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 			
 			let anyBallotSelected = false;
 			ballots.current.forEach((ballot, i) => {
-					if (ballot.rightEdge() >= maxWidth || ballot.leftEdge() <= 0) {
-						ballot.xVelocity = -1 * ballot.xVelocity;
-					}
-					if (ballot.topEdge() >= maxHeight || ballot.bottomEdge() <= 0) {
-						let excess = 0;
-						if (ballot.topEdge() > maxHeight) {
-							excess = ballot.topEdge() - maxHeight;
-							ballot.x = ballot.x - excess;
+					const pastRightEdge = ballot.rightEdge() >= maxWidth;
+					const pastLeftEdge = ballot.leftEdge() <= 0;
+					const pastTopEdge = ballot.topEdge() <= 0;
+					const pastBottomEdge = ballot.bottomEdge() >= maxHeight;
+				
+					if (pastRightEdge || pastLeftEdge) {
+						const offset = ballot.radius + 2;
+						if (pastRightEdge) {
+							ballot.x = maxWidth - offset;
 						}
 
-						if (ballot.bottomEdge() <= 0) {
-							excess = ballot.bottomEdge();
-							ballot.y = ballot.y - excess;
+						if (pastLeftEdge) {
+							ballot.x = offset;
 						}
+						ballot.xVelocity = -1 * ballot.xVelocity;
+					}
+
+					if (pastTopEdge || pastBottomEdge) {
+						const offset = ballot.radius + 2;
+						if (pastTopEdge) {
+							ballot.y = maxHeight - offset;
+						}
+
+						if (pastBottomEdge) {
+							ballot.y = offset;
+						}
+	
 						ballot.yVelocity = -1 * ballot.yVelocity;
 					}
 
