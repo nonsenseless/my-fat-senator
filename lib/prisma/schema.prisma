@@ -105,6 +105,8 @@ model CongressionalSession {
   name          String
   slug          String @unique
   reviewed     Boolean
+  censusId    Int?
+  census      Census? @relation(fields: [censusId], references: [id])
   
   votes         Vote[]
 }
@@ -160,6 +162,7 @@ model State {
   shortName    String @unique
   reviewed      Boolean
 
+  censuses  StateCensus[]
   legislators   Legislator[]
 }
 
@@ -171,3 +174,28 @@ model VoteType {
   
   votes         Vote[]
 }
+
+model Census {
+  id            Int @id @default(autoincrement())
+  year          Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  censusStates  StateCensus[]
+  congressionalSessions CongressionalSession[]
+
+  @@unique([year])
+}
+
+model StateCensus {
+  id            Int @id @default(autoincrement())
+  census        Census @relation(fields: [censusId], references: [id])
+  censusId      Int
+  state         State @relation(fields: [stateId], references: [id])
+  stateId       Int
+  population    Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([censusId, stateId])
+}
+
