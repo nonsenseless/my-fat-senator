@@ -128,8 +128,6 @@ const mapBallot = (ballot: { legislator: LegislatorViewModel; ballotChoiceType: 
 	return {
 		x: 0,
 		y: 0,
-		xVelocity: 0,
-		yVelocity: 0,
 		legislator: ballot.legislator,
 		radius: 0,
 		ballotChoiceType: ballot.ballotChoiceType
