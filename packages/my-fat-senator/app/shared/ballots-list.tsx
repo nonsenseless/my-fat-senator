@@ -22,8 +22,6 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const ballots = useRef<BallotViewModel[]>([]);
 	if (ballots.current.length === 0) {
 		ballots.current = props.ballots.map((ballot, index) => {
-		ballot.xVelocity = Math.floor(Math.random() * 5);
-		ballot.yVelocity = Math.floor(Math.random() * 5);
 		ballot.radius = baseRadius;
 
 		const currentRow = Math.floor(index / tokensPerLine);
@@ -86,35 +84,6 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 			ctx.restore();
 	}, [])
 
-	// Collision detection logic
-	const detectAndHandleCollision = useCallback((ballotA: BallotViewModel, ballotB: BallotViewModel) => {
-		const dx = ballotA.x - ballotB.x;
-		const dy = ballotA.y - ballotB.y;
-		const distance = Math.sqrt(dx * dx + dy * dy);
-
-		if (distance < ballotA.radius + ballotB.radius) {
-			// Simple elastic collision: swap velocities
-			const tempXVelocity = ballotA.xVelocity;
-			const tempYVelocity = ballotA.yVelocity;
-
-			ballotA.xVelocity = ballotB.xVelocity;
-			ballotA.yVelocity = ballotB.yVelocity;
-
-			ballotB.xVelocity = tempXVelocity;
-			ballotB.yVelocity = tempYVelocity;
-
-			// Adjust positions to prevent overlap
-			const overlap = (ballotA.radius + ballotB.radius) - distance;
-			const adjustmentFactor = overlap / distance / 2;
-
-			ballotA.x += dx * adjustmentFactor;
-			ballotA.y += dy * adjustmentFactor;
-
-			ballotB.x -= dx * adjustmentFactor;
-			ballotB.y -= dy * adjustmentFactor;
-		}
-	}, []);
-
 	const render = useCallback((ctx: CanvasRenderingContext2D, ts: number) => {
 		const now = ts;
 		const elapsed = now - start.current;
@@ -128,48 +97,10 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 			
 			let anyBallotSelected = false;
 			ballots.current.forEach((ballot, i) => {
-					const pastRightEdge = ballot.rightEdge() >= maxWidth;
-					const pastLeftEdge = ballot.leftEdge() <= 0;
-					const pastTopEdge = ballot.topEdge() <= 0;
-					const pastBottomEdge = ballot.bottomEdge() >= maxHeight;
-				
-					if (pastRightEdge || pastLeftEdge) {
-						const offset = ballot.radius + 2;
-						if (pastRightEdge) {
-							ballot.x = maxWidth - offset;
-						}
-
-						if (pastLeftEdge) {
-							ballot.x = offset;
-						}
-						ballot.xVelocity = -1 * ballot.xVelocity;
-					}
-
-					if (pastTopEdge || pastBottomEdge) {
-						const offset = ballot.radius + 2;
-						if (pastTopEdge) {
-							ballot.y = maxHeight - offset;
-						}
-
-						if (pastBottomEdge) {
-							ballot.y = offset;
-						}
-	
-						ballot.yVelocity = -1 * ballot.yVelocity;
-					}
-
-					// Check for collisions with other ballots
-					for (let j = i + 1; j < ballots.current.length; j++) {
-							detectAndHandleCollision(ballot, ballots.current[j]);
-					}
-
 					const selected = ballot.includesCoordinate(mousePosition.current.x, mousePosition.current.y)
 					if (selected) {
 						anyBallotSelected = true;
 						setSelectedBallot(ballot);
-					} else {
-						ballot.x = ballot.x + ballot.xVelocity;
-						ballot.y = ballot.y + ballot.yVelocity;
 					}
 					renderToken(ctx, ballot, image.current!)
 			})
@@ -181,7 +112,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		return window.requestAnimationFrame((timestamp) => {
 			return render(ctx, timestamp);
 	});
-	}, [maxHeight, maxWidth, renderToken, image, detectAndHandleCollision]);
+	}, [maxHeight, maxWidth, renderToken, image]);
 
   useEffect(() => {
 			image.current = new Image();

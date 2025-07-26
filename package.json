@@ -14,7 +14,7 @@
     "build": "tsc --build --verbose",
     "test": "echo \"Error: no test specified\" && exit 1",
     "import": "npm run start --workspace=@my-fat-senator/importer",
-    "dev": "npm run dev --workspace=@my-fat-senator/my-fat-senator",
+    "dev": "npm run dev --workspace=@my-fat-senator/my-fat-senator"
   },
   "author": "nym",
   "license": "ISC",
