@@ -1,4 +1,5 @@
-import { LegislatorViewModel, BallotViewModel } from "@my-fat-senator/lib/interfaces";
+import { LegislatorViewModel, BallotViewModel, IVote } from "@my-fat-senator/lib/interfaces";
+import { SqlBuilder } from "@my-fat-senator/lib/prisma/sql.server";
 import { BallotChoiceType, PrismaClient } from "@prisma/client";
 import { json, LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
@@ -49,6 +50,13 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 				select: {
 					name: true,
 					slug: true
+				},
+				include: {
+					census: {
+						select: {
+							year: true
+						}
+					}
 				}
 			},
 			requiresType: {
@@ -72,6 +80,13 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 		}
 	});
 
+	const sqlBuilder = new SqlBuilder(prisma);
+	const ballots = await sqlBuilder.executeRawUnsafe<IVoteDetail>({
+		fields: prisma.ballot.fields,
+		params: new Map(["voteId", vote?.id.toString()]),
+	})
+
+	/*
 	const ballots = await prisma.ballot.findMany({
 		where: {
 			voteId: $id
@@ -85,7 +100,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 			},
 			ballotChoiceType: true,
 		},
-	});
+	});*/
 
 	const voteDetail = {
 		id: vote?.id,

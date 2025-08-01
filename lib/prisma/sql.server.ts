@@ -61,6 +61,7 @@ export class SqlBuilder {
 
 	};
 
+	// TODO Make more generic and not tied to VoteFieldRefs specifically
 	unsafeBuildWhere(fields: Prisma.VoteFieldRefs, params: Map<string, string>): IWhere {
 		const clauses: string[] = [];
 		const values: string[] = [];
