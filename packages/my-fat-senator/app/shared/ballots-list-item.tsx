@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { LegislatorViewModel } from "~/routes/votes.$id";
+import { LegislatorViewModel } from "@my-fat-senator/lib/interfaces";
 
 import { CardBorder } from './layout/card';
 

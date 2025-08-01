@@ -7,6 +7,8 @@ export interface BallotViewModel extends InteractiveElement {
 	y: number;
 	x: number;
 	radius: number;
+	scaledRadius: number; // Radius scaled based on population
+	population: number; // Population represented by this ballot
 	ballotChoiceType: BallotChoiceType
 	legislator: LegislatorViewModel;
 }

@@ -14,6 +14,15 @@ export const BallotPopup: React.FC<BallotPopupProps> = (props) => {
 	tinyinvariant(legislator.state, "Ballot legislator state is required");
 	const state = legislator.state;
 
+	// Format population number with commas
+	const formatPopulation = (population: number) => {
+		return population.toLocaleString();
+	};
+
+	// Calculate percentage of total population (assuming we have access to total)
+	const populationPercentage = ballot.population > 0 ? 
+		((ballot.population / 331000000) * 100).toFixed(2) : '0.00'; // Using 2020 US population as default
+
 	return (<div className={`absolute`} style={{ left: ballot.x + 'px', top: ballot.y + 'px' }}>
 		<div className="card card-side w-96 bg-base-100 shadow-xl ballot-popup">
 			<figure className={'h-[100[px] w-[100px]'}>
@@ -27,11 +36,13 @@ export const BallotPopup: React.FC<BallotPopupProps> = (props) => {
 				</h2>
 				<dl>
 					<dt>State Population</dt>
-					<dd>5000</dd>
-					<dt>Scaled Vote</dt>
-					<dd>35</dd>
-					<dt>Years In Congress</dt>
-					<dd>25</dd>
+					<dd>{formatPopulation(ballot.population)}</dd>
+					<dt>Population %</dt>
+					<dd>{populationPercentage}%</dd>
+					<dt>Ballot Size</dt>
+					<dd>{Math.round(ballot.scaledRadius)}px</dd>
+					<dt>Vote Choice</dt>
+					<dd>{ballot.ballotChoiceType.name}</dd>
 				</dl>
 				<a href="https://www.google.com">Voting History</a>
 

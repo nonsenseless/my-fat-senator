@@ -1,5 +1,5 @@
 import { IMousePosition, BallotViewModel } from '@my-fat-senator/lib/interfaces';
-import React, { useCallback, useEffect, useRef, useState, MouseEvent, memo } from 'react';
+import React, { useCallback, useEffect, useRef, useState, MouseEvent } from 'react';
 
 import { BallotPopup } from './ballot-popup';
 
@@ -21,41 +21,68 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 
 	const ballots = useRef<BallotViewModel[]>([]);
 	if (ballots.current.length === 0) {
+		// Calculate population-based scaling
+		const populations = props.ballots.map(b => b.population || 0);
+		const maxPopulation = Math.max(...populations);
+		const minPopulation = Math.min(...populations.filter(p => p > 0));
+		
+		// Use logarithmic scaling to prevent extreme size differences
+		const scaleFactor = (maxWidth / tokensPerLine / 10) / Math.log(maxPopulation + 1);
+		
 		ballots.current = props.ballots.map((ballot, index) => {
-		ballot.radius = baseRadius;
+			// Calculate scaled radius based on population
+			const population = ballot.population || minPopulation;
+			const scaledRadius = Math.max(baseRadius * 0.5, Math.log(population + 1) * scaleFactor);
+			
+			ballot.radius = baseRadius; // Keep original radius for compatibility
+			ballot.scaledRadius = scaledRadius;
 
-		const currentRow = Math.floor(index / tokensPerLine);
-		const currentColumn = index % tokensPerLine;
+			// Use a more sophisticated layout algorithm for variable sizes
+			const currentRow = Math.floor(index / tokensPerLine);
+			const currentColumn = index % tokensPerLine;
 
-		const cumulativeXMargin = margin + ballot.radius + (((ballot.radius * 4) + margin) * currentColumn);
-		const cumulativeYMargin = 0 + ballot.radius + (2 * ballot.radius * currentRow);
+			// Calculate position accounting for variable sizes
+			let cumulativeXMargin = margin;
+			for (let i = 0; i < currentColumn; i++) {
+				const prevBallot = ballots.current[i + (currentRow * tokensPerLine)];
+				if (prevBallot) {
+					cumulativeXMargin += prevBallot.scaledRadius * 2 + margin;
+				}
+			}
+			
+			let cumulativeYMargin = margin;
+			for (let i = 0; i < currentRow; i++) {
+				const prevRowBallot = ballots.current[i * tokensPerLine];
+				if (prevRowBallot) {
+					cumulativeYMargin += prevRowBallot.scaledRadius * 2 + margin;
+				}
+			}
 
-		ballot.x = cumulativeXMargin;
-		ballot.y = cumulativeYMargin;
+			ballot.x = cumulativeXMargin + ballot.scaledRadius;
+			ballot.y = cumulativeYMargin + ballot.scaledRadius;
 
-		ballot.includesCoordinate = (x: number, y: number) => {
-			return ballot.x + ballot.radius > x &&
-				ballot.x - ballot.radius < x &&
-				ballot.y + ballot.radius > y &&
-				ballot.y - ballot.radius < y;
-		}
+			ballot.includesCoordinate = (x: number, y: number) => {
+				return ballot.x + ballot.scaledRadius > x &&
+					ballot.x - ballot.scaledRadius < x &&
+					ballot.y + ballot.scaledRadius > y &&
+					ballot.y - ballot.scaledRadius < y;
+			}
 
-		ballot.bottomEdge = () => {
-			return (ballot.y + ballot.radius);
-		}
-		ballot.topEdge = () => {
-			return (ballot.y - ballot.radius);
-		}
-		ballot.rightEdge = () => {
-			return (ballot.x + ballot.radius)
-		}
-		ballot.leftEdge = () => {
-			return (ballot.x - ballot.radius)
-		}
-		return ballot;
+			ballot.bottomEdge = () => {
+				return (ballot.y + ballot.scaledRadius);
+			}
+			ballot.topEdge = () => {
+				return (ballot.y - ballot.scaledRadius);
+			}
+			ballot.rightEdge = () => {
+				return (ballot.x + ballot.scaledRadius)
+			}
+			ballot.leftEdge = () => {
+				return (ballot.x - ballot.scaledRadius)
+			}
+			return ballot;
+		})
 	}
-	)
-}
 
 	const image = useRef<HTMLImageElement | null>(null);
 	const mousePosition = useRef<IMousePosition>({x: 0, y: 0});
@@ -72,19 +99,19 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		ballot: BallotViewModel,
 		image: HTMLImageElement
 	) => {
-			const dx = ballot.x - ballot.radius;
-			const dy = ballot.y - ballot.radius;
+			const dx = ballot.x - ballot.scaledRadius;
+			const dy = ballot.y - ballot.scaledRadius;
 			ctx.save();
 			ctx.beginPath();
-			ctx.arc(ballot.x, ballot.y, ballot.radius, 0, Math.PI * 2, true);
+			ctx.arc(ballot.x, ballot.y, ballot.scaledRadius, 0, Math.PI * 2, true);
 			ctx.closePath();
 			ctx.clip();
-			ctx.drawImage(image, dx, dy, ballot.radius * 2, ballot.radius * 2);
+			ctx.drawImage(image, dx, dy, ballot.scaledRadius * 2, ballot.scaledRadius * 2);
 
 			ctx.restore();
 	}, [])
 
-	const render = useCallback((ctx: CanvasRenderingContext2D, ts: number) => {
+	const render = useCallback((ctx: CanvasRenderingContext2D, ts: number): number => {
 		const now = ts;
 		const elapsed = now - start.current;
 	
@@ -96,7 +123,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 			
 			let anyBallotSelected = false;
-			ballots.current.forEach((ballot, i) => {
+			ballots.current.forEach((ballot) => {
 					const selected = ballot.includesCoordinate(mousePosition.current.x, mousePosition.current.y)
 					if (selected) {
 						anyBallotSelected = true;
@@ -112,7 +139,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		return window.requestAnimationFrame((timestamp) => {
 			return render(ctx, timestamp);
 	});
-	}, [maxHeight, maxWidth, renderToken, image]);
+	}, [renderToken, image]);
 
   useEffect(() => {
 			image.current = new Image();
@@ -129,7 +156,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 
 			let animationFrameId: number;
 			if (canvas) {
-				animationFrameId = render(ctx, null);
+				animationFrameId = render(ctx, 0);
 			}
 			
 			return () => {
