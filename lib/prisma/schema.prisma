@@ -105,8 +105,8 @@ model CongressionalSession {
   name          String
   slug          String @unique
   reviewed     Boolean
-  censusId    Int?
-  census      Census? @relation(fields: [censusId], references: [id])
+  censusId    Int
+  census      Census @relation(fields: [censusId], references: [id])
   
   votes         Vote[]
 }
