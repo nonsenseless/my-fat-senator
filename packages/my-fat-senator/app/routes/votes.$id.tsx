@@ -1,5 +1,5 @@
 import { LegislatorViewModel, BallotViewModel } from "@my-fat-senator/lib/interfaces";
-import { BallotChoiceType, Census, PrismaClient, State } from "@prisma/client";
+import { Ballot, BallotChoiceType, PrismaClient } from "@prisma/client";
 import { json, LoaderFunctionArgs, SerializeFrom, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
@@ -70,6 +70,17 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 					slug: true
 				}
 			},
+			ballots: {
+				include: {
+					legislator: {
+						include: {
+							party: true,
+							state: true
+					}
+				},
+				ballotChoiceType: true,
+			},
+			}
 		}
 	});
 
@@ -84,28 +95,16 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 		},
 		where: {
 			census: {
-				year: vote.congressionalSession.census.year
-			}
+				id: vote.congressionalSession.census.id
+			},
 		}
 	});
 
-	const ballots = await prisma.ballot.findMany({
-		where: {
-			voteId: $id
-		},
-		include: {
-			legislator: {
-				include: {
-					party: true,
-					state: true
-				}
-			},
-			ballotChoiceType: true,
-		},
-	});
+	const totalPopulation = stateCensusData.reduce((sum, state) => sum + state.population, 0);
 
 	const voteDetail = {
 		id: vote?.id,
+		ballots: vote?.ballots,
 		sourceUrl: vote?.sourceUrl,
 		session: vote?.session,
 		updatedAt: vote?.updatedAt,
@@ -123,11 +122,12 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 		voteTypeName: vote?.voteType.name,
 	} as IVoteDetail;
 
-	return json({ vote: voteDetail, ballots, stateCensusData });
+	return json({ vote: voteDetail, stateCensusData, totalPopulation});
 }
 
 export interface IVoteDetail {
 	id: number;
+	ballots: Ballot[];
 	sourceUrl: string;
 	updatedAt: Date;
 	updatedAtFormatted: string;
@@ -154,7 +154,7 @@ const mapBallot = (ballot: { legislator: LegislatorViewModel; ballotChoiceType: 
 }
 
 export default function VoteDetail() {
-	const { vote, ballots, stateCensusData } = useLoaderData<typeof loader>();
+	const { vote, stateCensusData, totalPopulation } = useLoaderData<typeof loader>();
 	const [ showAsList, setShowAsList] = useState(true);
 
 	const toggleShowAsList = () => {
@@ -197,10 +197,12 @@ export default function VoteDetail() {
 						ballotChoiceType='Nay' 
 						showAsList={showAsList}
 						ballots={
-						ballots
-						.filter((value) => ['nay', 'yea'].indexOf(value.ballotChoiceType.slug) != -1)
-						.map((ballot) => mapBallot(ballot, stateCensusData))
-					}></BallotsList>
+							vote.ballots
+							.filter((value) => ['nay', 'yea'].indexOf(value.ballotChoiceType.slug) != -1)
+							.map((ballot) => mapBallot(ballot, stateCensusData))
+						}
+						totalPopulation={totalPopulation}
+					></BallotsList>
 				</div>
 			</Card>
 		</div>

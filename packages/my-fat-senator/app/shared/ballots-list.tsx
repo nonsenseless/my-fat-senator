@@ -1,5 +1,5 @@
 import { IMousePosition, BallotViewModel } from '@my-fat-senator/lib/interfaces';
-import React, { useCallback, useEffect, useRef, useState, MouseEvent, memo } from 'react';
+import React, { useCallback, useEffect, useRef, useState, MouseEvent } from 'react';
 
 import { BallotPopup } from './ballot-popup';
 
@@ -7,6 +7,7 @@ interface BallotsListProps {
 	ballotChoiceType: string
 	showAsList: boolean;
 	ballots: BallotViewModel[]
+	totalPopulation: number;
 }
 
 export const BallotsList: React.FC<BallotsListProps> = (props) => {
@@ -22,7 +23,14 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const ballots = useRef<BallotViewModel[]>([]);
 	if (ballots.current.length === 0) {
 		ballots.current = props.ballots.map((ballot, index) => {
-		ballot.radius = baseRadius;
+
+		// Find population for this ballot's state
+    const statePopulation = ballot.stateCensus?.population ?? 0;
+    const scalingFactor = statePopulation / props.totalPopulation;
+    const minRadius = 5;
+    const maxRadius = 330; // Chosen because Most Populous State Pop (CA) / Lease Populous = 66 * min radius
+		
+		ballot.radius = minRadius + scalingFactor * (maxRadius - minRadius);
 
 		const currentRow = Math.floor(index / tokensPerLine);
 		const currentColumn = index % tokensPerLine;
@@ -96,7 +104,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 			
 			let anyBallotSelected = false;
-			ballots.current.forEach((ballot, i) => {
+			ballots.current.forEach((ballot) => {
 					const selected = ballot.includesCoordinate(mousePosition.current.x, mousePosition.current.y)
 					if (selected) {
 						anyBallotSelected = true;
