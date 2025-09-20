@@ -13,6 +13,7 @@ export interface BallotViewModel extends InteractiveElement {
 	y: number;
 	x: number;
 	radius: number;
+
 	ballotChoiceType: BallotChoiceType
 	legislator: LegislatorViewModel;
 	stateCensus?: StateCensusViewModel;
