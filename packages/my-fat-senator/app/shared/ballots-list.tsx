@@ -10,6 +10,43 @@ interface BallotsListProps {
 	totalPopulation: number;
 }
 
+function forceDirectedPacking(ballots: BallotViewModel[], maxWidth: number, maxHeight: number, iterations = 300) {
+  // Initialize positions randomly within bounds
+  ballots.forEach(b => {
+    b.x = Math.random() * (maxWidth - 2 * b.radius) + b.radius;
+    b.y = Math.random() * (maxHeight - 2 * b.radius) + b.radius;
+  });
+
+  for (let iter = 0; iter < iterations; iter++) {
+    ballots.forEach((a, i) => {
+      let dx = 0, dy = 0;
+
+      // Repulsion from other ballots
+      ballots.forEach((b, j) => {
+        if (i === j) return;
+        const dist = Math.hypot(a.x - b.x, a.y - b.y);
+        const minDist = a.radius + b.radius + 2;
+        if (dist < minDist && dist > 0) {
+          const angle = Math.atan2(a.y - b.y, a.x - b.x);
+          const force = (minDist - dist) * 0.5;
+          dx += Math.cos(angle) * force;
+          dy += Math.sin(angle) * force;
+        }
+      });
+
+      // Attraction to stay inside canvas
+      if (a.x - a.radius < 0) dx += (0 - (a.x - a.radius));
+      if (a.x + a.radius > maxWidth) dx -= ((a.x + a.radius) - maxWidth);
+      if (a.y - a.radius < 0) dy += (0 - (a.y - a.radius));
+      if (a.y + a.radius > maxHeight) dy -= ((a.y + a.radius) - maxHeight);
+
+      // Update position
+      a.x += dx * 0.1;
+      a.y += dy * 0.1;
+    });
+  }
+}
+
 export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const canvasRef = useRef(null);
 	const [maxWidth] = useState(1200);
@@ -31,16 +68,6 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
     const maxRadius = 330; // Chosen because Most Populous State Pop (CA) / Lease Populous = 66 * min radius
 		
 		ballot.radius = minRadius + scalingFactor * (maxRadius - minRadius);
-
-		const currentRow = Math.floor(index / tokensPerLine);
-		const currentColumn = index % tokensPerLine;
-
-		const cumulativeXMargin = margin + ballot.radius + (((ballot.radius * 4) + margin) * currentColumn);
-		const cumulativeYMargin = 0 + ballot.radius + (2 * ballot.radius * currentRow);
-
-		ballot.x = cumulativeXMargin;
-		ballot.y = cumulativeYMargin;
-
 		ballot.includesCoordinate = (x: number, y: number) => {
 			return ballot.x + ballot.radius > x &&
 				ballot.x - ballot.radius < x &&
@@ -61,8 +88,9 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 			return (ballot.x - ballot.radius)
 		}
 		return ballot;
-	}
-	)
+	})
+
+	forceDirectedPacking(ballots.current, maxWidth, maxHeight);
 }
 
 	const image = useRef<HTMLImageElement | null>(null);
