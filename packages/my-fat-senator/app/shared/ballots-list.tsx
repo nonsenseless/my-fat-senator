@@ -10,56 +10,89 @@ interface BallotsListProps {
 	totalPopulation: number;
 }
 
-function forceDirectedPacking(ballots: BallotViewModel[], maxWidth: number, maxHeight: number, iterations = 300) {
-  // Initialize positions randomly within bounds
+function forceDirectedPile(ballots: BallotViewModel[], maxWidth: number, maxHeight: number, gravity = 0.5) {
   ballots.forEach(b => {
+    // Start at random horizontal position, top of canvas
     b.x = Math.random() * (maxWidth - 2 * b.radius) + b.radius;
-    b.y = Math.random() * (maxHeight - 2 * b.radius) + b.radius;
+    b.y = b.radius;
+    b.vy = 0; // vertical velocity
+    b.vx = 0; // horizontal velocity
+    b.settled = false; // settled state
   });
 
-  for (let iter = 0; iter < iterations; iter++) {
+  // Each ballot gets a velocity property for animation
+  function step() {
     ballots.forEach((a, i) => {
-      let dx = 0, dy = 0;
+      // Skip settled ballots
+      if (a.settled) return;
+
+      let dy = gravity; // gravity pulls down
+      let dx = 0;
 
       // Repulsion from other ballots
       ballots.forEach((b, j) => {
-        if (i === j) return;
+        if (i === j) {
+					return
+				};
         const dist = Math.hypot(a.x - b.x, a.y - b.y);
         const minDist = a.radius + b.radius + 2;
         if (dist < minDist && dist > 0) {
           const angle = Math.atan2(a.y - b.y, a.x - b.x);
-          const force = (minDist - dist) * 0.5;
+          const force = (minDist - dist) * 0.3; // Reduced force for stability
           dx += Math.cos(angle) * force;
           dy += Math.sin(angle) * force;
         }
       });
 
-      // Attraction to stay inside canvas
-      if (a.x - a.radius < 0) dx += (0 - (a.x - a.radius));
-      if (a.x + a.radius > maxWidth) dx -= ((a.x + a.radius) - maxWidth);
-      if (a.y - a.radius < 0) dy += (0 - (a.y - a.radius));
-      if (a.y + a.radius > maxHeight) dy -= ((a.y + a.radius) - maxHeight);
+      // Apply forces to velocity with damping
+      a.vx = (a.vx + dx * 0.1) * 0.95; // Add damping (0.95 = 5% friction)
+      a.vy = (a.vy + dy * 0.1) * 0.98; // More damping for vertical movement
 
-      // Update position
-      a.x += dx * 0.1;
-      a.y += dy * 0.1;
+      // Collision with bottom and top
+      if (a.y + a.radius + a.vy > maxHeight) {
+        a.y = maxHeight - a.radius;
+        a.vy = Math.max(-1, a.vy * -0.3); // Bounce with energy loss
+      } else if (a.y - a.radius + a.vy < 0) {
+        a.y = a.radius;
+        a.vy = Math.max(0.1, Math.abs(a.vy) * 0.3); // Bounce off top, ensure downward movement
+      } else {
+        a.y += a.vy;
+      }
+
+      // Collision with sides
+      if (a.x - a.radius + a.vx < 0) {
+				a.x = a.radius;
+				a.vx = Math.abs(a.vx) * 0.3; // Bounce off left wall
+			} else if (a.x + a.radius + a.vx > maxWidth) {
+				a.x = maxWidth - a.radius;
+				a.vx = -Math.abs(a.vx) * 0.3; // Bounce off right wall
+			} else {
+        a.x += a.vx;
+      }
+
+      // Stop very small movements (come to rest)
+      if (Math.abs(a.vx) < 0.05 && Math.abs(a.vy) < 0.05) {
+        a.settled = true;
+        a.vx = 0;
+        a.vy = 0;
+      }
     });
   }
+
+  return step;
 }
 
 export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const canvasRef = useRef(null);
 	const [maxWidth] = useState(1200);
 	const [maxHeight] = useState(600);
-	const [margin] = useState(30);
-	const [tokensPerLine] = useState(5);
-	const [baseRadius] = useState((maxWidth / tokensPerLine / 10))
 	const start = useRef(0);
+	const pileStepRef = useRef<() => void>();
 	const [selectedBallot, setSelectedBallot] = useState<BallotViewModel | null>(null);
 
 	const ballots = useRef<BallotViewModel[]>([]);
 	if (ballots.current.length === 0) {
-		ballots.current = props.ballots.map((ballot, index) => {
+		ballots.current = props.ballots.map((ballot) => {
 
 		// Find population for this ballot's state
     const statePopulation = ballot.stateCensus?.population ?? 0;
@@ -68,6 +101,8 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
     const maxRadius = 330; // Chosen because Most Populous State Pop (CA) / Lease Populous = 66 * min radius
 		
 		ballot.radius = minRadius + scalingFactor * (maxRadius - minRadius);
+		ballot.vx = 0; // Initialize horizontal velocity
+		ballot.settled = false; // Initialize settled state
 		ballot.includesCoordinate = (x: number, y: number) => {
 			return ballot.x + ballot.radius > x &&
 				ballot.x - ballot.radius < x &&
@@ -89,8 +124,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		}
 		return ballot;
 	})
-
-	forceDirectedPacking(ballots.current, maxWidth, maxHeight);
+	pileStepRef.current = forceDirectedPile(ballots.current, maxWidth, maxHeight);
 }
 
 	const image = useRef<HTMLImageElement | null>(null);
@@ -129,6 +163,11 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 
 		if (elapsed > fpsInterval) {
 			start.current = (now - (elapsed % fpsInterval));
+  		
+			if (pileStepRef.current) {
+				pileStepRef.current()
+			};
+
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 			
 			let anyBallotSelected = false;
@@ -148,7 +187,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		return window.requestAnimationFrame((timestamp) => {
 			return render(ctx, timestamp);
 	});
-	}, [maxHeight, maxWidth, renderToken, image]);
+	}, [renderToken, image]);
 
   useEffect(() => {
 			image.current = new Image();
@@ -165,7 +204,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 
 			let animationFrameId: number;
 			if (canvas) {
-				animationFrameId = render(ctx, null);
+				animationFrameId = render(ctx, 0);
 			}
 			
 			return () => {
