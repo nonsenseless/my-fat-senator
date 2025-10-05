@@ -198,7 +198,7 @@ export default function VoteDetail() {
 						showAsList={showAsList}
 						ballots={
 							vote.ballots
-							.filter((value) => ['nay', 'yea'].indexOf(value.ballotChoiceType.slug) != -1)
+							.filter((value) => ['yea', 'nay'].indexOf(value.ballotChoiceType.slug) != -1)
 							.map((ballot) => mapBallot(ballot, stateCensusData))
 						}
 						totalPopulation={totalPopulation}
