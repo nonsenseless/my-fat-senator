@@ -63,6 +63,9 @@ function forceDirectedPacking(ballots: BallotViewModel[], maxWidth: number, maxH
 }
 
 function forceDirectedPile(ballots: BallotViewModel[], maxWidth: number, maxHeight: number, gravity = 1) {
+	const velocityScalingFactor = 0.1;
+	const buffer = 2;
+
 	ballots.forEach(b => {
 		// Start at random horizontal position, top of canvas
 		b.x = Math.random() * (maxWidth - 2 * b.radius) + b.radius;
@@ -80,7 +83,7 @@ function forceDirectedPile(ballots: BallotViewModel[], maxWidth: number, maxHeig
 					return;
 				}
 				const dist = Math.hypot(a.x - b.x, a.y - b.y);
-        const minDist = a.radius + b.radius + 2;
+        const minDist = a.radius + b.radius + buffer;
         if (dist < minDist && dist > 0) {
           const angle = Math.atan2(a.y - b.y, a.x - b.x);
           const force = (minDist - dist) * 0.5;
@@ -88,12 +91,17 @@ function forceDirectedPile(ballots: BallotViewModel[], maxWidth: number, maxHeig
           dy += Math.sin(angle) * force;
         }
 			})
+
+			// Apply forces to velocity
+      a.vx = (a.vx + dx * 0.1) * 0.95; // Add damping (0.95 = 5% friction)
+      a.vy = (a.vy + dy * 0.1) * 0.50; // More damping for vertical movement
+
       // Prevent falling below the canvas
       if (a.bottomEdge() + a.vy > maxHeight) {
         a.y = maxHeight - a.radius;
-        a.vy = 0;
+        a.vy = Math.max(-1, a.vy * -0.3);
       } else {
-        a.vy += dy * 0.1;
+        a.vy += dy * velocityScalingFactor;
         a.y += a.vy;
       }
 
@@ -105,7 +113,10 @@ function forceDirectedPile(ballots: BallotViewModel[], maxWidth: number, maxHeig
 				a.x = maxWidth - a.radius;
 			}
 
-      a.x += dx * 0.1;
+      a.x += dx * velocityScalingFactor;
+
+			if (Math.abs(a.vx) < 0.1) a.vx = 0;
+      if (Math.abs(a.vy) < 0.1) a.vy = 0;
 		})
 	}
 
