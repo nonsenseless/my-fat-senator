@@ -11,8 +11,11 @@ interface BallotsListProps {
 }
 
 function forceDirectedPacking(ballots: BallotViewModel[], maxWidth: number, maxHeight: number, iterations = 300) {
-  // Initialize positions randomly within bounds
+	const velocityScalingFactor = 0.1;
+	
+	// Initialize positions randomly within bounds
   ballots.forEach(b => {
+		// TODO: Finetune sizing rules
     b.x = Math.random() * (maxWidth - 2 * b.radius) + b.radius;
     b.y = Math.random() * (maxHeight - 2 * b.radius) + b.radius;
   });
@@ -21,9 +24,13 @@ function forceDirectedPacking(ballots: BallotViewModel[], maxWidth: number, maxH
     ballots.forEach((a, i) => {
       let dx = 0, dy = 0;
 
+			// TODO: Would this be more efficient if you marked whether a token had interacted
+			// with another so you could skip the calculations?
       // Repulsion from other ballots
       ballots.forEach((b, j) => {
-        if (i === j) return;
+        if (i === j) {
+					return;
+				}
         const dist = Math.hypot(a.x - b.x, a.y - b.y);
         const minDist = a.radius + b.radius + 2;
         if (dist < minDist && dist > 0) {
@@ -35,27 +42,86 @@ function forceDirectedPacking(ballots: BallotViewModel[], maxWidth: number, maxH
       });
 
       // Attraction to stay inside canvas
-      if (a.x - a.radius < 0) dx += (0 - (a.x - a.radius));
-      if (a.x + a.radius > maxWidth) dx -= ((a.x + a.radius) - maxWidth);
-      if (a.y - a.radius < 0) dy += (0 - (a.y - a.radius));
-      if (a.y + a.radius > maxHeight) dy -= ((a.y + a.radius) - maxHeight);
+			if (a.leftEdge() < 0) {
+				dx += (a.radius - a.x);
+			}
+      if (a.topEdge() < 0) {
+				dy += (a.radius - a.y);
+			}
+      if (a.rightEdge() > maxWidth){
+				dx -= (a.rightEdge() - maxWidth);
+			} 
+      if (a.bottomEdge() > maxHeight) {
+				dy -= (a.bottomEdge() - maxHeight);
+			}
 
       // Update position
-      a.x += dx * 0.1;
-      a.y += dy * 0.1;
+      a.x += dx * velocityScalingFactor;
+      a.y += dy * velocityScalingFactor;
     });
   }
 }
 
+function forceDirectedPile(ballots: BallotViewModel[], maxWidth: number, maxHeight: number, gravity = 1) {
+	ballots.forEach(b => {
+		// Start at random horizontal position, top of canvas
+		b.x = Math.random() * (maxWidth - 2 * b.radius) + b.radius;
+		b.y = b.radius;
+		b.vy = 0;
+	})
+
+	function step() {
+		ballots.forEach((a, i) => {
+			let dy = gravity;
+			let dx = 0;
+
+			ballots.forEach((b, j) => {
+				if (i === j) {
+					return;
+				}
+				const dist = Math.hypot(a.x - b.x, a.y - b.y);
+        const minDist = a.radius + b.radius + 2;
+        if (dist < minDist && dist > 0) {
+          const angle = Math.atan2(a.y - b.y, a.x - b.x);
+          const force = (minDist - dist) * 0.5;
+          dx += Math.cos(angle) * force;
+          dy += Math.sin(angle) * force;
+        }
+			})
+      // Prevent falling below the canvas
+      if (a.bottomEdge() + a.vy > maxHeight) {
+        a.y = maxHeight - a.radius;
+        a.vy = 0;
+      } else {
+        a.vy += dy * 0.1;
+        a.y += a.vy;
+      }
+
+			// Prevent moving outside horizontally
+      if (a.leftEdge() < 0) {
+				a.x = a.radius;
+			}
+      if (a.rightEdge() > maxWidth) {
+				a.x = maxWidth - a.radius;
+			}
+
+      a.x += dx * 0.1;
+		})
+	}
+
+	return step;
+}
+
 export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const canvasRef = useRef(null);
-	const [maxWidth] = useState(1200);
+	const [maxWidth] = useState(600);
 	const [maxHeight] = useState(600);
 	const [margin] = useState(30);
 	const [tokensPerLine] = useState(5);
 	const [baseRadius] = useState((maxWidth / tokensPerLine / 10))
 	const start = useRef(0);
 	const [selectedBallot, setSelectedBallot] = useState<BallotViewModel | null>(null);
+	const pileStepRef = useRef<() => void>();
 
 	const ballots = useRef<BallotViewModel[]>([]);
 	if (ballots.current.length === 0) {
@@ -90,7 +156,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		return ballot;
 	})
 
-	forceDirectedPacking(ballots.current, maxWidth, maxHeight);
+	pileStepRef.current = forceDirectedPile(ballots.current, maxWidth, maxHeight);
 }
 
 	const image = useRef<HTMLImageElement | null>(null);
@@ -129,6 +195,10 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 
 		if (elapsed > fpsInterval) {
 			start.current = (now - (elapsed % fpsInterval));
+			if (pileStepRef.current) {
+				pileStepRef.current();
+			}
+
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 			
 			let anyBallotSelected = false;
