@@ -94,7 +94,7 @@ function forceDirectedPile(ballots: BallotViewModel[], maxWidth: number, maxHeig
 
 			// Apply forces to velocity
       a.vx = (a.vx + dx * 0.1) * 0.95; // Add damping (0.95 = 5% friction)
-      a.vy = (a.vy + dy * 0.1) * 0.50; // More damping for vertical movement
+      a.vy = (a.vy + dy * 0.1) * 0.95; // More damping for vertical movement
 
       // Prevent falling below the canvas
       if (a.bottomEdge() + a.vy > maxHeight) {
