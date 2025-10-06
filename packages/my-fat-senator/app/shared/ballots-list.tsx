@@ -10,58 +10,6 @@ interface BallotsListProps {
 	totalPopulation: number;
 }
 
-function forceDirectedPacking(ballots: BallotViewModel[], maxWidth: number, maxHeight: number, iterations = 300) {
-	const velocityScalingFactor = 0.1;
-	
-	// Initialize positions randomly within bounds
-  ballots.forEach(b => {
-		// TODO: Finetune sizing rules
-    b.x = Math.random() * (maxWidth - 2 * b.radius) + b.radius;
-    b.y = Math.random() * (maxHeight - 2 * b.radius) + b.radius;
-  });
-
-  for (let iter = 0; iter < iterations; iter++) {
-    ballots.forEach((a, i) => {
-      let dx = 0, dy = 0;
-
-			// TODO: Would this be more efficient if you marked whether a token had interacted
-			// with another so you could skip the calculations?
-      // Repulsion from other ballots
-      ballots.forEach((b, j) => {
-        if (i === j) {
-					return;
-				}
-        const dist = Math.hypot(a.x - b.x, a.y - b.y);
-        const minDist = a.radius + b.radius + 2;
-        if (dist < minDist && dist > 0) {
-          const angle = Math.atan2(a.y - b.y, a.x - b.x);
-          const force = (minDist - dist) * 0.5;
-          dx += Math.cos(angle) * force;
-          dy += Math.sin(angle) * force;
-        }
-      });
-
-      // Attraction to stay inside canvas
-			if (a.leftEdge() < 0) {
-				dx += (a.radius - a.x);
-			}
-      if (a.topEdge() < 0) {
-				dy += (a.radius - a.y);
-			}
-      if (a.rightEdge() > maxWidth){
-				dx -= (a.rightEdge() - maxWidth);
-			} 
-      if (a.bottomEdge() > maxHeight) {
-				dy -= (a.bottomEdge() - maxHeight);
-			}
-
-      // Update position
-      a.x += dx * velocityScalingFactor;
-      a.y += dy * velocityScalingFactor;
-    });
-  }
-}
-
 function forceDirectedPile(ballots: BallotViewModel[], maxWidth: number, maxHeight: number, gravity = 1) {
 	const velocityScalingFactor = 0.1;
 	const buffer = 2;
