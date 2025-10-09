@@ -11,32 +11,41 @@ interface BallotsListProps {
 }
 
 function forceDirectedPile(ballots: BallotViewModel[], maxWidth: number, maxHeight: number, gravity = 1) {
+	const startingXVelocity = 0;
+	const startingYVelocity = gravity
 	const velocityScalingFactor = 0.1;
 	const buffer = 2;
 
+	function detectCollision(a: BallotViewModel, b: BallotViewModel) {
+		const dist = Math.hypot(a.x - b.x, a.y - b.y);
+		const minDist = a.radius + b.radius + buffer;
+		return (dist < minDist && dist > 0)
+	}
+
 	ballots.forEach(b => {
 		// Start at random horizontal position, top of canvas
-		b.x = Math.random() * (maxWidth - 2 * b.radius) + b.radius;
+		b.x = (Math.random() * (maxWidth - 2 * b.radius)) + b.radius;
 		b.y = b.radius;
 		b.vy = 0;
 	})
 
 	function step() {
-		ballots.forEach((a, i) => {
-			let dy = gravity;
-			let dx = 0;
+		ballots.forEach((a, idx) => {
+			let dy = startingYVelocity;
+			let dx = startingXVelocity;
 
-			ballots.forEach((b, j) => {
-				if (i === j) {
+			ballots.forEach((b, jdx) => {
+				if (idx === jdx) {
 					return;
 				}
+
 				const dist = Math.hypot(a.x - b.x, a.y - b.y);
-        const minDist = a.radius + b.radius + buffer;
-        if (dist < minDist && dist > 0) {
-          const angle = Math.atan2(a.y - b.y, a.x - b.x);
-          const force = (minDist - dist) * 0.5;
-          dx += Math.cos(angle) * force;
-          dy += Math.sin(angle) * force;
+				const minDist = a.radius + b.radius + buffer;
+				if (dist < minDist && dist > 0) {
+					const angle = Math.atan2(a.y - b.y, a.x - b.x);
+					const force = (minDist - dist) * 0.5;
+					dx += Math.cos(angle) * force;
+					dy += Math.sin(angle) * force;
         }
 			})
 
@@ -83,6 +92,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const pileStepRef = useRef<() => void>();
 
 	const ballots = useRef<BallotViewModel[]>([]);
+	// Initial configuration of ballots
 	if (ballots.current.length === 0) {
 		ballots.current = props.ballots.map((ballot, index) => {
 
@@ -154,6 +164,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 
 		if (elapsed > fpsInterval) {
 			start.current = (now - (elapsed % fpsInterval));
+
 			if (pileStepRef.current) {
 				pileStepRef.current();
 			}
@@ -177,7 +188,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		return window.requestAnimationFrame((timestamp) => {
 			return render(ctx, timestamp);
 	});
-	}, [maxHeight, maxWidth, renderToken, image]);
+	}, [renderToken, image]);
 
   useEffect(() => {
 			image.current = new Image();
