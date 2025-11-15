@@ -11,6 +11,8 @@
   "author": "nym",
   "license": "ISC",
   "devDependencies": {
+    "@types/minimist": "^1.2.5",
+    "minimist": "^1.2.8",
     "ts-node": "^10.9.2"
   },
   "dependencies": {
