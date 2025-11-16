@@ -114,6 +114,7 @@ model CongressionalSession {
 model Legislator {
   id            Int @id @default(autoincrement())
   bioguideid    String @unique
+  lis_member_id String? @unique
   displayName  String
   reviewed      Boolean
   firstName    String?
