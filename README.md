@@ -12,6 +12,10 @@
 20241207: I don't want this whole log to be complaining about the ecosystem but now I'm digging into prisma more and the LIKE operator is only supported on postgres and TypedSQL lets you compile SQL to typesafe queries but doesn't support optional parameters. For any significant system, I'd prefer to use a data mapper closer to Petapoco.
 20251115: Apparently the id on senate votes is *not* the bioguideid although it *is* the bioguideid on house votes. Frustrating.
 
+## Irritants
+- Remix’s dev:serve command throws a 500 on load. What is this command actually doing? It is used by remix dev.
+- 
+
 ## Helpful Reading
 * React and Canvas
 https://stackoverflow.com/questions/72228029/accessing-and-updating-canvas-node-callback-inside-of-useeffect-react
