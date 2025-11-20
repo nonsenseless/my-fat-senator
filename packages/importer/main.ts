@@ -8,8 +8,7 @@ import { importVotes } from './services/import-votes';
 
 const args = minimist(process.argv.slice(2));
 console.log("Starting importer");
-console.log("Import: ", args["import"]);
-console.log("Source: ", args["source"]);
+console.log("Args: ", args);
 
 const config = {
 	TargetDirectory: args["source"] || "/Users/nym/code/congress/data"	

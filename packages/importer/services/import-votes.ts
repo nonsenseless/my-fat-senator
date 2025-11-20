@@ -13,7 +13,7 @@ import { VoteService } from "@my-fat-senator/lib/models/vote";
 import { VoteTypeService } from "@my-fat-senator/lib/models/vote-type";
 import { PrismaClient } from '@prisma/client';
 
-// Look, obviously this isn't testable.
+// TODO: Look, obviously this isn't testable.
 export function importVotes(prisma: PrismaClient, targetDirectory: string) {
 	const ballotChoiceTypeService = new BallotChoiceTypeService(prisma);
 	const categoryTypeService = new CategoryTypeService(prisma);
