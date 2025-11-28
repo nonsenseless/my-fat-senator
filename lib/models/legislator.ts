@@ -1,4 +1,4 @@
-import { Legislator, PrismaClient } from '@prisma/client';
+import { Legislator, PrismaClient, Prisma } from '@prisma/client';
 
 import { IBallot } from '../interfaces';
 
@@ -13,27 +13,39 @@ export class LegislatorService {
 	) {
 	}
 
-	// TODO: This is the function where I'm starting to think that 
-	// the norm with prisma may be to call it directly wherever you need it?
-	// May need to rethink structure/use of services
+	public async findMany(getArgs: Prisma.LegislatorFindManyArgs) {
+		const legislators = await this.database.legislator.findMany(getArgs);
+		return legislators;
+	}
+
+	// So technically we're wrapping calls but we still leak out the prisma signature.
+	// I guess at least it's a chokepoint?
+	public async update(updateArgs: Prisma.LegislatorUpdateArgs) {
+		const legislator = this.database.legislator.update(updateArgs)
+
+		return legislator;
+	}
+
 	public updateBioguideId = async (legislatorId: number, bioguideid: string): Promise<Legislator> => {
-		return await this.database.legislator.update({
+		console.log(legislatorId);
+		console.log(bioguideid);
+
+		return await this.update({
 			where: {
 				id: legislatorId
 			},
 			data: {
 				bioguideid: bioguideid.trim()
 			}
-
-		});
+		})
 	}
 
 	public getLegislatorsWithoutBioguideId = async (): Promise<Legislator[]> => {
-		const legislators = await this.database.legislator.findMany({
-			where: {
-				bioguideid: undefined 
-			}
-		})
+		const legislators = await this.database.$queryRaw<Legislator[]> `
+			SELECT * 
+			FROM Legislator 
+			WHERE LENGTH(bioguideid) < 5 AND unprocessable = 0
+		`;
 		return legislators;
 	};
 
