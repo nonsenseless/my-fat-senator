@@ -127,6 +127,8 @@ model Legislator {
   state       State @relation(fields: [stateId], references: [id])
   stateId      Int
 
+  unprocessable Boolean @default(false)
+
   ballots     Ballot[]
 }
 
