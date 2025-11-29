@@ -22,19 +22,22 @@ const prisma = new PrismaClient({
 });
 prisma.$connect();
 
+async function legislatorImport() {
+	const stateService = new StateService(prisma);
+	const partyService = new PartyService(prisma);
+	const legislatorService = new LegislatorService(prisma, partyService, stateService);
+	const cli = new CommandLineService();
+
+	const importService = new LegislatorImportService(legislatorService, cli);
+	return await importService.importLegislatorBioguides();
+}
+
 switch (args["command"]) {
 	case "votes":
 		importVotes(prisma, config["TargetDirectory"]);
 		break;
 	case "legislators": {
-		const stateService = new StateService(prisma);
-		const partyService = new PartyService(prisma);
-		const legislatorService = new LegislatorService(prisma, partyService, stateService);
-		const cli = new CommandLineService();
-
-		const importService = new LegislatorImportService(legislatorService, cli);
-		await importService.importLegislatorBioguides();
-
+		legislatorImport().catch(console.error);
 		break;
 	}
 	default:
