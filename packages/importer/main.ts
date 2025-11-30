@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { CommandLineService } from '@my-fat-senator/lib';
+import { CommandLineService, CongressionalAPIService, ErrorLoggerService } from '@my-fat-senator/lib';
 import { LegislatorService } from "@my-fat-senator/lib/models/legislator";
 import { PartyService } from "@my-fat-senator/lib/models/party";
 import { StateService } from "@my-fat-senator/lib/models/state";
@@ -25,11 +25,13 @@ prisma.$connect();
 async function legislatorImport() {
 	const stateService = new StateService(prisma);
 	const partyService = new PartyService(prisma);
-	const legislatorService = new LegislatorService(prisma, partyService, stateService);
+	const logger = new ErrorLoggerService();
+	const legislatorService = new LegislatorService(prisma, partyService, stateService, logger);
 	const cli = new CommandLineService();
 
-	const importService = new LegislatorImportService(legislatorService, cli);
-	return await importService.updateBioguideIds();
+	const congressionalAPI = new CongressionalAPIService();
+	const importService = new LegislatorImportService(legislatorService, cli, congressionalAPI);
+	return await importService.importLegislators(118);
 }
 
 switch (args["command"]) {
