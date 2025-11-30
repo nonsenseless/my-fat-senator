@@ -1,13 +1,14 @@
-import { CommandLineService, IAction } from '@my-fat-senator/lib';
+import { CongressionalAPIService, CommandLineService, IAction } from '@my-fat-senator/lib';
+import { ICongressMember } from '@my-fat-senator/lib/interfaces';
 import { LegislatorService } from "@my-fat-senator/lib/models/legislator";
 import { Legislator } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
-
 export class LegislatorImportService {
 	constructor(
 		private legislatorService: LegislatorService,
-		private cli: CommandLineService) { }
+		private cli: CommandLineService,
+		private congressionalAPI: CongressionalAPIService) { }
 
 	/**
 	 * Asks the user for a bioguide id
@@ -26,15 +27,35 @@ export class LegislatorImportService {
 	}
 
 	/**
+	 * Retrieves the members of congress for a given term and saves the raw data
+	 * @param congressNumber e.g. 118th congress --> 118
+	 */
+	public importLegislators = async(congressNumber: number) => {
+		const legislators = await this.congressionalAPI.getMembersOfCongress(congressNumber);
+		if (!legislators) {
+			console.log("No legislators found for term. Maybe you screwed up?");
+			return;
+		}
+
+		legislators.forEach((legislator: ICongressMember) => {
+			try {
+				this.legislatorService.importLegislator(legislator);
+			} catch (err: unknown) {
+				console.log(err);
+			}
+		})
+	}
+
+	/**
 	 * Iterates over senators without appropriate bioguideid and asks for new value from user.
 	 */
-	importLegislatorBioguides = async () => {
+	updateBioguideIds = async () => {
 		console.log("Getting legislators without bioguides.");
 		const legislators = await this.legislatorService.getLegislatorsWithoutBioguideId();
 		console.log(`Found ${legislators.length}.`);
 
 		for (const legislator of legislators) {
-			this.updateLegislatorBioguideId(legislator);
+			this.updateBioguideId(legislator);
 		}
 	}
 
@@ -42,7 +63,7 @@ export class LegislatorImportService {
 	 * Asks for and updates the bioguideid for a legislator. 
 	 * @param legislator 
 	 */
-	public updateLegislatorBioguideId = async (legislator: Legislator) => {
+	private updateBioguideId = async (legislator: Legislator) => {
 		const bioguideid = await this.getBioguideId(legislator);
 
 		try {

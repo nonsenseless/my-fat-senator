@@ -11,6 +11,7 @@
 20241201: Back from vacation, returning a date from the server serializes it to a string and it doesn't automatically unserialize so will have to implement a workaround. Tailwind also continues to exist as an antipattern.
 20241207: I don't want this whole log to be complaining about the ecosystem but now I'm digging into prisma more and the LIKE operator is only supported on postgres and TypedSQL lets you compile SQL to typesafe queries but doesn't support optional parameters. For any significant system, I'd prefer to use a data mapper closer to Petapoco.
 20251115: Apparently the id on senate votes is *not* the bioguideid although it *is* the bioguideid on house votes. Frustrating.
+20251129: Stopped myself from writing a low-rent http service and just installed axios.
 
 ## Irritants
 - Remix’s dev:serve command throws a 500 on load. What is this command actually doing? It is used by remix dev.

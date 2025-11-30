@@ -123,7 +123,7 @@ model Legislator {
   party       Party @relation(fields: [partyId], references: [id])
   partyId     Int
   
-  // TODO This will eventually need to be refactored to allow for legislators changing parties.
+  // TODO This will eventually need to be refactored to allow for legislators changing parties or states.
   state       State @relation(fields: [stateId], references: [id])
   stateId      Int
 
@@ -202,3 +202,12 @@ model StateCensus {
   @@unique([censusId, stateId])
 }
 
+model CongressionalLegislatorRecord {
+  id          Int @id @default(autoincrement())
+  bioguideid  String?
+  rawData     String
+  processed   Boolean @default(false)
+  processingErrorMessage  String
+
+  @@index(fields: [bioguideid])
+}

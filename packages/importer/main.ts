@@ -29,7 +29,7 @@ async function legislatorImport() {
 	const cli = new CommandLineService();
 
 	const importService = new LegislatorImportService(legislatorService, cli);
-	return await importService.importLegislatorBioguides();
+	return await importService.updateBioguideIds();
 }
 
 switch (args["command"]) {
