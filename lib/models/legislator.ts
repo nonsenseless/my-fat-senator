@@ -49,8 +49,7 @@ export class LegislatorService {
 				identifier: rawData.bioguideId || 'unknown'
 			});
 		}
-	}
-	
+	}	
 
 	// So technically we're wrapping calls but we still leak out the prisma signature.
 	// I guess at least it's a chokepoint?
