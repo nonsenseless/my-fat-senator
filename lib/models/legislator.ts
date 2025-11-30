@@ -1,6 +1,7 @@
 import { Legislator, PrismaClient, Prisma } from '@prisma/client';
 
-import { IBallot } from '../interfaces';
+import { IBallot, ICongressMember } from '../interfaces';
+import { ErrorLoggerService } from '../services/logger';
 
 import { PartyService } from './party';
 import { StateService } from './state';
@@ -9,7 +10,8 @@ import { StateService } from './state';
 export class LegislatorService {
 	constructor(private database: PrismaClient,
 							private partyService: PartyService,
-							private stateService: StateService
+							private stateService: StateService,
+							private logger: ErrorLoggerService
 	) {
 	}
 
@@ -17,6 +19,38 @@ export class LegislatorService {
 		const legislators = await this.database.legislator.findMany(getArgs);
 		return legislators;
 	}
+
+	public async importLegislator(rawData: ICongressMember) {
+		try {
+			const existing = await this.database.congressionalLegislatorRecord.findFirst({
+				where: {
+					bioguideid: rawData.bioguideId
+				}
+			});
+
+			if (existing) {
+				console.log(`CongressionalLegislatorRecord already exists for bioguideId: ${rawData.bioguideId}`);
+				return;
+			}
+
+			await this.database.congressionalLegislatorRecord.create({
+				data: {
+					bioguideid: rawData.bioguideId || null,
+					rawData: JSON.stringify(rawData),
+					processed: false,
+					processingErrorMessage: ''
+				}
+			});
+
+			console.log(`Created CongressionalLegislatorRecord for bioguideId: ${rawData.bioguideId}`);
+
+		} catch (error) {
+			await this.logger.logError(rawData, error, {
+				identifier: rawData.bioguideId || 'unknown'
+			});
+		}
+	}
+	
 
 	// So technically we're wrapping calls but we still leak out the prisma signature.
 	// I guess at least it's a chokepoint?
