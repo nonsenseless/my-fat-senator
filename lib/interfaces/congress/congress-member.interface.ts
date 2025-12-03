@@ -20,3 +20,24 @@ export interface ICongressTerm {
   endYear: number;
   startYear: number;
 }
+
+export interface ICongressRequestParameters {
+  congressNumber: number;
+  offset?: number;
+  limit?: number;
+  format?: string;
+  currentMember: "true" | "false"
+}
+
+export interface ICongressMembersResponse {
+  members: ICongressMember[];
+  pagination: {
+    count: number;
+    next?: string;
+  };
+  request: {
+    congress: string;
+    contentType: string;
+    format: string;
+  };
+}
