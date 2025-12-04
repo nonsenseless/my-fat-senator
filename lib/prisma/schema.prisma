@@ -89,7 +89,7 @@ model CongressionalSession {
 model LegislatorDepiction {
   id Int @id @default(autoincrement())
   imageUrl        String
-  attributionUrl  String
+  attributionUrl  String?
 
   legislatorId  Int @unique
   legislator  Legislator @relation(fields: [legislatorId], references: [id])
