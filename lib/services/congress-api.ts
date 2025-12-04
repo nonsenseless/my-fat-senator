@@ -1,34 +1,30 @@
-import axios from "axios";
-
 import { ICongressMember, ICongressMembersResponse, ICongressRequestParameters } from "../interfaces";
 
+import { HttpService } from "./http.service";
+
 export class CongressionalAPIService {
-	private rootURL = "https://api.congress.gov/v3/";
+	private http: HttpService;
 	private apiKey: string;
 
 	defaultOffset = 0;
 	maxResponseCount = 250;
 	format = `format=json`;
-	get apiParam() {
-		return `api_key=${this.apiKey}`
-	}
-
-	// TODO: Could validate params.
-	buildQueryParams = (parameters: ICongressRequestParameters) => {
-		const apiParam = this.apiParam;
-		const format = parameters.format ? `format=${parameters.format}` : this.format;
-		const offset = parameters.offset ? `offset=${parameters.offset}` : this.defaultOffset;
-		const limit = parameters.limit ? `limit=${parameters.limit}` : this.maxResponseCount;
-
-		return [apiParam, format, offset, limit].join("&");
-	}
-
 
 	constructor() {
 		if (!process.env.CONGRESS_API_KEY) {
 			throw new Error("No Congress API key found.");
 		}
-		this.apiKey = process.env.CONGRESS_API_KEY
+		this.apiKey = process.env.CONGRESS_API_KEY;
+		this.apiKey = `api_key=${this.apiKey}`
+		this.http = new HttpService("https://api.congress.gov/v3");
+	}
+
+	buildQueryParams = (parameters: ICongressRequestParameters): string => {
+		const format = parameters.format ? `format=${parameters.format}` : this.format;
+		const offset = parameters.offset ? `offset=${parameters.offset}` : `offset=${this.defaultOffset}`;
+		const limit = parameters.limit ? `limit=${parameters.limit}` : `limit=${this.maxResponseCount}`;
+
+		return "?" + [this.apiKey, format, offset, limit].join("&");
 	}
 
 	/**
@@ -36,35 +32,36 @@ export class CongressionalAPIService {
 	 * - from https://api.congress.gov/#/member/congress_list2
 	 * @param parameters
 	 */
-	getMembersOfCongress = async (parameters: ICongressRequestParameters): Promise<ICongressMembersResponse> => {
-		try {
-			const queryParams = this.buildQueryParams(parameters);
-			const congressNumber = parameters.congressNumber;
+	getMembersOfCongress = async (parameters: ICongressRequestParameters): Promise<ICongressMember[]> => {
+		const queryParams = this.buildQueryParams(parameters);
+		console.log(queryParams);
+		const congressNumber = parameters.congressNumber;
 
-			const response = await axios.get(`${this.rootURL}/member/congress/${congressNumber}?${queryParams}`);
 
-			if (response.status == 200) {
-				console.log(`
-					Success response: ${response.statusText};
-				`)
-				// TODO: Not sure what the archetypal way to ensure type safety is here
-				// But I also need to stop overcomplicating things on this project and finish it.
-				const data = response.data as ICongressMembersResponse;
-				const legislators = data.members;
-				const hasNextPage = data.pagination.next
-				const recordCount = data.pagination.count;
-				console.log(`
-					Record Count: ${recordCount};
-					Next Page: ${hasNextPage}
-				`)
-			}
+		const path = `/member/congress/${congressNumber}`;
+		let response = await this.http.get<ICongressMembersResponse>(
+			`${path}${queryParams}`,
+			{ identifier: `congress-${congressNumber}` }
+		);
 
-			console.log(response);
+		let members: ICongressMember[] = response.members;
 
-			// TODO Check for more statuses, 300 redirects, etc
-		} catch (error) {
-			console.error(error);
+		let nextPage = response.pagination.next;
+		while (nextPage) {
+			const url = new URL(nextPage);
+			const search = url.search;
+			response = await this.http.get<ICongressMembersResponse>(
+				`${path}${search}&${this.apiKey}`,
+				{ identifier: `congress-${congressNumber}` }
+			);
+
+			members = members.concat(response.members);
+			nextPage = response.pagination.next;
 		}
-		return [];
+
+		console.log(`Record Count: ${response.pagination.count}`);
+		console.log(`Next Page: ${response.pagination.next || 'None'}`);
+
+		return members;
 	}
 }

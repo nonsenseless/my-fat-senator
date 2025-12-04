@@ -31,19 +31,20 @@ export class LegislatorImportService {
 	 * @param congressNumber e.g. 118th congress --> 118
 	 */
 	public importLegislators = async(congressNumber: number) => {
-		const legislators = await this.congressionalAPI.getMembersOfCongress(congressNumber);
-		if (!legislators) {
+		const legislators = await this.congressionalAPI.getMembersOfCongress({ congressNumber });
+		if (!legislators || legislators.length === 0) {
 			console.log("No legislators found for term. Maybe you screwed up?");
 			return;
 		}
 
-		legislators.forEach((legislator: ICongressMember) => {
+		// Process legislators sequentially to properly handle async operations
+		for (const legislator of legislators) {
 			try {
-				this.legislatorService.importLegislator(legislator);
+				await this.legislatorService.importLegislator(legislator);
 			} catch (err: unknown) {
 				console.log(err);
 			}
-		})
+		}
 	}
 
 	/**
