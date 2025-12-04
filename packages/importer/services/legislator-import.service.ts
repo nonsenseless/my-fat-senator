@@ -1,5 +1,4 @@
 import { CongressionalAPIService, CommandLineService, IAction } from '@my-fat-senator/lib';
-import { ICongressMember } from '@my-fat-senator/lib/interfaces';
 import { LegislatorService } from "@my-fat-senator/lib/models/legislator";
 import { Legislator } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
