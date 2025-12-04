@@ -26,7 +26,7 @@ export interface ICongressRequestParameters {
   offset?: number;
   limit?: number;
   format?: string;
-  currentMember: "true" | "false"
+  currentMember?: "true" | "false";
 }
 
 export interface ICongressMembersResponse {
