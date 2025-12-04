@@ -84,9 +84,6 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const canvasRef = useRef(null);
 	const [maxWidth] = useState(600);
 	const [maxHeight] = useState(600);
-	const [margin] = useState(30);
-	const [tokensPerLine] = useState(5);
-	const [baseRadius] = useState((maxWidth / tokensPerLine / 10))
 	const start = useRef(0);
 	const [selectedBallot, setSelectedBallot] = useState<BallotViewModel | null>(null);
 	const pileStepRef = useRef<() => void>();
@@ -94,7 +91,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const ballots = useRef<BallotViewModel[]>([]);
 	// Initial configuration of ballots
 	if (ballots.current.length === 0) {
-		ballots.current = props.ballots.map((ballot, index) => {
+		ballots.current = props.ballots.map((ballot) => {
 
 		// Find population for this ballot's state
     const statePopulation = ballot.stateCensus?.population ?? 0;

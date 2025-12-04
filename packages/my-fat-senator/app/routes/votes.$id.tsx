@@ -75,7 +75,8 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 					legislator: {
 						include: {
 							party: true,
-							state: true
+							state: true,
+							depiction: true
 					}
 				},
 				ballotChoiceType: true,
