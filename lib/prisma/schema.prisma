@@ -7,31 +7,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model VoteImport {
-  id            Int @id @default(autoincrement())
-  rawData       String
-  importErrors  String
-  processed     Boolean
-  
-  category      String
-  chamber       String
-  congress      Int
-  date          DateTime
-  number        Int
-  question      String
-  requires      String
-  result        String
-  resultText   String
-  session       String
-  source_url    String
-  type          String
-  updated_at    DateTime
-  vote_id       String @unique
-
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
 model Vote {
   id              Int @id @default(autoincrement())
   category        CategoryType @relation(fields: [categoryId], references: [id])
@@ -111,10 +86,19 @@ model CongressionalSession {
   votes         Vote[]
 }
 
+model LegislatorDepiction {
+  id Int @id @default(autoincrement())
+  imageUrl        String
+  attributionUrl  String
+
+  legislatorId  Int @unique
+  legislator  Legislator @relation(fields: [legislatorId], references: [id])
+}
+
 model Legislator {
   id            Int @id @default(autoincrement())
   bioguideid    String @unique
-  lis_member_id String? @unique
+  lis_member_id String? @unique // syntax set to match source
   displayName  String
   reviewed      Boolean
   firstName    String?
@@ -130,13 +114,14 @@ model Legislator {
   unprocessable Boolean @default(false)
 
   ballots     Ballot[]
+  depiction   LegislatorDepiction?
 }
 
 model RequiresType {
   id            Int @id @default(autoincrement())
   name          String
   slug          String @unique
-  reviewed     Boolean
+  reviewed      Boolean
   
   votes         Vote[]
 }
@@ -202,6 +187,8 @@ model StateCensus {
   @@unique([censusId, stateId])
 }
 
+// Imported data
+
 model CongressionalLegislatorRecord {
   id          Int @id @default(autoincrement())
   bioguideid  String?
@@ -210,4 +197,29 @@ model CongressionalLegislatorRecord {
   processingErrorMessage  String
 
   @@index(fields: [bioguideid])
+}
+
+model VoteImport {
+  id            Int @id @default(autoincrement())
+  rawData       String
+  importErrors  String
+  processed     Boolean
+  
+  category      String
+  chamber       String
+  congress      Int
+  date          DateTime
+  number        Int
+  question      String
+  requires      String
+  result        String
+  resultText   String
+  session       String
+  source_url    String
+  type          String
+  updated_at    DateTime
+  vote_id       String @unique
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
