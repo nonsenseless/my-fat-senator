@@ -6,3 +6,4 @@ export * from './congress/vote-type.enum';
 export * from './mouse-position.interface';
 export * from './ballot.interface';
 export * from './legislator.interface';
+export * from './congressional-api.interface';
