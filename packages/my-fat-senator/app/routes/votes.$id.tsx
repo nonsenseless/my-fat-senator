@@ -89,6 +89,11 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 		throw new Response("Not Found", { status: 404 });
 	}
 
+	if (!vote.congressionalSession.census) {
+		// TODO: Will a 200 response return some generic view through remix? Need to trigger.
+		throw new Response("No census found for this vote. Senate proportions cannot be rendered.", {status: 200 });
+	}
+
 	const stateCensusData = await prisma.stateCensus.findMany({
 		include: {
 			state: true,
@@ -104,23 +109,23 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 	const totalPopulation = stateCensusData.reduce((sum, state) => sum + state.population, 0);
 
 	const voteDetail = {
-		id: vote?.id,
-		ballots: vote?.ballots,
-		sourceUrl: vote?.sourceUrl,
-		session: vote?.session,
-		updatedAt: vote?.updatedAt,
-		updatedAtFormatted: new Date(vote!.updatedAt).toLocaleDateString('en-US', {
+		id: vote.id,
+		ballots: vote.ballots,
+		sourceUrl: vote.sourceUrl,
+		session: vote.session,
+		updatedAt: vote.updatedAt,
+		updatedAtFormatted: new Date(vote.updatedAt).toLocaleDateString('en-US', {
 			year: 'numeric',
 			month: 'long',
 			day: 'numeric'
 		}),
-		categoryName: vote?.category.name,
-		chamberName: vote?.chamber.name,
-		congressionalSessionName: vote?.congressionalSession.name,
-		congressionalVoteId: vote?.congressional_vote_id, // TODO Probably better to pick a uniform casing rule
-		requiresTypeName: vote?.requiresType.name,
-		resultTypeName: vote?.resultType.name,
-		voteTypeName: vote?.voteType.name,
+		categoryName: vote.category.name,
+		chamberName: vote.chamber.name,
+		congressionalSessionName: vote.congressionalSession.name,
+		congressionalVoteId: vote.congressional_vote_id, // TODO Probably better to pick a uniform casing rule
+		requiresTypeName: vote.requiresType.name,
+		resultTypeName: vote.resultType.name,
+		voteTypeName: vote.voteType.name,
 	} as IVoteDetail;
 
 	return json({ vote: voteDetail, stateCensusData, totalPopulation});

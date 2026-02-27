@@ -82,13 +82,16 @@ function forceDirectedPile(ballots: BallotViewModel[], maxWidth: number, maxHeig
 
 export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const canvasRef = useRef(null);
+	const pileStepRef = useRef<() => void>();
+	const ballots = useRef<BallotViewModel[]>([]);
+	const image = useRef<HTMLImageElement | null>(null);
+	const mousePosition = useRef<IMousePosition>({x: 0, y: 0});
+
 	const [maxWidth] = useState(600);
 	const [maxHeight] = useState(600);
 	const start = useRef(0);
 	const [selectedBallot, setSelectedBallot] = useState<BallotViewModel | null>(null);
-	const pileStepRef = useRef<() => void>();
 
-	const ballots = useRef<BallotViewModel[]>([]);
 	// Initial configuration of ballots
 	if (ballots.current.length === 0) {
 		ballots.current = props.ballots.map((ballot) => {
@@ -124,9 +127,6 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 
 	pileStepRef.current = forceDirectedPile(ballots.current, maxWidth, maxHeight);
 }
-
-	const image = useRef<HTMLImageElement | null>(null);
-	const mousePosition = useRef<IMousePosition>({x: 0, y: 0});
 
 	const handleMouseMove = useCallback((event: MouseEvent) => {
 		const canvas = event.currentTarget as HTMLCanvasElement;
