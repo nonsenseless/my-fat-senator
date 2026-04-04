@@ -23,7 +23,7 @@ const prisma = new PrismaClient({
 });
 prisma.$connect();
 
-async function legislatorImport() {
+function buildImportService() {
 	const stateService = new StateService(prisma);
 	const partyService = new PartyService(prisma);
 	const logger = new ErrorLoggerService();
@@ -32,20 +32,21 @@ async function legislatorImport() {
 	const cli = new CommandLineService();
 	const congressionalAPI = new CongressionalAPIService();
 
-	const importService = new LegislatorImportService(
+	return new LegislatorImportService(
 		prisma, legislatorService, depictionService, cli, congressionalAPI, logger
 	);
-	return await importService.importLegislators(118);
 }
 
 switch (args["command"]) {
 	case "votes":
 		importVotes(prisma, config["TargetDirectory"]);
 		break;
-	case "legislators": {
-		legislatorImport().catch(console.error);
+	case "legislators":
+		buildImportService().importLegislators(118).catch(console.error);
 		break;
-	}
+	case "process-depictions":
+		buildImportService().processCongressionalLegislatorRecords().catch(console.error);
+		break;
 	default:
 		console.error("Unrecognized command.");
 		break;
