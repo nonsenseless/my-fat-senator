@@ -12,11 +12,6 @@
     /* Modules */
     "module": "commonjs",                                /* Specify what module code is generated. */
     "moduleResolution": "node",
-    "baseUrl": ".",
-    "paths": {
-      "@my-fat-senator/lib": ["../../lib"],
-      "@my-fat-senator/lib/*": ["../../lib/*"]
-    },
     "rootDir": ".",                                  /* Specify the root folder within your source files. */
 
     "declaration": true,                              /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
@@ -28,8 +23,5 @@
     /* Type Checking */
     "strict": true,                                      /* Enable all strict type-checking options. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
-  },
-  "references": [
-    { "path": "../../lib" }
-  ]
+  }
 }

@@ -15,6 +15,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "import-votes": "npm run votes --workspace=@my-fat-senator/importer",
     "import-legislators": "npm run legislators --workspace=@my-fat-senator/importer",
+    "process-depictions": "npm run process-depictions --workspace=@my-fat-senator/importer",
     "dev": "npm run dev --workspace=@my-fat-senator/my-fat-senator"
   },
   "author": "nym",
