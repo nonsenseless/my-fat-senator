@@ -1,14 +1,17 @@
-import { LegislatorDepiction } from "@prisma/client";
-
 export interface IMemberImportTerm {
 	chamber: string;
 	startYear: number;
 	endYear?: number;
 }
 
+export interface IMemberImportDepiction {
+	attribution?: string;
+	imageUrl: string;
+}
+
 export interface IMemberImport {
     bioguideId: string;
-    depiction: LegislatorDepiction;
+    depiction?: IMemberImportDepiction;
     district: number | null;
     name: string;
     partyName: string;
