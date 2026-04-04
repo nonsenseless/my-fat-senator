@@ -22,12 +22,6 @@ function forceDirectedPile(ballots: BallotViewModel[], maxWidth: number, maxHeig
 	const velocityScalingFactor = 0.1;
 	const buffer = 2;
 
-	function detectCollision(a: BallotViewModel, b: BallotViewModel) {
-		const dist = Math.hypot(a.x - b.x, a.y - b.y);
-		const minDist = a.radius + b.radius + buffer;
-		return (dist < minDist && dist > 0);
-	}
-
 	ballots.forEach(b => {
 		// Start at random horizontal position, top of canvas
 		b.x = (Math.random() * (maxWidth - 2 * b.radius)) + b.radius;
@@ -206,7 +200,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		return () => {
 			window.cancelAnimationFrame(animationFrameId);
 		};
-	}, [configuredBallots, render]);
+	}, [configuredBallots, render, props.width, props.height]);
 
 	return (
 		<div className='relative flex flex-col items-center'>

@@ -5,8 +5,8 @@ import { useLoaderData } from "@remix-run/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { BallotsList } from "~/shared/ballots-list";
-import { NayYeaScale } from "~/shared/nay-yea-scale";
 import { Card, CardWidth } from "~/shared/layout/card";
+import { NayYeaScale } from "~/shared/nay-yea-scale";
 
 export const meta: MetaFunction = () => [{ title: "Votes" }];
 
@@ -151,7 +151,7 @@ export interface IVoteDetail {
 // The loader selects ballot relations (legislator, ballotChoiceType) that the
 // raw Prisma Ballot type doesn't include. Cast at the call site to keep the
 // IVoteDetail interface stable until a broader type refactor is done.
-type LoadedBallot = { legislator: LegislatorViewModel; ballotChoiceType: BallotChoiceType };
+interface LoadedBallot { legislator: LegislatorViewModel; ballotChoiceType: BallotChoiceType }
 
 const mapBallot = (ballot: LoadedBallot,
 	stateCensusData: SerializeFrom<typeof loader>['stateCensusData']) => {
@@ -242,8 +242,7 @@ export default function VoteDetail() {
 					ref={ballotsContainerRef}
 					className="ballots flex w-full h-[600px]"
 				>
-					{containerSize.width > 0 && (
-						<>
+					{containerSize.width > 0 ? <>
 							<NayYeaScale
 								nayBallots={ballotGroups.nay}
 								yeaBallots={ballotGroups.yea}
@@ -268,8 +267,7 @@ export default function VoteDetail() {
 									height={Math.floor(containerSize.height / 2)}
 								/>
 							</div>
-						</>
-					)}
+						</> : null}
 				</div>
 			</Card>
 		</div>
