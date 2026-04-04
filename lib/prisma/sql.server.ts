@@ -78,6 +78,7 @@ export class SqlBuilder {
 			if (params.get(field + "_LIKE")) {
 				const clause = `Vote.${field} LIKE %?%`;
 				clauses.push(clause);
+				//TODO: I think we're duplicating the % wildcard here, need to verify and fix
 				values.push(`${"%" + params.get(field) + "%"}`);
 			}
 		}
