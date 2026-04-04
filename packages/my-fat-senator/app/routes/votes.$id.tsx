@@ -2,7 +2,7 @@ import { LegislatorViewModel, BallotViewModel } from "@my-fat-senator/lib/interf
 import { Ballot, BallotChoiceType, PrismaClient } from "@prisma/client";
 import { json, LoaderFunctionArgs, SerializeFrom, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { BallotsList } from "~/shared/ballots-list";
 import { Card, CardWidth } from "~/shared/layout/card";
@@ -147,7 +147,12 @@ export interface IVoteDetail {
 	voteTypeName: string;
 }
 
-const mapBallot = (ballot: { legislator: LegislatorViewModel; ballotChoiceType: BallotChoiceType}, 
+// The loader selects ballot relations (legislator, ballotChoiceType) that the
+// raw Prisma Ballot type doesn't include. Cast at the call site to keep the
+// IVoteDetail interface stable until a broader type refactor is done.
+type LoadedBallot = { legislator: LegislatorViewModel; ballotChoiceType: BallotChoiceType };
+
+const mapBallot = (ballot: LoadedBallot,
 	stateCensusData: SerializeFrom<typeof loader>['stateCensusData']) => {
 	return {
 			x: 0,
@@ -156,16 +161,52 @@ const mapBallot = (ballot: { legislator: LegislatorViewModel; ballotChoiceType: 
 			legislator: ballot.legislator,
 			ballotChoiceType: ballot.ballotChoiceType,
 			stateCensus: stateCensusData.find((census) => census.state.id === ballot.legislator.state.id)
-	} as BallotViewModel
+	} as BallotViewModel;
 }
+
+// Proportional widths for each ballot group. Nay and Yea are emphasised;
+// Not Voting and Present are present for completeness at a reduced size.
+const NAY_YEA_PROPORTION = 0.38;
+const OTHER_PROPORTION = 0.12;
 
 export default function VoteDetail() {
 	const { vote, stateCensusData, totalPopulation } = useLoaderData<typeof loader>();
-	const [ showAsList, setShowAsList] = useState(true);
+	const [showAsList, setShowAsList] = useState(true);
+
+	const ballotsContainerRef = useRef<HTMLDivElement>(null);
+	const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+
+	useEffect(() => {
+		const el = ballotsContainerRef.current;
+		if (!el) { return; }
+		const observer = new ResizeObserver((entries) => {
+			const { width, height } = entries[0].contentRect;
+			setContainerSize({ width, height });
+		});
+		observer.observe(el);
+		return () => { observer.disconnect(); };
+	}, []);
+
+	const ballotGroups = useMemo(() => {
+		const typed = vote.ballots as unknown as LoadedBallot[];
+		const filter = (slug: string) =>
+			typed
+				.filter(b => b.ballotChoiceType.slug === slug)
+				.map(b => mapBallot(b, stateCensusData));
+		return {
+			nay: filter('nay'),
+			yea: filter('yea'),
+			notVoting: filter('not_voting'),
+			present: filter('present'),
+		};
+	}, [vote.ballots, stateCensusData]);
+
+	const nayYeaWidth = Math.floor(containerSize.width * NAY_YEA_PROPORTION);
+	const otherWidth = Math.floor(containerSize.width * OTHER_PROPORTION);
 
 	const toggleShowAsList = () => {
 		setShowAsList(!showAsList);
-	}	
+	};
 
 	return (
 		<div className="grid grid-cols-5 gap-3">
@@ -198,17 +239,48 @@ export default function VoteDetail() {
 			<Card
 				className="col-span-4 overflow-auto"
 				width={CardWidth.Full}>
-				<div className="ballots flex justify-between">
-					<BallotsList 
-						ballotChoiceType='Nay' 
-						showAsList={showAsList}
-						ballots={
-							vote.ballots
-							.filter((value) => ['yea', 'nay'].indexOf(value.ballotChoiceType.slug) != -1)
-							.map((ballot) => mapBallot(ballot, stateCensusData))
-						}
-						totalPopulation={totalPopulation}
-					></BallotsList>
+				<div
+					ref={ballotsContainerRef}
+					className="ballots flex w-full h-[600px]"
+				>
+					{containerSize.width > 0 && (
+						<>
+							<BallotsList
+								ballotChoiceType="nay"
+								showAsList={showAsList}
+								ballots={ballotGroups.nay}
+								totalPopulation={totalPopulation}
+								width={nayYeaWidth}
+								height={containerSize.height}
+							/>
+							<BallotsList
+								ballotChoiceType="yea"
+								showAsList={showAsList}
+								ballots={ballotGroups.yea}
+								totalPopulation={totalPopulation}
+								width={nayYeaWidth}
+								height={containerSize.height}
+							/>
+							<div className="flex flex-col" style={{ width: otherWidth }}>
+								<BallotsList
+									ballotChoiceType="not_voting"
+									showAsList={showAsList}
+									ballots={ballotGroups.notVoting}
+									totalPopulation={totalPopulation}
+									width={otherWidth}
+									height={Math.floor(containerSize.height / 2)}
+								/>
+								<BallotsList
+									ballotChoiceType="present"
+									showAsList={showAsList}
+									ballots={ballotGroups.present}
+									totalPopulation={totalPopulation}
+									width={otherWidth}
+									height={Math.floor(containerSize.height / 2)}
+								/>
+							</div>
+						</>
+					)}
 				</div>
 			</Card>
 		</div>
