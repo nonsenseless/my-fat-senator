@@ -7,31 +7,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model VoteImport {
-  id            Int @id @default(autoincrement())
-  rawData       String
-  importErrors  String
-  processed     Boolean
-  
-  category      String
-  chamber       String
-  congress      Int
-  date          DateTime
-  number        Int
-  question      String
-  requires      String
-  result        String
-  resultText   String
-  session       String
-  source_url    String
-  type          String
-  updated_at    DateTime
-  vote_id       String @unique
-
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
 model Vote {
   id              Int @id @default(autoincrement())
   category        CategoryType @relation(fields: [categoryId], references: [id])
@@ -105,15 +80,25 @@ model CongressionalSession {
   name          String
   slug          String @unique
   reviewed     Boolean
-  censusId    Int
-  census      Census @relation(fields: [censusId], references: [id])
+  censusId    Int?
+  census      Census? @relation(fields: [censusId], references: [id])
   
   votes         Vote[]
+}
+
+model LegislatorDepiction {
+  id Int @id @default(autoincrement())
+  imageUrl        String
+  attributionUrl  String?
+
+  legislatorId  Int @unique
+  legislator  Legislator @relation(fields: [legislatorId], references: [id])
 }
 
 model Legislator {
   id            Int @id @default(autoincrement())
   bioguideid    String @unique
+  lis_member_id String? @unique // syntax set to match source
   displayName  String
   reviewed      Boolean
   firstName    String?
@@ -122,18 +107,21 @@ model Legislator {
   party       Party @relation(fields: [partyId], references: [id])
   partyId     Int
   
-  // TODO This will eventually need to be refactored to allow for legislators changing parties.
+  // TODO This will eventually need to be refactored to allow for legislators changing parties or states.
   state       State @relation(fields: [stateId], references: [id])
   stateId      Int
 
+  unprocessable Boolean @default(false)
+
   ballots     Ballot[]
+  depiction   LegislatorDepiction?
 }
 
 model RequiresType {
   id            Int @id @default(autoincrement())
   name          String
   slug          String @unique
-  reviewed     Boolean
+  reviewed      Boolean
   
   votes         Vote[]
 }
@@ -199,3 +187,39 @@ model StateCensus {
   @@unique([censusId, stateId])
 }
 
+// Imported data
+
+model CongressionalLegislatorRecord {
+  id          Int @id @default(autoincrement())
+  bioguideid  String?
+  rawData     String
+  processed   Boolean @default(false)
+  processingErrorMessage  String
+
+  @@index(fields: [bioguideid])
+}
+
+model VoteImport {
+  id            Int @id @default(autoincrement())
+  rawData       String
+  importErrors  String
+  processed     Boolean
+  
+  category      String
+  chamber       String
+  congress      Int
+  date          DateTime
+  number        Int
+  question      String
+  requires      String
+  result        String
+  resultText   String
+  session       String
+  source_url    String
+  type          String
+  updated_at    DateTime
+  vote_id       String @unique
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
