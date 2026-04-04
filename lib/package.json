@@ -9,7 +9,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@prisma/client": "^5.14.0"
+    "@prisma/client": "^5.14.0",
+    "axios": "^1.13.2"
   },
   "devDependencies": {
     "ts-node": "^10.9.2"

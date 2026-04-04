@@ -33,7 +33,6 @@ export const loader = async ({request}: LoaderFunctionArgs) => {
 	const sqlBuilder = new SqlBuilder(prisma);
 	// Get lookups
 	const lookups = {
-		chambers: await prisma.chamber.findMany(),
 		requiresTypes: await prisma.requiresType.findMany(),
 		resultTypes: await prisma.resultType.findMany(),
 		congressionalSessions: await prisma.congressionalSession.findMany(),
@@ -41,9 +40,20 @@ export const loader = async ({request}: LoaderFunctionArgs) => {
 		categoryTypes: await prisma.categoryType.findMany()
 	}
 
+	const senateChamberId = await prisma.chamber.findFirst({
+		where: {
+			name: "Senate"
+		}
+	}).then(chamber => chamber?.id);
+
+	const params = new Map([...url.searchParams]);
+	if (!params.has("chamberId") && senateChamberId) {
+		params.set("chamberId", senateChamberId.toString());
+	}
+
 	const data = await sqlBuilder.executeRawUnsafe<IVoteTableRow>({
 		fields: prisma.vote.fields,
-		params: new Map([...url.searchParams]),
+		params: params,
 		select: ` 
 			SELECT Vote.id, session, sourceUrl, congressional_vote_id, congressional_updated_at,
 			CategoryType.name as categoryTypeName, 
@@ -86,11 +96,6 @@ export default function Index() {
 										className="mb-5"
 										placeholder="Bill Name">
 									</Input>
-									<Select
-										name="chamberId"
-										className="mb-5"
-										placeholder="Chamber"
-										options={lookups.chambers}></Select>
 									<Select
 										name="categoryTypeId"
 										className="mb-5"

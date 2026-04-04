@@ -6,6 +6,9 @@
   "scripts": {
     "build": "tsc --build",
     "start": "ts-node ./main",
+    "votes": "ts-node ./main --command votes",
+    "legislators": "ts-node ./main --command legislators",
+    "process-depictions": "ts-node ./main --command process-depictions",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "nym",
