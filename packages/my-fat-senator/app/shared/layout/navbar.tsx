@@ -4,7 +4,7 @@ export default function Navbar() {
 	return (
 		<nav className="navbar bg-base-100 navbar-bottom-margin">
 			<div className="flex-1">
-				<button className="btn btn-ghost text-xl">My Fat Senators</button>
+				<button className="btn btn-ghost text-xl">My Fat Senator</button>
 			</div>
 			<div className="flex-none gap-2">
 				<div className="form-control">

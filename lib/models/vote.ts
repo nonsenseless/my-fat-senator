@@ -8,7 +8,7 @@ import { CongressionalSessionService } from '../models/congressional-session';
 import { RequiresTypeService } from '../models/requires-type';
 import { ResultTypeService } from '../models/result-type';
 import { VoteTypeService } from '../models/vote-type';
-import { FileService } from '../services/file.service';
+import { FileService } from '../services/file';
 
 export class VoteService {
 	constructor(private database: PrismaClient,

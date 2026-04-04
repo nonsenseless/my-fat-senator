@@ -13,14 +13,16 @@
   "scripts": {
     "build": "tsc --build --verbose",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "import": "npm run start --workspace=@my-fat-senator/importer",
+    "import-votes": "npm run votes --workspace=@my-fat-senator/importer",
+    "import-legislators": "npm run legislators --workspace=@my-fat-senator/importer",
+    "process-depictions": "npm run process-depictions --workspace=@my-fat-senator/importer",
     "dev": "npm run dev --workspace=@my-fat-senator/my-fat-senator"
   },
   "author": "nym",
   "license": "ISC",
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.14",
-    "@types/node": "^22.5.4",
+    "@types/node": "20.5",
     "daisyui": "^4.12.10",
     "dotenv": "^16.4.5",
     "ts-node": "^10.9.2",

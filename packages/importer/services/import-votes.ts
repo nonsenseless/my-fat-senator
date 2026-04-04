@@ -1,4 +1,4 @@
-import { Importer } from "@my-fat-senator/lib";
+import { ErrorLoggerService, Importer } from "@my-fat-senator/lib";
 import { BallotService } from "@my-fat-senator/lib/models/ballot";
 import { BallotChoiceTypeService } from "@my-fat-senator/lib/models/ballot-choice-type";
 import { CategoryTypeService } from "@my-fat-senator/lib/models/category-type";
@@ -13,7 +13,7 @@ import { VoteService } from "@my-fat-senator/lib/models/vote";
 import { VoteTypeService } from "@my-fat-senator/lib/models/vote-type";
 import { PrismaClient } from '@prisma/client';
 
-// Look, obviously this isn't testable.
+// TODO: Look, obviously this isn't testable.
 export function importVotes(prisma: PrismaClient, targetDirectory: string) {
 	const ballotChoiceTypeService = new BallotChoiceTypeService(prisma);
 	const categoryTypeService = new CategoryTypeService(prisma);
@@ -24,7 +24,8 @@ export function importVotes(prisma: PrismaClient, targetDirectory: string) {
 	const voteTypeService = new VoteTypeService(prisma);
 	const stateService = new StateService(prisma);
 	const partyService = new PartyService(prisma);
-	const legislatorService = new LegislatorService(prisma, partyService, stateService);
+	const logger = new ErrorLoggerService();
+	const legislatorService = new LegislatorService(prisma, partyService, stateService, logger);
 	const ballotService = new BallotService(prisma, ballotChoiceTypeService, legislatorService);
 
 	// wE ShOuLd SeT uP DePeNdEnCy InJeCtIoN
