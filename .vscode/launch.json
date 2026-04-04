@@ -6,15 +6,14 @@
 	"configurations": [
 		{
 			"type": "node",
-			"request": "launch",
-			"name": "Launch Program",
-			"skipFiles": [
-				"<node_internals>/**"
-			],
-			"program": "${workspaceFolder}/packages/importer/main.ts",
-			"outFiles": [
-				"${workspaceFolder}/**/*.js"
-			]
+  		"request": "launch",
+			"name": "Import Legislators",
+			"runtimeArgs": ["-r", "ts-node/register"],
+			"args": ["${workspaceFolder}/packages/importer/main.ts", "--command", "legislators"],
+			"cwd": "${workspaceFolder}",
+			"env": {
+				"TS_NODE_PROJECT": "${workspaceFolder}/packages/importer/tsconfig.json"
+			}
 		},
 		{
       "command": "npm run dev --workspace=@my-fat-senator/my-fat-senator",

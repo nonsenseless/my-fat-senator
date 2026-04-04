@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import { IImportError } from '../interfaces/import-error.interface';
 import { VoteService } from '../models/vote';
-import { FileService } from '../services/file.service';
+import { FileService } from '../services/file';
 
 export class Importer {
 	files: string[] = [];

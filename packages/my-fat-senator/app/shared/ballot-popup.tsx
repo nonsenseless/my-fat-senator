@@ -4,7 +4,9 @@ import tinyinvariant from 'tiny-invariant';
 
 
 interface BallotPopupProps {
-	ballot: BallotViewModel
+	ballot: BallotViewModel;
+	viewportX: number;
+	viewportY: number;
 }
 export const BallotPopup: React.FC<BallotPopupProps> = (props) => {
 	tinyinvariant(props.ballot, "Ballot is required");
@@ -14,12 +16,12 @@ export const BallotPopup: React.FC<BallotPopupProps> = (props) => {
 	tinyinvariant(legislator.state, "Ballot legislator state is required");
 	const state = legislator.state;
 
-	return (<div className={`absolute`} style={{ left: ballot.x + 'px', top: ballot.y + 'px' }}>
+	return (<div style={{ position: 'fixed', left: props.viewportX + 'px', top: props.viewportY + 'px', zIndex: 50 }}>
 		<div className="card card-side w-96 bg-base-100 shadow-xl ballot-popup">
 			<figure className={'h-[100[px] w-[100px]'}>
 				<img className={'h-full w-full'}
-					src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-					alt={`Portrait of Senator ${legislator.lastName}`} />
+					src={legislator.depiction?.imageUrl ?? "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"}
+					alt={`Portrait of ${legislator.lastName}`} />
 			</figure>
 			<div className="card-body  pt-[10px] pb-[10px]">
 				<h2 className="card-title">
