@@ -16,7 +16,9 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["./app/*"],
+      "@my-fat-senator/lib": ["../../lib"],
+      "@my-fat-senator/lib/*": ["../../lib/*"]
     },
     "skipLibCheck": true,
 

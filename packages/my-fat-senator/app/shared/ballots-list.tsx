@@ -84,7 +84,8 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 	const canvasRef = useRef(null);
 	const pileStepRef = useRef<() => void>();
 	const ballots = useRef<BallotViewModel[]>([]);
-	const image = useRef<HTMLImageElement | null>(null);
+	const images = useRef<Map<number, HTMLImageElement>>(new Map());
+	const fallbackImage = useRef<HTMLImageElement | null>(null);
 	const mousePosition = useRef<IMousePosition>({x: 0, y: 0});
 
 	const [maxWidth] = useState(600);
@@ -175,7 +176,8 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 						anyBallotSelected = true;
 						setSelectedBallot(ballot);
 					}
-					renderToken(ctx, ballot, image.current!)
+					const img = images.current.get(ballot.legislator.id) ?? fallbackImage.current;
+					if (img) renderToken(ctx, ballot, img);
 			})
 			if (!anyBallotSelected) {
 					setSelectedBallot(null);
@@ -185,11 +187,19 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 		return window.requestAnimationFrame((timestamp) => {
 			return render(ctx, timestamp);
 	});
-	}, [renderToken, image]);
+	}, [renderToken, images]);
 
   useEffect(() => {
-			image.current = new Image();
-			image.current.src = "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
+			fallbackImage.current = new Image();
+			fallbackImage.current.src = "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
+
+			props.ballots.forEach((ballot) => {
+				const imageUrl = ballot.legislator.depiction?.imageUrl;
+				if (!imageUrl) return;
+				const img = new Image();
+				img.src = imageUrl;
+				images.current.set(ballot.legislator.id, img);
+			});
 
 			const canvas = canvasRef.current as HTMLCanvasElement | null;
 			if (canvas == null) {
