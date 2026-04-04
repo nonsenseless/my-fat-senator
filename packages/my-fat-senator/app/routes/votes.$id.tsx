@@ -5,6 +5,7 @@ import { useLoaderData } from "@remix-run/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { BallotsList } from "~/shared/ballots-list";
+import { NayYeaScale } from "~/shared/nay-yea-scale";
 import { Card, CardWidth } from "~/shared/layout/card";
 
 export const meta: MetaFunction = () => [{ title: "Votes" }];
@@ -164,9 +165,8 @@ const mapBallot = (ballot: LoadedBallot,
 	} as BallotViewModel;
 }
 
-// Proportional widths for each ballot group. Nay and Yea are emphasised;
-// Not Voting and Present are present for completeness at a reduced size.
-const NAY_YEA_PROPORTION = 0.38;
+// The stacked Not Voting / Present column takes a small proportion of the container;
+// the Nay+Yea scale fills the remainder.
 const OTHER_PROPORTION = 0.12;
 
 export default function VoteDetail() {
@@ -201,7 +201,6 @@ export default function VoteDetail() {
 		};
 	}, [vote.ballots, stateCensusData]);
 
-	const nayYeaWidth = Math.floor(containerSize.width * NAY_YEA_PROPORTION);
 	const otherWidth = Math.floor(containerSize.width * OTHER_PROPORTION);
 
 	const toggleShowAsList = () => {
@@ -245,20 +244,10 @@ export default function VoteDetail() {
 				>
 					{containerSize.width > 0 && (
 						<>
-							<BallotsList
-								ballotChoiceType="nay"
-								showAsList={showAsList}
-								ballots={ballotGroups.nay}
+							<NayYeaScale
+								nayBallots={ballotGroups.nay}
+								yeaBallots={ballotGroups.yea}
 								totalPopulation={totalPopulation}
-								width={nayYeaWidth}
-								height={containerSize.height}
-							/>
-							<BallotsList
-								ballotChoiceType="yea"
-								showAsList={showAsList}
-								ballots={ballotGroups.yea}
-								totalPopulation={totalPopulation}
-								width={nayYeaWidth}
 								height={containerSize.height}
 							/>
 							<div className="flex flex-col" style={{ width: otherWidth }}>
