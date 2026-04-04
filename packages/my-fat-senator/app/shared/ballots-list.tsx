@@ -177,7 +177,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 						setSelectedBallot(ballot);
 					}
 					const img = images.current.get(ballot.legislator.id) ?? fallbackImage.current;
-					if (img) renderToken(ctx, ballot, img);
+					if (img) { renderToken(ctx, ballot, img); }
 			})
 			if (!anyBallotSelected) {
 					setSelectedBallot(null);
@@ -195,7 +195,7 @@ export const BallotsList: React.FC<BallotsListProps> = (props) => {
 
 			props.ballots.forEach((ballot) => {
 				const imageUrl = ballot.legislator.depiction?.imageUrl;
-				if (!imageUrl) return;
+				if (!imageUrl) { return; }
 				const img = new Image();
 				img.src = imageUrl;
 				images.current.set(ballot.legislator.id, img);
