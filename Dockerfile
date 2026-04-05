@@ -45,7 +45,7 @@ RUN npm run build --workspace=@my-fat-senator/my-fat-senator
 # Finally, build the production image with minimal footprint
 FROM base
 
-ENV DATABASE_URL=file:/data/sqlite.db
+ENV DATABASE_URL=file:/lib/prisma/data.db
 ENV PORT="8080"
 ENV NODE_ENV="production"
 
