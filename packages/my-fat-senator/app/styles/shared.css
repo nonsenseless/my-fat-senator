@@ -1,8 +1,8 @@
 .ballots-list .r-party-list-item{
-	background: rgba(255, 0, 0, .15);
+	background: rgba(155, 27, 48, 0.12);
 }
 .ballots-list .d-party-list-item{
-	background: rgba(0, 0, 255, .15);
+	background: rgba(26, 58, 92, 0.12);
 }
 
 .navbar-bottom-margin { 
@@ -11,5 +11,10 @@
 
 .drawer.application-height {
 	max-height: calc(100vh - 100px);
-	overflow:scroll;
+	overflow: scroll;
+}
+
+.drawer.application-height-full {
+	max-height: 100vh;
+	overflow: scroll;
 }

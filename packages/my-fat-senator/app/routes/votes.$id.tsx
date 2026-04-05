@@ -2,11 +2,10 @@ import { LegislatorViewModel, BallotViewModel } from "@my-fat-senator/lib/interf
 import { Ballot, BallotChoiceType, PrismaClient } from "@prisma/client";
 import { json, LoaderFunctionArgs, SerializeFrom, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 
-import { BallotsList } from "~/shared/ballots-list";
 import { Card, CardWidth } from "~/shared/layout/card";
-import { NayYeaScale } from "~/shared/nay-yea-scale";
+import { VoteBallots } from "~/shared/vote-ballots";
 
 export const meta: MetaFunction = () => [{ title: "Votes" }];
 
@@ -165,27 +164,9 @@ const mapBallot = (ballot: LoadedBallot,
 	} as BallotViewModel;
 }
 
-// The stacked Not Voting / Present column takes a small proportion of the container;
-// the Nay+Yea scale fills the remainder.
-const OTHER_PROPORTION = 0.12;
-
 export default function VoteDetail() {
 	const { vote, stateCensusData, totalPopulation } = useLoaderData<typeof loader>();
-	const [showAsList, setShowAsList] = useState(true);
-
-	const ballotsContainerRef = useRef<HTMLDivElement>(null);
-	const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
-
-	useEffect(() => {
-		const el = ballotsContainerRef.current;
-		if (!el) { return; }
-		const observer = new ResizeObserver((entries) => {
-			const { width, height } = entries[0].contentRect;
-			setContainerSize({ width, height });
-		});
-		observer.observe(el);
-		return () => { observer.disconnect(); };
-	}, []);
+	const [showAsList, setShowAsList] = useState(false);
 
 	const ballotGroups = useMemo(() => {
 		const typed = vote.ballots as unknown as LoadedBallot[];
@@ -201,12 +182,6 @@ export default function VoteDetail() {
 		};
 	}, [vote.ballots, stateCensusData]);
 
-	const otherWidth = Math.floor(containerSize.width * OTHER_PROPORTION);
-
-	const toggleShowAsList = () => {
-		setShowAsList(!showAsList);
-	};
-
 	return (
 		<div className="grid grid-cols-5 gap-3">
 			<Card
@@ -214,11 +189,11 @@ export default function VoteDetail() {
 				title={`${vote.congressionalVoteId} - ${vote.chamberName} - ${vote.congressionalSessionName}`}
 				width={CardWidth.Full}>
 				<dl className='prose-sm'>
-					<hr/>
+					<hr />
 					<div className="form-control">
 						<label className="label cursor-pointer">
 							<span className="label-text">Show as List</span>
-							<input type="checkbox" className="toggle toggle-primary" checked={showAsList} onChange={toggleShowAsList} />
+							<input type="checkbox" className="toggle toggle-primary" checked={showAsList} onChange={(e) => setShowAsList(e.target.checked)} />
 						</label>
 					</div>
 					<hr/>
@@ -238,36 +213,12 @@ export default function VoteDetail() {
 			<Card
 				className="col-span-4 overflow-auto"
 				width={CardWidth.Full}>
-				<div
-					ref={ballotsContainerRef}
-					className="ballots flex w-full h-[600px]"
-				>
-					{containerSize.width > 0 ? <>
-							<NayYeaScale
-								nayBallots={ballotGroups.nay}
-								yeaBallots={ballotGroups.yea}
-								totalPopulation={totalPopulation}
-								height={containerSize.height}
-							/>
-							<div className="flex flex-col" style={{ width: otherWidth }}>
-								<BallotsList
-									ballotChoiceType="not_voting"
-									showAsList={showAsList}
-									ballots={ballotGroups.notVoting}
-									totalPopulation={totalPopulation}
-									width={otherWidth}
-									height={Math.floor(containerSize.height / 2)}
-								/>
-								<BallotsList
-									ballotChoiceType="present"
-									showAsList={showAsList}
-									ballots={ballotGroups.present}
-									totalPopulation={totalPopulation}
-									width={otherWidth}
-									height={Math.floor(containerSize.height / 2)}
-								/>
-							</div>
-						</> : null}
+				<div className="ballots w-full h-[600px]">
+					<VoteBallots
+						format={showAsList ? 'list' : 'scale'}
+						ballotGroups={ballotGroups}
+						totalPopulation={totalPopulation}
+					/>
 				</div>
 			</Card>
 		</div>
