@@ -3,9 +3,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState, MouseEvent } 
 
 import { BallotPopup } from './ballot-popup';
 
-interface BallotsListProps {
+interface VoteBallotsAnimationProps {
 	ballotChoiceType: string;
-	showAsList: boolean;
 	ballots: BallotViewModel[];
 	totalPopulation: number;
 	width: number;
@@ -80,7 +79,7 @@ function forceDirectedPile(ballots: BallotViewModel[], maxWidth: number, maxHeig
 	return step;
 }
 
-export const BallotsList: React.FC<BallotsListProps> = (props) => {
+export const VoteBallotsAnimation: React.FC<VoteBallotsAnimationProps> = (props) => {
 	const canvasRef = useRef(null);
 	const pileStepRef = useRef<() => void>();
 	const ballots = useRef<BallotViewModel[]>([]);

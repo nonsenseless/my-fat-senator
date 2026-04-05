@@ -10,7 +10,7 @@ import {
   ScrollRestoration,
   useRouteError,
 } from "@remix-run/react";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useState } from "react";
 
 import stylesheet from "~/tailwind.css";
 
@@ -29,8 +29,10 @@ export const links: LinksFunction = () => [
 
 export function Layout (props: PropsWithChildren<ModelRendererProps>)
 {
+  const [chromeVisible, setChromeVisible] = useState(true);
+
   return (
-    <html lang="en" className="h-full" data-theme="light">
+    <html lang="en" className="h-full" data-theme="senator">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -38,11 +40,25 @@ export function Layout (props: PropsWithChildren<ModelRendererProps>)
         <Links />
       </head>
       <body className="h-full">
-        <main className="bg-slate-100">
-          <Navbar></Navbar>
-          <Drawer>
+        <main className="bg-base-100">
+          <div className={`transform transition-transform duration-300 ${chromeVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+            <Navbar onToggleChrome={() => setChromeVisible(false)}></Navbar>
+          </div>
+          <Drawer fullScreen={!chromeVisible}>
               { props.children }
           </Drawer>
+          {chromeVisible ? null : (
+            <button
+              onClick={() => setChromeVisible(true)}
+              className="fixed bottom-4 right-4 z-50 btn btn-circle btn-sm btn-primary shadow-lg opacity-70 hover:opacity-100 transition-opacity duration-300"
+              aria-label="Exit full screen"
+              title="Exit full screen"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
+              </svg>
+            </button>
+          )}
         </main>
         <ScrollRestoration />
         <Scripts />
