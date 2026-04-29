@@ -1,10 +1,25 @@
 import { CongressionalAPIService, CommandLineService, IAction, ErrorLoggerService } from '@my-fat-senator/lib';
-import { LegislatorDepictionService } from '@my-fat-senator/lib/models/legislator-depiction';
-import { LegislatorService } from "@my-fat-senator/lib/models/legislator";
 import { ICongressMember } from '@my-fat-senator/lib/interfaces';
+import { LegislatorService } from "@my-fat-senator/lib/models/legislator";
+import { LegislatorDepictionService } from '@my-fat-senator/lib/models/legislator-depiction';
+import { PartyService } from "@my-fat-senator/lib/models/party";
+import { StateService } from "@my-fat-senator/lib/models/state";
 import { Legislator, PrismaClient } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
+export function buildLegislatorImportService(prisma: PrismaClient) {
+	const stateService = new StateService(prisma);
+	const partyService = new PartyService(prisma);
+	const logger = new ErrorLoggerService();
+	const legislatorService = new LegislatorService(prisma, partyService, stateService, logger);
+	const depictionService = new LegislatorDepictionService(prisma);
+	const cli = new CommandLineService();
+	const congressionalAPI = new CongressionalAPIService();
+
+	return new LegislatorImportService(
+		prisma, legislatorService, depictionService, cli, congressionalAPI, logger
+	);
+}
 
 export class LegislatorImportService {
 	constructor(
