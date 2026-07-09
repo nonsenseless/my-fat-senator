@@ -1,5 +1,6 @@
 import { LegislatorViewModel, BallotViewModel } from "@my-fat-senator/lib/interfaces";
-import { Ballot, BallotChoiceType, PrismaClient } from "@prisma/client";
+import { prisma } from "@my-fat-senator/lib/prisma/db.server";
+import { Ballot, BallotChoiceType } from "@prisma/client";
 import { json, LoaderFunctionArgs, SerializeFrom, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { useMemo, useState } from "react";
@@ -23,7 +24,6 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 		id: $id
 	}
 
-	const prisma = new PrismaClient();
 	const vote = await prisma.vote.findFirst({
 		where: where,
 		select: {

@@ -1,5 +1,5 @@
+import { prisma } from "@my-fat-senator/lib/prisma/db.server";
 import { SqlBuilder } from "@my-fat-senator/lib/prisma/sql.server";
-import { PrismaClient } from "@prisma/client";
 import { json, LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 
@@ -29,7 +29,6 @@ export const loader = async ({request}: LoaderFunctionArgs) => {
 	const $top = Number(url.searchParams.get("$top")) || 10
   const $skip = Number(url.searchParams.get("$skip")) || 0
 
-	const prisma = new PrismaClient();
 	const sqlBuilder = new SqlBuilder(prisma);
 	// Get lookups
 	const lookups = {
@@ -91,13 +90,13 @@ export default function Index() {
 								method="GET" 
 								action={`/votes`}
 								>
-									<Input 
-										name="congressional_vote_id" 
+									<Input
+										name="congressional_vote_id_LIKE"
 										className="mb-5"
 										placeholder="Bill Name">
 									</Input>
 									<Select
-										name="categoryTypeId"
+										name="categoryId"
 										className="mb-5"
 										placeholder="Category"
 										options={lookups.categoryTypes}></Select>

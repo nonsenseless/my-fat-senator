@@ -19,6 +19,7 @@
     "ts-node": "^10.9.2"
   },
   "dependencies": {
-    "@my-fat-senator/lib": "^1.0.0"
+    "@my-fat-senator/lib": "^1.0.0",
+    "dotenv": "^16.4.5"
   }
 }

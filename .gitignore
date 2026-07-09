@@ -6,3 +6,7 @@ data
 .env
 packages/importer/errors
 .claude
+
+# Local SQLite database (should not be committed)
+lib/prisma/data.db
+lib/prisma/data.sqbpro

@@ -67,19 +67,19 @@ export class SqlBuilder {
 		const values: string[] = [];
 
 		for (const field of Object.keys(fields)) {
+			const key = (field as keyof typeof fields);
 			const param = params.get(field);
 			if (param) {
-				const key = (field as keyof typeof fields);
 				const clause = `${fields[key].modelName}.${field} = ?`;
 				clauses.push(clause);
 				values.push(param);
 			}
 
-			if (params.get(field + "_LIKE")) {
-				const clause = `Vote.${field} LIKE %?%`;
+			const likeParam = params.get(field + "_LIKE");
+			if (likeParam) {
+				const clause = `${fields[key].modelName}.${field} LIKE ?`;
 				clauses.push(clause);
-				//TODO: I think we're duplicating the % wildcard here, need to verify and fix
-				values.push(`${"%" + params.get(field) + "%"}`);
+				values.push(`%${likeParam}%`);
 			}
 		}
 
